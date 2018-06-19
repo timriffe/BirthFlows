@@ -1,0 +1,72 @@
+%%This is a very basic article template.
+%%There is just one section and two subsections.
+\documentclass{article}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{placeins}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{setspace}
+\usepackage{float}
+
+%\usepackage[active,tightpage]{preview}
+\usepackage{natbib}
+\bibpunct{(}{)}{,}{a}{}{;} 
+\usepackage{url}
+\usepackage{nth}
+\usepackage{authblk}
+% for the d in integrals
+\newcommand{\dd}{\; \mathrm{d}}
+\newcommand{\tc}{\quad\quad\text{,}}
+\newcommand{\tp}{\quad\quad\text{.}}
+\newcommand{\ra}{\rightarrow}
+\def\lsub#1#2%
+  {\mathop{}%
+   \mathopen{\vphantom{#2}}_{#1}%
+   \kern-\scriptspace%
+   #2}
+\def\lsup#1#2%
+  {\mathop{}%
+   \mathopen{\vphantom{#2}}^{#1}%
+   \kern-\scriptspace%
+   #2}
+
+
+\defcitealias{HMD}{HMD}
+
+\newcommand\ackn[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+\begin{document}
+
+%\title{Macro patterns in the shape of aging}
+\title{Boom, echo, pulse, flow}
+\author[1]{Tim Riffe\thanks{riffe@demogr.mpg.de}}
+\affil[1]{Max Planck Institute for Demographic Research}
+\maketitle
+
+\begin{abstract}
+Human population renewal starts with births. Since births can happen at any
+time in the year and over a wide range of ages, demographers typically imagine
+the birth series as a continuous flow. Taking this construct literally, we
+visualize the birth series as a flow. A long birth series allows us to
+juxtapose the children born in a particular year with the children that
+they in turn had over the course of their lives, yielding a crude notion of
+cohort replacement. Macro patterns in generational growth define the meandering
+path of the flow, while temporal booms and busts echo through the flow with the
+regularity of a pulse.
+\end{abstract}
+
+\section{Introduction}
+It has long been pointed out that human reporoduction is a highly age-regulated
+process \citep[e.g.,][]{kuczynski1932fertility}
+
+\FloatBarrier
+\singlespacing
+\bibliographystyle{plainnat}
+  \bibliography{references} 
+\end{document}
