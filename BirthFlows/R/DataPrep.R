@@ -55,6 +55,7 @@ graduatechunk <- function(chunk){
 makeMask <- function(PC, maxYr = 1891, maxCoh = 1775){
 	PCmask  <- PC
 	cohs <- as.integer(colnames(PC))
+	yrs  <- as.integer(rownames(PC))
 	PCmask[yrs >= maxYr, ]  <- 0
 	PCmask[yrs < maxYr, ]   <- 1
 	PCmask[, cohs < maxCoh]  <- 0
