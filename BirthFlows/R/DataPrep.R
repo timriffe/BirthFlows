@@ -1,5 +1,5 @@
 
-setwd("/home/tim/Desktop/ArtSubmissions/SwedenBirths")
+setwd("/home/tim/git/BirthFlows/BirthFlows")
 # download birthsVV (period-cohort Lexis shape for birth counts) from HFD. 
 library(RColorBrewer)
 library(HMDHFDplus)
@@ -54,6 +54,7 @@ graduatechunk <- function(chunk){
 # functions for first-difference matching sort of.
 makeMask <- function(PC, maxYr = 1891, maxCoh = 1775){
 	PCmask  <- PC
+	cohs <- as.integer(colnames(PC))
 	PCmask[yrs >= maxYr, ]  <- 0
 	PCmask[yrs < maxYr, ]   <- 1
 	PCmask[, cohs < maxCoh]  <- 0
@@ -131,7 +132,8 @@ minpert <- function(par, SWE){
 	PC2 <- perturbDiffs(par, SWE)
 	Bt  <- rowSums(PC)
 	Bc  <- colSums(PC2)
-	
+	ny  <- length(Bt)
+	nc  <- length(Bc)
 	rdt <- diff(Bt) / Bt[-ny]
 	rdc <- diff(Bc) / Bc[-nc]
 	

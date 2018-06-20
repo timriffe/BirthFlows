@@ -1,4 +1,4 @@
-setwd("/home/tim/Desktop/ArtSubmissions/SwedenBirths/")
+setwd("/home/tim/git/BirthFlows/BirthFlows")
 
 library(colorspace)
 library(spatstat)
