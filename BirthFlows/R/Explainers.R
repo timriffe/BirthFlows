@@ -4,6 +4,20 @@
 
 setwd("/home/tim/git/BirthFlows/BirthFlows")
 source("R/DataPrep.R")
+
+draw_block_poly <- function(x,y,...){
+	x <- c(x,max(x)+1)
+	xx <- rep(x,each=2)
+	yy <- c(0,rep(y,each=2),0)
+	polygon(xx,yy,...)
+}
+draw_block_poly_grid <- function(x,y,N=5,...){
+	draw_block_poly(x = x, y = y, ...)
+	xNi <- x %% N == 0
+	segments(x[xNi],0,x[xNi],y[xNi],col = "white")
+	draw_block_poly(x = x, y = y)
+}
+
 #source("R/ColorRamp.R")
 #source("R/Arcs.R")
 SWEl     <- melt(PC, varnames = c("Year","Cohort"),value.name = "B")
@@ -21,8 +35,66 @@ yrs  <- as.integer(rownames(PC))
 
 times <- sort(union(cohs,yrs))
 
+head(SWEl)
+plot()
+
+refyr <- 1900
+
+BornIn    <- SWEl[Year == refyr]
+BabiesHad <- SWEl[Cohort == refyr]
+
+
+pdf("Figures/Fig11900MotherAge.pdf")
+plot(BornIn$Age, BornIn$B, type = 'n',xlab = "Mother's age", ylab = "Count",axes=FALSE,ylim=c(0,7000))
+draw_block_poly_grid(BornIn$Age, BornIn$B, border = NA, col = gray(.8))
+axis(2,las=1)
+text(seq(15,50,by=5),0,seq(15,50,by=5),pos=1,xpd=TRUE)
+dev.off()
+
+pdf("Figures/Fig11900MotherCohort.pdf")
+plot(BornIn$Cohort, BornIn$B, type = 'n',xlab = "Mother's Year of birth", ylab = "Count",axes=FALSE,ylim=c(0,7000))
+draw_block_poly_grid(BornIn$Cohort, BornIn$B, border = NA, col = gray(.8))
+axis(2,las=1)
+text(seq(1850,1885,by=5),0,seq(1850,1885,by=5),pos=1,xpd=TRUE)
+dev.off()
+
+pdf("Figures/Fig11900IDAge.pdf")
+plot(BabiesHad$Age, BabiesHad$B, type = 'n',xlab = "ID age at birth", ylab = "Count",axes=FALSE,ylim=c(0,7000))
+draw_block_poly_grid(BabiesHad$Age, BabiesHad$B, border = NA, col = gray(.8))
+axis(2,las=1)
+text(seq(15,50,by=5),0,seq(15,50,by=5),pos=1,xpd=TRUE)
+dev.off()
+
+pdf("Figures/Fig11900IDYear.pdf")
+plot(BabiesHad$Year, BabiesHad$B, type = 'n',xlab = "ID's births by year", ylab = "Count",axes=FALSE,ylim=c(0,7000))
+draw_block_poly_grid(BabiesHad$Year, BabiesHad$B, border = NA, col = gray(.8))
+axis(2,las=1)
+text(seq(1915,1950,by=5),0,seq(1915,1950,by=5),pos=1,xpd=TRUE)
+dev.off()
+
+
+pdf("Figures/Fig31900juxt.pdf",width=14)
+plot(c(BornIn$Cohort,BabiesHad$Year), c(BornIn$B,BabiesHad$B), type = 'n',xlab = "Calendar time", ylab = "Count",axes=FALSE,ylim=c(0,7000))
+segments(1887,0,1914,0)
+segments(seq(1890,1910,by=5),0,seq(1890,1910,by=5),100)
+draw_block_poly_grid(BabiesHad$Year, BabiesHad$B, border = NA, col = gray(.8))
+draw_block_poly_grid(BornIn$Cohort, BornIn$B, border = NA, col = gray(.8))
+axis(2,las=1)
+text(seq(1850,1950,by=5),0,seq(1850,1950,by=5),pos=1,xpd=TRUE)
+segments(1900,0,1900,4000,lwd=2)
+text(1900,4100,"Reference year\n1900",pos=3,cex=1.5)
+text(1877,BornIn$B[BornIn$Cohort==1876],"Year 1900 births\nby mothers' birth cohort",pos=4,cex=1)
+text(1927,BabiesHad$B[BabiesHad$Year==1926],"Offspring over time of\nmothers born in 1900",pos=4,cex=1)
+dev.off()
+
+# BornIn5
+BornIn$C5 <-BornIn$Cohort - BornIn$Cohort%%5
+BabiesHad$Y5 <- BabiesHad$Year - BabiesHad$Year%%5
+
+
+
 library(animation)
-?saveGIF
+# save this then speed up the gif online
 saveGIF({
 for (i in 1:length(times)){
 	ic <- as.character(times[i])
