@@ -91,6 +91,42 @@ dev.off()
 BornIn$C5 <-BornIn$Cohort - BornIn$Cohort%%5
 BabiesHad$Y5 <- BabiesHad$Year - BabiesHad$Year%%5
 
+BI5 <- BornIn[,list(B5 = sum(B)),by=list(C5)]
+BH5 <- BabiesHad[,list(B5 = sum(B)),by=list(Y5)]
+gap <- 3000
+Top  <- as.matrix(BI5$B5)
+Bot  <- as.matrix(BH5$B5)
+Botc <- cumsum(c(0,Top))
+Botc <- cumsum(c(0,-Bot))-gap
+
+ytix <- seq(0,125000,by=25000)
+ylabs <- c("0","50,000","100,000")
+
+pdf("Figures/FigReflection.pdf",width=5,height=9)
+par(mai=c(1,.6,1.,.6),xpd=TRUE)
+plot(NULL, type = "n", axes=FALSE,ylim = c(-100000,130000),xlim=c(-2,3),xlab="",ylab="")
+rect(0,0,1,Topc[10],col = gray(.8), border=NA)
+rect(0,-gap,1,Botc[10],col = gray(.8), border=NA)
+segments(0,ytix,-.15,ytix)
+segments(0,-ytix[-6]-gap,-.15,-ytix[-6]-gap)
+text(-.1,c(2000,50000,100000),ylabs,pos=2)
+text(-.1,-c(5000,50000,100000)-gap,ylabs,pos=2)
+rect(0,Topc[-10],1,Topc[-1],border=gray(.2))
+rect(0,Botc[-10],1,Botc[-1],border=gray(.2))
+ytop <- cumsum(BI5$B5) + c(3000,10000,7000,0,0,0,-10000,-6000,3000)
+text(1.7,ytop,BI5$C5,pos=4,xpd=TRUE)
+segments(1.1,Topc[-c(1,5:7)],1.8,ytop[-c(4:6)])
+ybot <- -cumsum(BH5$B5) - c(5000,11000,0,0,0,-5000,-2000,5000,14000) - gap
+text(1.7,ybot,BH5$Y5,pos=4,xpd=TRUE)
+segments(1.1,Botc[-c(1,4:6)],1.8,ybot[-c(3:5)])
+text(0,160000,"Births\nin 1900",pos=2,cex=1.2)
+text(1,160000,"Mothers'\ncohort",pos=4,cex=1.2)
+text(0,-132000,"Children of\n1900 cohort",pos=2,cex=1.2)
+text(1,-132000,"Year in\nwhich born",pos=4,cex=1.2)
+dev.off()
+
+
+
 
 
 library(animation)
