@@ -167,7 +167,7 @@ for (i in 1:length(times)){
 },ani.height = 300,ani.width = 1200,movie.name = "Figures/Anim1/anim1.gif")
 
 png("Figures/Header.png",height=500,width=1500)
-par(mai=c(0,0,0,0),xaxs=i,yaxs="i")
+par(mai=c(0,0,0,0),xaxs="i",yaxs="i")
 plot(NULL, xlim = range(1785,1965),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
 matplot(yrs,PC, type = 'l', col = "#00000050", lty = 1, add =TRUE)
 matplot(cohs,-t(PC), type = 'l', col = "#00000050", lty = 1, add =TRUE)
@@ -175,15 +175,58 @@ matplot(cohs,-t(PC), type = 'l', col = "#00000050", lty = 1, add =TRUE)
 #axis(2,las=1)
 dev.off()
 
-plot(NULL, xlim = range(c(cohs,yrs)),ylim=c(-10000,10000))
+blues   <- colorRampPalette(RColorBrewer::brewer.pal(9,"Blues")[-c(1:3)],space="Lab")
+greens  <- colorRampPalette(RColorBrewer::brewer.pal(9,"Greens")[-c(1:3)],space="Lab")
+nblues  <- sum(cohs%%20==0)
+ngreens <- sum(yrs%%20==0)
+PC2 <- PC
+PC2[PC2==0] <- NA
+ytix <- seq(-10000,10000,by=2000)
 
+pdf("Figures/FxFlowReflect.pdf",height=3.7,width=10)
+# fresh plane
+par(mai=c(.5,1,.5,.6),xaxs="i",yaxs="i",xpd=TRUE)
+plot(NULL, xlim = range(1720,2015),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
 
+# grid lines
+segments(seq(1720,2010,by=10),-10000,seq(1720,2010,by=10),10000,col = gray(.8))
+segments(1720,ytix,2015,ytix,col = gray(.8))
 
+# axis labels
+text(seq(1720,2000,by=20),-10000,seq(1720,2000,by=20),pos=1)
+text(1720,ytix,abs(ytix),pos=2,cex=.8)
+text(2015,ytix,abs(ytix),pos=4,cex=.8)
 
-matplot(yrs,PC[,"1850"], type = 'l', col = "#00000050", lty = 1, add =TRUE)
-matplot(cohs,-PC["1850",], type = 'l', col = "#00000050", lty = 1, add =TRUE)
+# Fx lines
+matplot(yrs,PC2, type = 'l', col = "#00000040", lty = 1, add =TRUE,lwd=.7)
+matplot(cohs,-t(PC2), type = 'l', col = "#00000040", lty = 1, add =TRUE,lwd=.7)
 
+# highlight every 20th
+matplot(yrs,PC2[,cohs%%20==0], type = 'l', col = paste0(blues(nblues),"A1"), lty = 1, add =TRUE,lwd=seq(2,1,length=nblues))
+matplot(cohs,-t(PC2)[,yrs%%20==0], type = 'l', col = paste0(greens(ngreens),"A1"), lty = 1, add =TRUE,lwd=seq(2,1,length=ngreens))
 
+# highlight 1900
+matplot(yrs,PC2[,"1900"], type = 'l', col = "#000000", lty = 1, add =TRUE,lwd=2)
+matplot(cohs,-PC2["1900",], type = 'l', col = "#000000", lty = 1, add =TRUE,lwd=2)
+arrows(1900,-10000,1900,-max(PC[,"1900"]),length=.05)
+arrows(1900,10000,1900,max(PC["1900",]),length=.05)
+
+# centerline
+segments(1720,0,2015,0,lwd=.5)
+
+# formalize labels of 1900
+text(1871,-8485,"A",font=2,cex=1.5)
+text(1927,6760,"B",font=2,cex=1.5)
+text(1899,-10000,"b",font=2,cex=1.5,pos=4)
+text(1899,10000,"a",font=2,cex=1.5,pos=4)
+
+# axis names
+text(1880,-12500,"Index Year",cex=1.5)
+text(1720,-12500,"Mothers' cohort",cex=1.3)
+text(1720,12500,"Ocurrence year",cex=1.3)
+arrows(c(1750,1750),c(-12500,12500),c(1765,1765),c(-12500,12500),length=.1)
+text(1700,0,"Count",cex=1.5,srt=90,pos=3)
+dev.off()
 
 
 mask0 <- PC == 0
