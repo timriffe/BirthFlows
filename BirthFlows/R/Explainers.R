@@ -113,12 +113,16 @@ text(-.1,c(2000,50000,100000),ylabs,pos=2)
 text(-.1,-c(5000,50000,100000)-gap,ylabs,pos=2)
 rect(0,Topc[-10],1,Topc[-1],border=gray(.2))
 rect(0,Botc[-10],1,Botc[-1],border=gray(.2))
-ytop <- cumsum(BI5$B5) + c(3000,10000,7000,0,0,0,-10000,-6000,3000)
+
+# TODO: continue with alignment here
+ytop <- Topc + c(3000,8000,14000,3000,0,0,0,0,0,0)
 text(1.7,ytop,BI5$C5,pos=4,xpd=TRUE)
-segments(1.1,Topc[-c(1,5:7)],1.8,ytop[-c(4:6)])
-ybot <- -cumsum(BH5$B5) - c(5000,11000,0,0,0,-5000,-2000,5000,14000) - gap
-text(1.7,ybot,BH5$Y5,pos=4,xpd=TRUE)
-segments(1.1,Botc[-c(1,4:6)],1.8,ybot[-c(3:5)])
+segments(1.1,Topc,1.8,Topc)
+
+ybot <- Botc - c(3000,9000,12000,0,0,0,0,1000,7000) 
+text(1.7,ybot[-length(ybot)],BH5$Y5,pos=4,xpd=TRUE)
+segments(1.1,Botc[-c(4:6,10)],1.8,ybot[-c(4:6,10)])
+
 text(0,160000,"Births\nin 1900",pos=2,cex=1.2)
 text(1,160000,"Mothers'\ncohort",pos=4,cex=1.2)
 text(0,-132000,"Children of\n1900 cohort",pos=2,cex=1.2)
@@ -195,7 +199,7 @@ segments(1720,ytix,2015,ytix,col = gray(.8))
 # axis labels
 text(seq(1720,2000,by=20),-10000,seq(1720,2000,by=20),pos=1)
 text(1720,ytix,abs(ytix),pos=2,cex=.8)
-text(2015,ytix,abs(ytix),pos=4,cex=.8)
+#text(2015,ytix,abs(ytix),pos=4,cex=.8)
 
 # Fx lines
 matplot(yrs,PC2, type = 'l', col = "#00000040", lty = 1, add =TRUE,lwd=.7)
@@ -228,15 +232,29 @@ arrows(c(1750,1750),c(-12500,12500),c(1765,1765),c(-12500,12500),length=.1)
 text(1700,0,"Count",cex=1.5,srt=90,pos=3)
 dev.off()
 
+sum(PC[,"1900"])/
+sum(PC["1900",])
 
-mask0 <- PC == 0
-PCc <- t(apply(PC,1,cumsum))
-PCc[mask0] <- NA
-PCcc <- t(apply(PC,2,cumsum))
-PCc[mask0] <- NA
-plot(NULL, xlim = range(c(cohs,yrs)),ylim=c(-150000,150000))
-matplot(yrs,PCc, type = 'l', col = "#00000050", lty = 1, add =TRUE)
-matplot(cohs,-PCcc, type = 'l', col = "#00000050", lty = 1, add =TRUE)
+
+PC[as.character(1915:1934),"1900"]
+
+PC2[,"1900"]
+
+
+
+# once-off tweet
+#mask0 <- PC == 0
+#PCc <- t(apply(PC,1,cumsum))
+#PCc[mask0] <- NA
+#PCcc <- t(apply(PC,2,cumsum))
+#PCcc[t(mask0)] <- NA
+#
+#png("Figures/TweetIt.png",width=1000,height=300)
+#par(mai=c(0,0,0,0))
+#plot(NULL, xlim = range(c(cohs,yrs)),ylim=c(-150000,150000),axes=FALSE,xlab="",ylab="")
+#matplot(yrs,PCc, type = 'l', col = "#00000050", lty = 1, add =TRUE)
+#matplot(cohs,-PCcc, type = 'l', col = "#00000050", lty = 1, add =TRUE)
+#dev.off()
 #SWEl5 <- data.frame(SWEl5)
 #SWEl5L <- SWEl5[SWEl5$B5 > 1000, ]
 #SWEl5L$Cohort < SWEl5L$Year
