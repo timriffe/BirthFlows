@@ -95,8 +95,8 @@ ColsC  <- c(rep(gray(.8),6),as.character(
 		labels = PeriodColors, include.lowest = TRUE)),rep(gray(.8),5))
 
 totalsC <- rowSums(P5C)/5
-qts2 <-quantile(totalsC, seq(0,1,length=(length(CohortColors) + 1)))
-ColsP <- as.character(
+qts2    <- quantile(totalsC, seq(0,1,length=(length(CohortColors) + 1)))
+ColsP   <- as.character(
 	cut(rowSums(P5C)/rep(5,nrow(P5C)), 
 		breaks = qts2,
 		labels = CohortColors, include.lowest = TRUE))
@@ -131,7 +131,7 @@ graphics.off()
 
 # 64cm x 138cm is final dim
 pdf("Figures/SwedenBirthFlowsR4.pdf", height = 9, width = 27)
-#dev.new(height = 6, width= 18)
+#dev.new(height = 9, width= 27)
 par(mai = c(1.2,1.5,1.2,.5),
 	xpd = TRUE,
 	xaxs = "i",

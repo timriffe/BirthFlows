@@ -129,64 +129,21 @@ text(0,-132000,"Children of\n1900 cohort",pos=2,cex=1.2)
 text(1,-132000,"Ocurrence\nyear",pos=4,cex=1.2)
 dev.off()
 
+# for percentages cited in text
+#sum(BI5$B5[BI5$C5 %in% 1860:1875]) / sum(BI5$B5)
+#sum(BH5$B5[BH5$Y5 %in% 1920:1935]) / sum(BH5$B5)
+#sum(BH5$B5)/sum(BI5$B5)
 
-sum(BI5$B5[BI5$C5 %in% 1860:1875]) / sum(BI5$B5)
-sum(BH5$B5[BH5$Y5 %in% 1920:1935]) / sum(BH5$B5)
 
 
-library(animation)
-# save this then speed up the gif online
-saveGIF({
-for (i in 1:length(times)){
-	ic <- as.character(times[i])
-	plot(NULL, xlim = range(c(cohs,yrs)),ylim=c(-10000,10000),axes=FALSE,xlab = "",ylab = "")
-	axis(1);axis(2,las=1)
-	if (any(cohs==times[i])){
-		matplot(yrs,PC[,1:which(cohs==times[i]),drop=FALSE], type = 'l', col = "#00000050", lty = 1, add =TRUE)
-	} else {
-		matplot(yrs,PC, type = 'l', col = "#00000050", lty = 1, add =TRUE)
-	}
-	if (any(yrs == times[i])){
-		matplot(cohs,-t(PC[1:which(yrs==times[i]),,drop=FALSE]), type = 'l', col = "#00000050", lty = 1, add =TRUE)
-	}
-	abline(v=times[i])
-	if(any(cohs == times[i])){
-		ind1 <- is.na(PC[,ic])
-		yrsi <- yrs[!ind1]
-		if (length(yrsi) > 0){
-		yrsi <- c(yrsi[1],yrsi,yrsi[length(yrsi)])
-		y <- PC[!ind1,ic]
-		y <- c(0,y,0)
-		polygon(yrsi,y,border="red",col = "#FF000050")}
-	}
-#lines(yrs,PC[,ic],col="red")
-				if(any(yrs == times[i])){
-					ind2 <- is.na(PC[ic,])
-					yrs2 <- cohs[!ind2]
-					yrs2 <- c(yrs2[1],yrs2,yrs2[length(yrs2)])
-					y2 <- PC[ic,!ind2]
-					y2 <- c(0,y2,0)
-					polygon(yrs2,-y2,border="red",col = "#FF000050")
-				}
-}
-},ani.height = 300,ani.width = 1200,movie.name = "Figures/Anim1/anim1.gif")
-
-png("Figures/Header.png",height=500,width=1500)
-par(mai=c(0,0,0,0),xaxs="i",yaxs="i")
-plot(NULL, xlim = range(1785,1965),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
-matplot(yrs,PC, type = 'l', col = "#00000050", lty = 1, add =TRUE)
-matplot(cohs,-t(PC), type = 'l', col = "#00000050", lty = 1, add =TRUE)
-#axis(1)
-#axis(2,las=1)
-dev.off()
 
 blues   <- colorRampPalette(RColorBrewer::brewer.pal(9,"Blues")[-c(1:3)],space="Lab")
 greens  <- colorRampPalette(RColorBrewer::brewer.pal(9,"Greens")[-c(1:3)],space="Lab")
 nblues  <- sum(cohs%%20==0)
 ngreens <- sum(yrs%%20==0)
-PC2 <- PC
+PC2     <- PC
 PC2[PC2==0] <- NA
-ytix <- seq(-10000,10000,by=2000)
+ytix    <- seq(-10000,10000,by=2000)
 
 pdf("Figures/FxFlowReflect.pdf",height=3.7,width=10)
 # fresh plane
@@ -233,16 +190,56 @@ arrows(c(1750,1750),c(-12500,12500),c(1765,1765),c(-12500,12500),length=.1)
 text(1700,0,"Count",cex=1.5,srt=90,pos=3)
 dev.off()
 
-sum(PC[,"1900"])/
-sum(PC["1900",])
-
-
-PC[as.character(1915:1934),"1900"]
-
-PC2[,"1900"]
 
 
 
+
+## once-off gif and twitter header
+#library(animation)
+## save this then speed up the gif online
+#saveGIF({
+#for (i in 1:length(times)){
+#	ic <- as.character(times[i])
+#	plot(NULL, xlim = range(c(cohs,yrs)),ylim=c(-10000,10000),axes=FALSE,xlab = "",ylab = "")
+#	axis(1);axis(2,las=1)
+#	if (any(cohs==times[i])){
+#		matplot(yrs,PC[,1:which(cohs==times[i]),drop=FALSE], type = 'l', col = "#00000050", lty = 1, add =TRUE)
+#	} else {
+#		matplot(yrs,PC, type = 'l', col = "#00000050", lty = 1, add =TRUE)
+#	}
+#	if (any(yrs == times[i])){
+#		matplot(cohs,-t(PC[1:which(yrs==times[i]),,drop=FALSE]), type = 'l', col = "#00000050", lty = 1, add =TRUE)
+#	}
+#	abline(v=times[i])
+#	if(any(cohs == times[i])){
+#		ind1 <- is.na(PC[,ic])
+#		yrsi <- yrs[!ind1]
+#		if (length(yrsi) > 0){
+#		yrsi <- c(yrsi[1],yrsi,yrsi[length(yrsi)])
+#		y <- PC[!ind1,ic]
+#		y <- c(0,y,0)
+#		polygon(yrsi,y,border="red",col = "#FF000050")}
+#	}
+##lines(yrs,PC[,ic],col="red")
+#				if(any(yrs == times[i])){
+#					ind2 <- is.na(PC[ic,])
+#					yrs2 <- cohs[!ind2]
+#					yrs2 <- c(yrs2[1],yrs2,yrs2[length(yrs2)])
+#					y2 <- PC[ic,!ind2]
+#					y2 <- c(0,y2,0)
+#					polygon(yrs2,-y2,border="red",col = "#FF000050")
+#				}
+#}
+#},ani.height = 300,ani.width = 1200,movie.name = "Figures/Anim1/anim1.gif")
+#
+#png("Figures/Header.png",height=500,width=1500)
+#par(mai=c(0,0,0,0),xaxs="i",yaxs="i")
+#plot(NULL, xlim = range(1785,1965),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
+#matplot(yrs,PC, type = 'l', col = "#00000050", lty = 1, add =TRUE)
+#matplot(cohs,-t(PC), type = 'l', col = "#00000050", lty = 1, add =TRUE)
+##axis(1)
+##axis(2,las=1)
+#dev.off()
 # once-off tweet
 #mask0 <- PC == 0
 #PCc <- t(apply(PC,1,cumsum))
