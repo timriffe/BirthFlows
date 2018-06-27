@@ -96,7 +96,7 @@ BH5 <- BabiesHad[,list(B5 = sum(B)),by=list(Y5)]
 gap <- 3000
 Top  <- as.matrix(BI5$B5)
 Bot  <- as.matrix(BH5$B5)
-Botc <- cumsum(c(0,Top))
+Topc <- cumsum(c(0,Top))
 Botc <- cumsum(c(0,-Bot))-gap
 
 ytix <- seq(0,125000,by=25000)
@@ -115,22 +115,23 @@ rect(0,Topc[-10],1,Topc[-1],border=gray(.2))
 rect(0,Botc[-10],1,Botc[-1],border=gray(.2))
 
 # TODO: continue with alignment here
-ytop <- Topc + c(3000,8000,14000,3000,0,0,0,0,0,0)
-text(1.7,ytop,BI5$C5,pos=4,xpd=TRUE)
-segments(1.1,Topc,1.8,Topc)
+ytop <- Topc + c(2000,8000,13000,7000,0,0,0,-3000,0,4000)
+text(1.7,ytop[-length(ytop)],BI5$C5,pos=4,xpd=TRUE)
+segments(1.1,Topc[-c(5:7,length(Topc))],1.8,ytop[-c(5:7,length(ytop))])
 
 ybot <- Botc - c(3000,9000,12000,0,0,0,0,1000,7000) 
 text(1.7,ybot[-length(ybot)],BH5$Y5,pos=4,xpd=TRUE)
 segments(1.1,Botc[-c(4:6,10)],1.8,ybot[-c(4:6,10)])
 
 text(0,160000,"Births\nin 1900",pos=2,cex=1.2)
-text(1,160000,"Mothers'\ncohort",pos=4,cex=1.2)
+text(1,160000,"Mother's\ncohort",pos=4,cex=1.2)
 text(0,-132000,"Children of\n1900 cohort",pos=2,cex=1.2)
-text(1,-132000,"Year in\nwhich born",pos=4,cex=1.2)
+text(1,-132000,"Ocurrence\nyear",pos=4,cex=1.2)
 dev.off()
 
 
-
+sum(BI5$B5[BI5$C5 %in% 1860:1875]) / sum(BI5$B5)
+sum(BH5$B5[BH5$Y5 %in% 1920:1935]) / sum(BH5$B5)
 
 
 library(animation)
