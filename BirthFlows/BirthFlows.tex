@@ -10,6 +10,7 @@
 \usepackage{setspace}
 \usepackage{float}
 \usepackage{wrapfig}
+\usepackage{pdfpages}
 %\usepackage[active,tightpage]{preview}
 \usepackage{natbib}
 \bibpunct{(}{)}{,}{a}{}{;} 
@@ -32,7 +33,6 @@
    \mathopen{\vphantom{#2}}^{#1}%
    \kern-\scriptspace%
    #2}
-
 
 \defcitealias{HMD}{HMD}
 
@@ -144,8 +144,26 @@ Fig.~\ref{fig:reflect1} produces at least two noteworthy artifacts that we may w
 % text under goes to the left then builds down
 In this way the two distributions that we might wish to compare for a given ego year are already available at a like coordinate, but comparison is stifled by overplotting. If instead we stack the slices that are indecipherably overlapped in \textbf{a} (and likewise for \textbf{b}) we get something like that shown in Fig.~\ref{fig:refl}, cumulative birth distributions.\footnote{Young mothers are on top and older mothers on bottom for both distributions. It would also make sense to plot increasing (or decreasing) ages eminating out from the centerline in both directions.} Here the total bar length is proportional to the total cohort (offspring) size, and stacked bins reflect 5-year mother cohorts (ocurrence years). From this representation it is clear that mothers born in the 20 years between 1860 and 1880 produced the bulk of the 1900 cohort (86\%), which itself produced the majority of its offspring in the 20 years between 1920 and 1940 (90\%). It is also quite visible that the 1900 cohort did not replace itself in a crude sense: 138,139 babies formed a cohort whose mothers gave birth to 95,379 babies over their lifecourse, a crude replacement of 69\%. Other perspectives on reproduction that account for survival would give a more optimistic assessment. The key feature of Fig.~\ref{fig:refl} is that the two distributions that were disjoint in Fig.~\ref{fig:juxt} and hard to pick out in Fig.~\ref{fig:reflect1} can now be associated at a common $x$ coordinate. This virtue allows us to view the time series of Fig.~\ref{fig:reflect1} with greater clarity and perhaps reveal some macro properties of the history of Swedish natality.
 
+Fig.~\ref{fig:foldout} is a depiction of the exercise of Fig.~\ref{fig:refl}, cohort bars on top reflected with offspring bars on the bottom. Equal bounded bins from Fig.~\ref{fig:refl} are joined into continuous regions. For the top region, filled polygons represent the births of mothers from quinquennial cohorts, spread over time. For the bottom region, filled polygons represent the mother-cohort origins of the births in quinquennial periods. The darkness and saturation of polygon fill colors are approximately proportional to the total births in the polygon (and therefore true to grayscale printing), whereas hue is irrelevant. In this way, darkness and saturation on the top are proportional to total height (with respect to baseline) on the bottom, and vice versa. 
 
-\FloatBarrier
+The meandering baseline of Fig.~\ref{fig:foldout} is proportional to a smoothed time series of the crude cohort replacement rate. We overlay a horizontal line to indicate periods of approximate growth, replacement, and contraction. Periods where the meandering $x$-baseline is above this line (ca 1780 to 1860) indicate crude growth, and periods below the horizontal reference line (ca 1870 to 1930) indicate crude generation contraction. 
+
+To aid the viewer with interpretation, we overlay a known lineage of five female generations,\footnote{This lineage can be located in the public domain on \url{https://www.geni.com/people/Karin-Ottolina-Landsten/6000000022470480183}.} where $x$ position is exact to the year, $y$ position in the top region is matched to the mothers cohort, and $y$ position in the bottom is matched to daughters' year of birth. Wider horizontal spacing between generations over time indicates increasing ages at maternity within this lineage (increasing from 23 to 39).
+
+Several macro features come to the fore in this visualization. These are either known features of the Swedish birth series, or else mention further study. Echoes, booms, why is boom periodicity a recent phenomenon? Is there a dose-response to vertical reverberation in first derivative (can this be referred to as first or second order?) features.
+
+To be continued.
+
+\begin{figure}
+\centering
+[fold-out figure 125cm wide by 30cm tall at 100\% in separate pdf, about here.]
+%\includegraphics[scale=.9]{Figures/SwedenBirthFlowsManFoldout.pdf}
+%\includepdf[landscape]{Figures/SwedenBirthFlowsManFoldout.pdf}
+\caption{A time series of the same graphical construct as presented in Fig.~\ref{fig:refl}. The $x$ axis now meanders proportional to a smoothed time series of the crude cohort replacement rate. Fill color darkness and saturation are approximately proportional to the total number of births in each birth distribution. The birth series now appears as a flow, but reveals echoes in cohort and offspring size, an odd periodicity in recent decades, and a long term dampening of the crude replacement rate. A 5-generation female lineage is annotated atop to serve as a guide.}
+\label{fig:foldout}
+\end{figure}
+
+
 \singlespacing
 \bibliographystyle{plainnat}
   \bibliography{references} 
