@@ -35,7 +35,7 @@
    #2}
 
 \defcitealias{HMD}{HMD}
-
+\defcitealias{HFD}{HFD}
 \newcommand\ackn[1]{%
   \begingroup
   \renewcommand\thefootnote{}\footnote{#1}%
@@ -67,10 +67,10 @@ regularity of a pulse.
 \section{Introduction}
 Usually we think of fertiltiy as an age-regulated process. In any case it is
 bounded by menarche and menopause, both of which are anchored to age. These anchors may
-move, but not far or fast. And between these bounds fertility patterns appear to
+move, but not far or fast. And between these bounds, at least within acceptably homogenous subpopulations, fertility patterns appear to
 conform to some regular schema, best captured by fertility rates. In this treatment, we retreat
 from rates, the material of projections, to babies, the raw material of
-population renewal. A picture of the births in a year is for demographers most
+population renewal. We use birth count data from the \citet{HFD} for Sweden, covering a total of 241 ocurrence years. These data include preliminary data for the period 1775 to 1890, which we have graduated and adjusted. We describe those steps in Appendix~\ref{sec:dataprep}. A picture of the births in a year is for demographers most
 instinctively broken down by the age of mothers who gave birth in that year,
 Fig.~\ref{fig:agemother}, or by the year of birth of mothers Fig.~\ref{fig:cohmother}. These two distributions are essentially identical, but appear as mirror images if chronological time is enforced in $x$.
 
@@ -92,7 +92,7 @@ Fig.~\ref{fig:agemother}, or by the year of birth of mothers Fig.~\ref{fig:cohmo
 reflection over $y$ and shift over $x$.}
 \end{figure}
 
-If one disposes of a long-enough time series of births classified by mothers' year of birth, then one may further examine and break down the full reproductive career of the cohort of individuals born in a particular year. As the childbearing of a cohort is spread over a synchronous span of ages and years. Since age and calendar time are synchronous for a cohort, the classification by age (Fig.~\ref{fig:age1900mother}) or year (Fig.~\ref{fig:year1900}) yields identical and redundant distributions.
+If one disposes of a long-enough time series of births classified by mothers' year of birth, then one may further examine and break down the full reproductive career of the cohort of individuals born in a particular year. Since the childbearing of a cohort is spread over a synchronous span of ages and years, the classification by age (Fig.~\ref{fig:age1900mother}) or year (Fig.~\ref{fig:year1900}) yields identical and redundant distributions.
 
 \begin{figure}[ht!]
 \begin{subfigure}[t]{0.5\textwidth}
@@ -123,12 +123,12 @@ The births in a year are classified by mothers' cohort, i.e. cohort \emph{origin
 
 The two distributions in Fig.~\ref{fig:juxt} are related, and of comparable scale, but different in kind. The $x$ coordinate of the left distribution is indexed to mothers's birth cohort, whereas the $x$ coordinate of the right distribution is indexed to child cohort, ocurrence year. In this way the $x$ coordinates belong to grandmothers and grandchildren, where the \emph{ego} generation is 1900. These are two quantities that we may wish to compare in various ways to get a better feel and understanding of the Swedish birth series. 
 
-For the case of these Swedish data, we have 241 such distribution pairs, making single-axis rendering impractical. An honest attempt might look like Fig.~\ref{fig:reflect1}, where we reflect the Fig.~\ref{fig:juxt} left distribution over $y$ (\textbf{A}), keeping the Fig.~\ref{fig:juxt} right-side distribution on top (\textbf{B}). These two distributions are linked by the year 1900, which of course overlaps with neither of them. In this representation, \textbf{A} and \textbf{B} are re-drawn for each possible ego year (1775-2015), and therefore imply a large sequential set of overlapping distributions. Each \nth{20} distribution is highlighted, that is, this is an honest attempt to make this graph legible, but i) the high degree of overlapping and ii) the spatial dissociation of each \textbf{A} --- \textbf{B} pair makes the intended comparison difficult over the series.
+For the case of these Swedish data, we have 241 such distribution pairs, making single-axis rendering impractical. An honest attempt might look like Fig.~\ref{fig:reflect1}, where we reflect the Fig.~\ref{fig:juxt} left distribution over $y$ (\textbf{A}), keeping the Fig.~\ref{fig:juxt} right-side distribution on top (\textbf{B}). These two distributions are linked by the year 1900, which of course overlaps with neither of them. In this representation, \textbf{A} and \textbf{B} are re-drawn for each possible ego year (1775-2015), and therefore imply a large sequential set of overlapping distributions. Each \nth{20} distribution is highlighted, but despite attempts to make this graph legible, i) the high degree of overlapping and ii) the spatial dissociation of each \textbf{A} --- \textbf{B} pair makes the intended comparison difficult over the series.
 
 \begin{figure}[ht!]
  \centering
         \includegraphics[width=\textwidth]{Figures/FxFlowReflect.pdf}
-        \caption{Two time series of birth count distributions. The top series is composed of offspring distributions, indexed to ocurrence years. The bottom series is composed of birth cohorts indexed by mothers' birth cohorts. \textbf{B} is the offspring of mothers from the 1900 cohort indexed in $x$ to ocurrence year, and \textbf{A} are the births ocurred in 1900 indexed in $x$ to mothers' birth cohorts. The cross-section \textbf{a} gives \textbf{A} and the cross-section \textbf{b} gives \textbf{B}.}
+        \caption{Two time series of birth count distributions. The top series is composed of offspring distributions of mother cohorts over time, indexed to ocurrence years. The bottom series is composed of the offspring of a year indexed to mothers' birth cohorts. \textbf{B} is the offspring of mothers from the 1900 cohort indexed in $x$ to ocurrence year, and \textbf{A} are the births ocurred in 1900 indexed in $x$ to mothers' birth cohorts. The cross-section \textbf{a} gives \textbf{A} and the cross-section \textbf{b} gives \textbf{B}.}
           \label{fig:reflect1}
 \end{figure}
 
@@ -164,6 +164,20 @@ To be continued.
 \label{fig:foldout}
 \end{figure}
 
+\begin{appendix}
+\section{Data sources and adjustments}
+\label{sec:dataprep}
+Data presented here are from two separate files from the \citet{HFD}. The first
+contains birth counts in the period-cohort Lexis shape,
+\texttt{SWEbirthsVV.txt}, as produced by the HFD according to the Methods
+Protocol \citet{hfd2015methods}. This file contains births by calendar year and
+mother birth cohort for the years 1891 until 2015, and we use it as-is. The
+second file contains births for ocurrence years 1775 until 1890. These data are
+age-period classified, and given in a mixture of age classes, including a
+predominance 5-year age classes (especially for ages 20-50), but also sometimes
+single ages (especially for ages 15-19), and time-varying top and bottom open
+ages. [to be continued]
+\end{appendix}
 
 \singlespacing
 \bibliographystyle{plainnat}
