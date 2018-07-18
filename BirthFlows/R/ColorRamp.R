@@ -36,7 +36,7 @@ darkenhex <- function(hexcols,fac=.3){
 	cols <- as(cols, "RGB")
 	hex(cols)
 }
-
+#show.pal(c("#FFaa22",darkenhex("#FFaa22",.1),darkenhex("#FFaa22",.2),darkenhex("#FFaa22",.3)))
 # a gives a number from 0 to 1. 0 is black, 1 is white. vectorized
 howdark <- function(col){
 	suppressMessages(colorspace::hex2RGB(spatstat::to.grey(col))@coords[, 1])
@@ -173,8 +173,6 @@ eqspace <- function(colvec,from,to,show=TRUE,sateq=TRUE){
 	
 	colvec2
 }
-
-
 
 
 # library(devtools)
