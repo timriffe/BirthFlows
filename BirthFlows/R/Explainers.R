@@ -6,7 +6,7 @@ setwd("/home/tim/git/BirthFlows/BirthFlows")
 source("R/DataPrep.R")
 
 draw_block_poly <- function(x,y,...){
-	x <- c(x,max(x)+1)
+	x  <- c(x,max(x)+1)
 	xx <- rep(x,each=2)
 	yy <- c(0,rep(y,each=2),0)
 	polygon(xx,yy,...)
@@ -20,25 +20,24 @@ draw_block_poly_grid <- function(x,y,N=5,...){
 
 #source("R/ColorRamp.R")
 #source("R/Arcs.R")
-SWEl     <- melt(PC, varnames = c("Year","Cohort"),value.name = "B")
-SWEl$Age <- SWEl$Year - SWEl$Cohort
-SWEl     <- SWEl[SWEl$Age >= 12 & SWEl$Age <= 55, ]
-SWEl     <- SWEl[SWEl$B > 0, ]
-SWEl     <- data.table(SWEl)
+SWEl      <- melt(PC, varnames = c("Year","Cohort"),value.name = "B")
+SWEl$Age  <- SWEl$Year - SWEl$Cohort
+SWEl      <- SWEl[SWEl$Age >= 12 & SWEl$Age <= 55, ]
+SWEl      <- SWEl[SWEl$B > 0, ]
+SWEl      <- data.table(SWEl)
 SWEl$Age5 <- SWEl$Age - SWEl$Age %% 5
-SWEl5    <- SWEl[,list(B5 = sum(B)), by = list(Year, Age5)]
+SWEl5     <- SWEl[,list(B5 = sum(B)), by = list(Year, Age5)]
 SWEl5$Cohort <- SWEl5$Year - SWEl5$Age5 
 # experiment with arcs
 
-cohs <- as.integer(colnames(PC))
-yrs  <- as.integer(rownames(PC))
+cohs      <- as.integer(colnames(PC))
+yrs       <- as.integer(rownames(PC))
 
-times <- sort(union(cohs,yrs))
+times     <- sort(union(cohs,yrs))
 
-head(SWEl)
-plot()
 
-refyr <- 1900
+
+refyr     <- 1900
 
 BornIn    <- SWEl[Year == refyr]
 BabiesHad <- SWEl[Cohort == refyr]
@@ -191,8 +190,73 @@ text(1700,0,"Count",cex=1.5,srt=90,pos=3)
 dev.off()
 
 
+# Appendix Lexis explainer:
+graphics.off()
+
+pdf("Figures/App_split1.pdf",height=3.4,width=1.4)
+par(mai=c(.2,.2,.2,.2))
+plot(NULL, type = "n",xlim = c(0,1),ylim=c(0,3),asp=1,ann=FALSE,axes=FALSE)
+rect(0,0:2,1,1:3,border = "black",lwd=4)
+text(0,0:3,0:3,pos=2,xpd=TRUE,cex=1.3)
+dev.off()
+
+pdf("Figures/App_split2.pdf",height=3.4,width=1.4)
+par(mai=c(.2,.2,.2,.2))
+plot(NULL, type = "n",xlim = c(0,1),ylim=c(0,3),asp=1,ann=FALSE,axes=FALSE)
+rect(0,0:2,1,1:3,border = "black",lwd=4)
+text(0,0:3,0:3,pos=2,xpd=TRUE,cex=1.3)
+segments(0,0:2,1,1:3,lwd=4)
+dev.off()
+
+pdf("Figures/App_split3.pdf",height=3.4,width=1.4)
+par(mai=c(.2,.2,.2,.2))
+plot(NULL, type = "n",xlim = c(0,1),ylim=c(0,3),asp=1,ann=FALSE,axes=FALSE)
+text(0,0:3,0:3,pos=2,xpd=TRUE,cex=1.3)
+
+x <- c(0,1,1,0)
+y <- c(-1,0,1,0)
+yshift <- 0:2
+for (i in 1:length(yshift)){
+	yi <- y + yshift[i]
+	yi[yi < 0] <- 0
+	yi[yi > 3] <- 3
+	polygon(x,yi,lwd=4)
+}
+segments(0,2,0,3,lwd=4)
+segments(0,1:3,1,1:3,lty="57")
+dev.off()
 
 
+# represent reflection before perturbation:
+
+SWE <- local(get(load("Data/SWE.Rdata")))
+Ph <- tapply(SWE$Total,SWE$Year,sum)
+Ch <- tapply(SWE$Cohort,SWE$Year,sum)
+
+PC <- acast(SWE, Year~Cohort, sum, value.var = "Total")
+per <- rowSums(PC)
+coh <- colSums(PC)
+cohs <- as.integer(names(coh))
+yrs <- as.integer(names(per))
+
+pdf("Figures/App_preAdjustment.pdf",height=5,width=10)
+plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1721, 2014), ylim = c(-150000,150000))
+polygon(x=c(yrs,rev(yrs)),y=c(per,rep(0,length(yrs))),col="#AADDDD", border = NA)
+polygon(x=c(cohs,rev(cohs)),y=c(-coh,rep(0,length(cohs))),col="#AADDAA", border = NA)
+grid(lty=1,col="white")
+axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000), 
+		labels=c("150000","100000","50000","0","50000","100000","150000"))
+axis(1)
+text(1860,-240000,"Reference year", xpd = TRUE,cex=1.5)
+text(1680,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
+text(1680,-200000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)
+rect(1775,-150000,1890,0)
+text(1775,-130000,"Too smooth",pos=4)
+text(1775,-130000,"B",font=2,cex=1.5,xpd=TRUE,pos=2)
+rect(1775,150000,1890,0)
+text(1775,170000,"Observed roughness",pos=4,xpd=TRUE)
+text(1775,170000,"A",font=2,cex=1.5,xpd=TRUE,pos=2)
+dev.off()
 
 ## once-off gif and twitter header
 #library(animation)
@@ -272,3 +336,14 @@ dev.off()
 #arc <- arcpoly(p1=list(x=1820,y=0),p2=list(x=1850,y=0),maxthick = 2)
 #polygon(arc, border = NA, col = "#00000050")
 #
+
+# for email to Pop Studies, 24-Aug-2018
+w <- 210
+h <- 297
+x <- seq(0,w * 4,length=5)
+getwd()
+png("Figures/a4demonstration.png",width=840,height=297)
+par(mai = c(.1,.1,.1,.1))
+plot(NULL, type = "n", ann = FALSE, axes = FALSE, asp = 1, xlim = c(0,840),ylim=c(0,297))
+rect(x[-5],0,x[-1],h,lwd=2)
+dev.off()

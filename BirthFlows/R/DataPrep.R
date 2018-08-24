@@ -7,161 +7,292 @@ library(pclm)
 library(reshape2)
 library(data.table)
 
+# group single ages (useful for rescaling)
 groupN <- function(x,y,n){
 	tapply(x, y - y %% n, sum)
 }
-#devtools::install_github("mpascariu/pclm")
-# step 1, redistribute UNK
+
+# (adjustment step 1)
+# redistribute births of unknown mother age (UNK)
 b_unk <- function(Chunk){
 	if (! "UNK" %in% Chunk$Age){
 		return(Chunk)
 	}
-	UNK <- Chunk$Births[Chunk$Age == "UNK"]
-	Chunk <- Chunk[Chunk$Age != "UNK", ]
-	w <- Chunk$Births / sum(Chunk$Births)
+	UNK          <- Chunk$Births[Chunk$Age == "UNK"]
+	Chunk        <- Chunk[Chunk$Age != "UNK", ]
+	w            <- Chunk$Births / sum(Chunk$Births)
 	Chunk$Births <- Chunk$Births + w * UNK
 	Chunk
 }
 
+# use early version of pclm algorithm to graduate
+# re write to use ungroup package
+#graduatechunk <- function(chunk){
+#	if (length(unique(chunk$Vital))>1){
+#		chunk <- chunk[chunk$Vital == min(chunk$Vital),]
+#	}
+#	# some years have lower age cat <= 19, but we want to extend
+#	# lower bound to 15-19. Assume sorted age (they are)
+#	a <- as.integer(chunk$Age)
+#	if (a[1] == 19){
+#		a[1] <- 15
+#	}
+#	minA    <- min(a)
+#	add     <- rev(diff(a))[1]
+#	# upper bound of highest age
+#	a[length(a)+1] <- a[length(a)] + add
+#	
+#	B       <- chunk$Births
+#	
+#	# early implementation of pclm assumed start at age 0...
+#	breaks  <- a - minA
+#	# this gets the result already (assumes single age output)
+#	# also only returned a single vector back then
+#	bout    <- pclm(dta = B, breaks)
+#	# then shift ages back up
+#	Age 	<- minA:(max(a)-1)
+#	N 		<- length(Age)
+#	out     <- data.frame(
+#			          PopName = rep("SWE", N),
+#					  Year = rep(unique(chunk$Year), N),
+#					  Age = Age,
+#					  AgeInt = rep(1, length(Age)),
+#					  Lexis = rep("RR", N),
+#					  Births = bout$fitted.values[,1])
+#	
+#	out
+#}
 
+bin2age <- function(binchar = "[15,16)"){
+	matches <- regmatches(binchar, gregexpr("[[:digit:]]+", binchar))
+	as.numeric(unlist(matches))[1]
+}
+# adjustment step 2
+# now uses most recent ungroup package
 graduatechunk <- function(chunk){
 	if (length(unique(chunk$Vital))>1){
 		chunk <- chunk[chunk$Vital == min(chunk$Vital),]
 	}
-	a <- as.integer(chunk$Age)
-	if (a[1] == 19){
-		a[1] <- 15
-	}
-	minA    <- min(a)
-	add     <- rev(diff(a))[1]
-	a[length(a)+1] <- a[length(a)] + add
+	cat(chunk$Year[1],"\n")
+	# some years have lower age cat <= 19, but we want to extend
+	# lower bound to 15-19. Assume sorted age (they are)
 	
-	B       <- chunk$Births
-	breaks  <- a - minA
-	bout    <- pclm(dta = B, breaks)
-	Age 	<- minA:(max(a)-1)
+	x       <- as.integer(chunk$Age)
+	y       <- chunk$Births
+	if (x[1] == 19){
+		x[1] <- 15
+	}
+
+    # data now in single ages, not strictly constrained,
+	# but we take care of this later.
+	bout    <- ungroup::pclm(x = x, y = y, nlast = 5)$fitted
+	Age     <- sapply(names(bout),bin2age)
+	# then shift ages back up
+	
 	N 		<- length(Age)
-	out <- data.frame(PopName=rep("SWE",N),
-					  Year=rep(unique(chunk$Year),N),
-					  Age = Age,
-					  AgeInt = rep(1,length(Age)),
-					  Lexis = rep("RR",N),
-					  Births = bout$fitted.values[,1])
+	out     <- data.frame(
+			     PopName = rep("SWE", N),
+			     Year = rep(unique(chunk$Year), N),
+			     Age = Age,
+			     AgeInt = rep(1, length(Age)),
+			     Lexis = rep("RR", N),
+			     Births = bout)
 	
 	out
 }
 
+# Shift to PC parallelograms (adjustment step 3)
+RR2VV <- function(chunk){
+	n             <- nrow(chunk)
+	chunk1        <- chunk
+	chunk1$Births <- chunk1$Births / 2
+	chunk2        <- chunk1
+	chunk2$Births[-1] <- chunk2$Births[-1] + chunk2$Births[-n]
+	chunk2$Lexis  <- "VV"
+	chunk2
+}
+
 # functions for first-difference matching sort of.
 makeMask <- function(PC, maxYr = 1891, maxCoh = 1775){
-	PCmask  <- PC
-	cohs <- as.integer(colnames(PC))
-	yrs  <- as.integer(rownames(PC))
-	PCmask[yrs >= maxYr, ]  <- 0
-	PCmask[yrs < maxYr, ]   <- 1
+	PCmask                   <- PC
+	cohs                     <- as.integer(colnames(PC))
+	yrs                      <- as.integer(rownames(PC))
+	PCmask[yrs >= maxYr, ]   <- 0
+	PCmask[yrs < maxYr, ]    <- 1
 	PCmask[, cohs < maxCoh]  <- 0
-	PCmask   <- !PCmask
+	PCmask                   <- !PCmask
 	PCmask
 }
 
+# reverse engineer this to
 constrainBlocks <- function(SWE, PCpert, maxit = 100, tol = .1){
 	
+	# SWE is a file whose totals in 5-year age groups we wish
+	# to treat as canonical. It needs to be reshaped to a matrix.
+	# PCpert is said matrix, with years < 1891 perturbed to 
+	# approximate an echo strength from first order differences
+	# in the period birth series. We use SWE to constrain it back,
+	# keeping perturbations in single ages.
 	SWE$Age5                  <- SWE$ARDY - SWE$ARDY %% 5
 	SWE$Age5[SWE$Age5  == 10] <- 12 
 	
+	# 1) shape SWE to same dims as PCpert
 	PCin     <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
+	# 2) get period and cohort vectors
 	yrs      <- as.integer(rownames(PCin))
 	cohs     <- as.integer(colnames(PCin))
+	# 3) create logical mask to delimit cells for rescaling,
+	# to be used later
 	PCmask   <- makeMask(PCin)
+	# 4) reshape PCpert to long format to merge w SWE
 	PChat    <- melt(PCpert, varnames = c("Year","Cohort"), value.name = "Bhapert")
+	# 5) merge them together
 	SWEmerge <- merge(SWE, PChat, by = c("Year","Cohort"), all.x = TRUE, all.y = FALSE)
-	
+	# 6) change class for easy group operations
 	SWEmerge <- data.table(SWEmerge)
-	SWEmerge[, GroupTot:=sum(Total),by=list(Year,Age5)]
-	SWEmerge[, Grouphat:=sum(Bhapert),by=list(Year,Age5)]
+	# 7) get totals in 5 year age groups 
+	# before and after single age perturbation
+	SWEmerge[, GroupTot:=sum(Total),by=list(Year,Age5)]    # canonical
+	SWEmerge[, Grouphat:=sum(Bhapert),by=list(Year,Age5)]  # to rescale
+	# 8) rescale to sum properly
 	SWEmerge[, Bhat := (Bhapert / Grouphat) * GroupTot, ]
-	
+	# 9) might induce NaN, etc. Keep orig values if so.
 	nanor0                <- SWEmerge$Bhat == 0 | is.nan(SWEmerge$Bhat)
 	SWEmerge$Bhat[nanor0] <- SWEmerge$Total[nanor0]
-	
+	# 10) reshape back to PC matrix
 	PCout         <- acast(SWEmerge, Year ~ Cohort, sum, value.var = "Bhat")
+	# 11) impute original, unperturbed values outside 
+	# Lexis bounds of adjustment
 	PCout[PCmask] <- PCin[PCmask]
 	
+	# 12) Now constrain annual totals
+	# create vector of canonical period totals
 	Bknown <- rowSums(PCin)
 	for (i in 1:maxit){
+		# annual totals as of now
 		Bi     <- rowSums(PCout) 
+		# break condition
 		if (sum(abs(Bi-Bknown))<tol){
 			break
 		}
+		# now rescale to sum to canonical year total
+	    # this affects some cells we wish to hold as canonical,
+	    # so wash, wrinse, repeat
 		PCout  <- PCout * (Bknown / Bi)
+		# put back in canonical values
 		PCout[PCmask] <- PCin[PCmask]
 	}
-	
+	# return result.
 	PCout
 }
 
 perturbDiffs <- function(par=.5,SWE){
-	PCin   <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
-	PC     <- PCin
-	PCmask <- makeMask(PCin)
-	Bt     <- rowSums(PCin)
-	ny     <- length(Bt)
-	yrs    <- as.integer(names(Bt))
-	yrsi   <- yrs >= 1775 & yrs < 1891
-	dBt    <- diff(Bt)
+	# a 2 step operation 
+	# First perturb offspring diffs to keep a fraction 
+	# of first diffs of birth series (i.e. structural echo),
+	# then rescale to keep totals as desired.
 	
-	# approach this first difference trend
-	rdBt   <- dBt/Bt[-ny]
+	# 1) take input SWE file, i.e. where years pre 1891 are smooth
+	# from graduation exercise, reshape to PC matrix
+	PCin            <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
+	# 2) make a copy
+	PC              <- PCin
+	# 3) create mask delimiting Lexis bounds of perturbation
+	PCmask          <- makeMask(PCin)
+	# 4) annual birth totals, to preserve.
+	Bt              <- rowSums(PCin)
+	ny              <- length(Bt)
+	yrs             <- as.integer(names(Bt))
+	# year identifier TRUE for years within the perturbation range
+	yrsi            <- yrs >= 1775 & yrs < 1891
+	# 5) first differences we expect to echo some
+	dBt             <- diff(Bt)
+	
+	# 6) change relative to last year's births
+	rdBt            <- dBt/Bt[-ny]
 	# -----------------
-	Bc     <- colSums(PCin)
-	nc     <- length(Bc)
-	cohs   <- as.integer(names(Bc))
-	
-	cohsi  <- cohs >= 1775 & cohs < 1891
-	pertc  <- (1 - (rdBt[yrsi] * par))
+	# 7) total offspring from mother cohort (by cohort)
+	Bc              <- colSums(PCin)
+	nc              <- length(Bc)
+	cohs            <- as.integer(names(Bc))
+	# we're allowed to perturb cohorts 1775 through 1891
+	cohsi           <- cohs >= 1775 & cohs < 1891
+	# 8) perturbation factor. par is a prior, to come from separate optimization.
+	# par is positive, ca .4, so perturbation is:
+	# 1 - (.4 of relative change in size of mother cohort).
+	pertc           <- (1 - (rdBt[yrsi] * par))
 	
 	PC[, cohsi]     <- t(t(PC[, cohsi]) * pertc)
 	PC[PCmask]      <- PCin[PCmask]
 	
-	# now constrain
-	PC <- constrainBlocks(SWE, PCpert = PC)
+	# 9) constrain and return
+	PC              <- constrainBlocks(SWE, PCpert = PC)
 	PC
 }
 
 minpert <- function(par, SWE){
+	# now find the optimal echo factor
+	
+	# 1) get PC matrix from original SWE file, where births from
+	# mothers born in years < 1891 are overly smooth
 	PC     <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
 	
-	PC2 <- perturbDiffs(par, SWE)
-	Bt  <- rowSums(PC)
-	Bc  <- colSums(PC2)
-	ny  <- length(Bt)
-	nc  <- length(Bc)
-	rdt <- diff(Bt) / Bt[-ny]
-	rdc <- diff(Bc) / Bc[-nc]
+	# 2) for the given perturbation factor, give back the martix,
+	# with values only for cohorts 1775-1890 before year 1891 perturbed
+	PC2       <- perturbDiffs(par, SWE)
+	# 3) get marginals from which to calculate differences
+	Bt        <- rowSums(PC)
+	Bc        <- colSums(PC2)
+	ny        <- length(Bt)
+	nc        <- length(Bc)
+	# 4) rel first differences in annual births
+	rdt       <- diff(Bt) / Bt[-ny]
+	# 5) rel first differences in offspring size
+	rdc       <- diff(Bc) / Bc[-nc]
 	
-	# canonical values
-	compgen <- as.character(1891:1959)
-	cr      <- cor(rdt[compgen], rdc[compgen])
-	slp     <- lm(rdt[compgen]~ rdc[compgen])$coef[2]
+	# 6) canonical values. How well do rel first differences correlate,
+	# and what is the slope in their size relationship?
+	compgen   <- as.character(1891:1959)
+	# correlation
+	cr        <- cor(rdt[compgen], rdc[compgen])
+	# slope parameter
+	slp       <- lm(rdt[compgen]~ rdc[compgen])$coef[2]
 	
-	# perturbed values
-	pertgen <- as.character(1776:1890)
+	# 7) perturbed values
+	pertgen   <- as.character(1776:1890)
+	# correlation in rel first diffs in adjustment area
 	cr_p      <- cor(rdt[pertgen], rdc[pertgen])
+	# slope in rel first diffs in adjustment area
 	slp_p     <- lm(rdt[pertgen]~ rdc[pertgen])$coef[2]
 	
-	# let's see how close we can get
+	# 8) how close do we get to correlation and slope?
+	# calc residual:
+	# we want both slope and correlation to be
+	# as close as possible. This is the quantity we try to 
+	# minimize by changing the input 'par'
 	(cr - cr_p)^2 + (slp - slp_p)^2
 }
 # -------------------------------------------------
 
-
+# these are the historical births
 SWEh  <- read.csv("Data/SWEbirths.txt",na.strings = ".")
 SWEh  <- SWEh[SWEh$Year < 1891, ]
 # remove TOT, not useful
 SWEh  <- SWEh[SWEh$Age != "TOT", ]
 SWEh  <- data.table(SWEh)
+
+# step 1, redistribute births of unknown maternal age
 SWEh  <- SWEh[, b_unk(.SD), by = list(Year)]
+
+# step 2, graduate to single ages
 SWEh1 <- SWEh[, graduatechunk(.SD), by = list(Year)]
-SWEh1 <- data.frame(SWEh1)
+
+# step 3, shift to PC (VV)
+SWEh1 <- SWEh1[,RR2VV(.SD), by = list(Year)]
+
+# tidy the data obeject to be able to join it to the
+# already-in-shape HFD file for years 1891+
+SWEh1         <- data.frame(SWEh1)
 SWEh1$PopName <- NULL
 SWEh1$Year.1  <- NULL
 SWEh1$Lexis   <- NULL
@@ -176,13 +307,14 @@ SWE     <- readHFD("Data/SWEbirthsVV.txt")
 SWE$OpenInterval <- NULL
 
 # ---------------------------------
-
-
-# mean(abs(BCrel3-MCrel3))
+# select like columns
 SWEh1   <- SWEh1[,colnames(SWE)]
 
-SWE     <- rbind(SWEh1,SWE)
+# stack files
+SWE     <- rbind(SWEh1, SWE)
 
+# save intermediate data object. This one hasn't
+# received the perturbation yet
 save(SWE, file = "Data/SWE.Rdata")
 
 # adjust mother cohort size based on first diffs in daughter cohort size
@@ -240,18 +372,18 @@ P5Ccs <- rbind(0,P5Ccs)
 # ---------------------
 # make a meander:
 # let's get a ratio (coh / period):
-BT <- colSums(PC5)
-BC <- colSums(P5C) 
+BT    <- colSums(PC5)
+BC    <- colSums(P5C) 
 
-yrs  <- 1775:1968
-yrsc <- as.character(yrs)
+yrs   <- 1775:1968
+yrsc  <- as.character(yrs)
 
 meander <- BC[yrsc] / BT[yrsc] 
 start   <- meander[1]
 end     <- meander[length(meander)]
 
-Nstart <- min(yrs) - min(Cohs) 
-Nend   <- max(Yrs) - max(yrs)
+Nstart  <- min(yrs) - min(Cohs) 
+Nend    <- max(Yrs) - max(yrs)
 meander_extended <- c(rep(start,Nstart),meander,rep(end,Nend))
 
 yrs_smooth       <- min(Cohs):max(Yrs)

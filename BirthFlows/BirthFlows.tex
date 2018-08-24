@@ -143,7 +143,24 @@ Fig.~\ref{fig:reflect1} produces at least two noteworthy artifacts that we may w
           \label{fig:refl}
 \end{wrapfigure}
 % text under goes to the left then builds down
-In this way the two distributions that we might wish to compare for a given ego year are already available at a like coordinate, but comparison is stifled by overplotting. If instead we stack the slices that are indecipherably overlapped in \textbf{a} (and likewise for \textbf{b}) we get something like that shown in Fig.~\ref{fig:refl}, cumulative birth distributions.\footnote{Young mothers are on top and older mothers on bottom for both distributions. It would also make sense to plot increasing (or decreasing) ages eminating out from the centerline in both directions.} Here the total bar length is proportional to the total cohort (offspring) size, and stacked bins reflect 5-year mother cohorts (ocurrence years). From this representation it is clear that mothers born in the 20 years between 1860 and 1880 produced the bulk of the 1900 cohort (86\%), which itself produced the majority of its offspring in the 20 years between 1920 and 1940 (90\%). It is also quite visible that the 1900 cohort did not replace itself in a crude sense: 138,139 babies formed a cohort whose mothers gave birth to 95,379 babies over their lifecourse, a crude replacement of 69\%. Other perspectives on reproduction that account for survival would give a more optimistic assessment. The key feature of Fig.~\ref{fig:refl} is that the two distributions that were disjoint in Fig.~\ref{fig:juxt} and hard to pick out in Fig.~\ref{fig:reflect1} can now be associated at a common $x$ coordinate. This virtue allows us to view the time series of Fig.~\ref{fig:reflect1} with greater clarity and perhaps reveal some macro properties of the history of Swedish natality.
+In this way the two distributions that we might wish to compare for a given ego
+year are already available at a like coordinate, but comparison is stifled by
+overplotting. If instead we stack the slices that are indecipherably overlapped
+in \textbf{a} (and likewise for \textbf{b}) we get something like that shown in
+Fig.~\ref{fig:refl}, cumulative birth distributions.\footnote{Young mothers are
+on top and older mothers on bottom for both distributions. It would also make
+sense to plot increasing (or decreasing) ages eminating out from the centerline
+in both directions.} Here the total bar length is proportional to the total
+cohort (offspring) size, and stacked bins reflect 5-year mother cohorts
+(ocurrence years). From this representation it is clear that mothers born in the
+20 years between 1860 and 1880 produced the bulk of the 1900 cohort (86\%),
+which itself produced the majority of its offspring in the 20 years between 1920
+and 1940 (90\%). It is also quite visible that the 1900 cohort did not replace
+itself in a crude sense: 138,139 babies formed a cohort whose mothers gave birth
+to 95,379 babies over their lifecourse, a crude replacement of 69\%. Other
+perspectives on reproduction that account for survival and attrition of the
+mother cohort through migration would give a more optimistic assessment. The key
+feature of Fig.~\ref{fig:refl} is that the two distributions that were disjoint in Fig.~\ref{fig:juxt} and hard to pick out in Fig.~\ref{fig:reflect1} can now be associated at a common $x$ coordinate. This virtue allows us to view the time series of Fig.~\ref{fig:reflect1} with greater clarity and perhaps reveal some macro properties of the history of Swedish natality.
 
 Fig.~\ref{fig:foldout} is a depiction of the exercise of Fig.~\ref{fig:refl}, cohort bars on top reflected with offspring bars on the bottom. Equal bounded bins from Fig.~\ref{fig:refl} are joined into continuous regions. For the top region, filled polygons represent the births of mothers from quinquennial cohorts, spread over time. For the bottom region, filled polygons represent the mother-cohort origins of the births in quinquennial periods. The darkness and saturation of polygon fill colors are approximately proportional to the total births in the polygon (and therefore true to grayscale printing), whereas hue is irrelevant. In this way, darkness and saturation on the top are proportional to total height (with respect to baseline) on the bottom, and vice versa. 
 
@@ -170,13 +187,48 @@ To be continued.
 Data presented here are from two separate files from the \citet{HFD}. The first
 contains birth counts in the period-cohort Lexis shape,
 \texttt{SWEbirthsVV.txt}, as produced by the HFD according to the Methods
-Protocol \citet{hfd2015methods}. This file contains births by calendar year and
+Protocol \citep{hfd2015methods}. This file contains births by calendar year and
 mother birth cohort for the years 1891 until 2015, and we use it as-is. The
 second file contains births for ocurrence years 1775 until 1890. These data are
 age-period classified, and given in a mixture of age classes, including a
 predominance 5-year age classes (especially for ages 20-50), but also sometimes
 single ages (especially for ages 15-19), and time-varying top and bottom open
-ages. [to be continued]
+ages.
+
+It is this second file, with data covering years 1890 and earlier, that we have
+adjusted in four main steps. First, births of unknown maternal age were redistributed proportionally to the distribution of births of known maternal age. Second, counts were graduated to single ages using the graduation method proposed by \citet{rizzi2015efficient} and implemented in \texttt{R} in the package \texttt{pclm}\footnote{The \texttt{pclm} package has since been extensively modified, and it is now called \texttt{ungroup} \citep{pclmR}}. Third, counts were shifted into period-cohort Lexis bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagramed in Fig.~\ref{fig:AP2PC}.
+
+\begin{figure}
+\centering
+\begin{subfigure}{.3\textwidth}
+  \centering
+  \includegraphics[scale=.6]{Figures/App_split1.pdf}
+  \caption{AP square bins}
+  \label{fig:app1}
+\end{subfigure}%
+\begin{subfigure}{.3\textwidth}
+  \centering
+  \includegraphics[scale=.6]{Figures/App_split2.pdf}
+  \caption{Split evenly to triangles}
+  \label{fig:app2}
+\end{subfigure}
+\begin{subfigure}{.3\textwidth}
+  \centering
+  \includegraphics[scale=.6]{Figures/App_split3.pdf}
+  \caption{Regroup to PC bins}
+  \label{fig:app3}
+\end{subfigure}
+\caption{The count regrouping procedure for years 1776 to 1890, step three of data adjustment. Data are graduated to single ages (Fig.~\ref{fig:app1}), then split in half (Fig.~\ref{fig:app2}) and regrouped to period cohort (PC) bins (Fig.~\ref{fig:app3}).}
+\label{fig:AP2PC}
+\end{figure}
+At this stage data are binned and Lexis-conformable with HFD data for years 1891 and forward. With data processed as of step three, one could produce two time series that could in principle be used to produce Fig.~\ref{fig:foldout}, with a subtle artifact visible in the following figure.
+
+\begin{figure}
+\centering
+ \includegraphics[scale=.6]{Figures/App_preAdjustment.pdf}
+\caption{In reference years $\ge$ 1891 both births by year and cohort offspring are directy observed in single year bins, which means that the structural echo in first differences in preserved. Births in single ocurrence years $\le$ 1890  (\textbf{A}) are presumed accurate, and so first differences of these are observd. Offspring from cohorts born before 1891 (\textbf{B}) are derived from mother cohorts (\textbf{A}) that were graduated to single ages from quinquennial ages, inducing smoothness.}
+\end{figure}
+
 \end{appendix}
 
 \singlespacing
