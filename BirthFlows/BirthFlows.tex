@@ -198,7 +198,7 @@ ages.
 It is this second file, with data covering years 1890 and earlier, that we have
 adjusted in four main steps. First, births of unknown maternal age were redistributed proportionally to the distribution of births of known maternal age. Second, counts were graduated to single ages using the graduation method proposed by \citet{rizzi2015efficient} and implemented in \texttt{R} in the package \texttt{pclm}\footnote{The \texttt{pclm} package has since been extensively modified, and it is now called \texttt{ungroup} \citep{pclmR}}. Third, counts were shifted into period-cohort Lexis bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagramed in Fig.~\ref{fig:AP2PC}.
 
-\begin{figure}
+\begin{figure}[ht!]
 \centering
 \begin{subfigure}{.3\textwidth}
   \centering
@@ -221,15 +221,26 @@ adjusted in four main steps. First, births of unknown maternal age were redistri
 \caption{The count regrouping procedure for years 1776 to 1890, step three of data adjustment. Data are graduated to single ages (Fig.~\ref{fig:app1}), then split in half (Fig.~\ref{fig:app2}) and regrouped to period cohort (PC) bins (Fig.~\ref{fig:app3}).}
 \label{fig:AP2PC}
 \end{figure}
-At this stage data are binned and Lexis-conformable with HFD data for years 1891 and forward. With data processed as of step three, one could produce two time series that could in principle be used to produce Fig.~\ref{fig:foldout}, with a subtle artifact visible in the following figure.
+At this stage data are binned and Lexis-conformable with HFD data for years 1891 and forward. With data processed as of step three, one could produce two time series represented in Fig.~\ref{fig:foldout}, with a subtle artifact visible in Fig.~\ref{fig:toosmooth}. In area \textbf{A} of this figure, birth counts in age bins have been graduated using the previously mentioned pclm method, which has the usually-desired artifact of smoothness. For the affected range of years, mother cohorts are identified via the identity $C = P - A - 1$ .\footnote{One subtracts 1 because data are in period-cohort bins.} Since age patterns of counts are smooth, these sum in Lexis diagonals to a smooth time series of cohort total offspring, as seen in the profile of area \textbf{B} of the same figure. Area \textbf{C} of this figure delimits years 1876 until 1968, where both cohort and matched offspring sizes are directly observed, and where fluctuations would appear to covary quite strongly. In the first instance for reasons of aesthetic continuity, and in the second instance for the sake of a more sensible count graduation, we have opted to adjust the counts in area \textbf{B} to carry the pattern of fluctuation observed over cohort size from 1775 to 1890.
 
-\begin{figure}
+\begin{figure}[ht!]
 \centering
  \includegraphics[scale=.6]{Figures/App_preAdjustment.pdf}
-\caption{In reference years $\ge$ 1891 both births by year and cohort offspring are directy observed in single year bins, which means that the structural echo in first differences in preserved. Births in single ocurrence years $\le$ 1890  (\textbf{A}) are presumed accurate, and so first differences of these are observd. Offspring from cohorts born before 1891 (\textbf{B}) are derived from mother cohorts (\textbf{A}) that were graduated to single ages from quinquennial ages, inducing smoothness.}
+\caption{In reference years $\ge$ 1891 both births by year and cohort offspring are directy observed in single year bins, which means that the structural echo between total birth cohort and offspring size is preserved for reference years $\ge$ 1876  (\textbf{C}). Total per annum births in years $\le$ 1890 (\textbf{A}) are presumed accurate, and so first differences of these are observed. Offspring from cohorts born in years $\le$ 1876 (\textbf{B}) were partially (1836--1876) or entirely ($<$ 1836) born in years $\le$ 1890, implying a smooth redistribution over single years of mother cohorts. We wish to adjust the births in \textbf{B} to recuperate the kind of structural echo in \textbf{C}.}
+\label{fig:toosmooth}
 \end{figure}
 
+This adjustment works by smoothing the annual birth series according to some smoothness parameter, $\lambda$.\footnote{For the present case we've used a loess smoother, using the \texttt{R} function \texttt{loess()} with smoothing parameter $\lambda =$ \texttt{span}. It would be straightforward to swap this smoothing method out with a different one.} The ratio of the original birth series to the smoothed birth series defines the multiplicative adjustment factor that we carry over to the already-smooth cohort offspring series for the reference years 1775-1876. Counts in single ages are then rescaled to sum to the original totals in 5-year age groups, and counts for years $>$ 1890 are unaffected. The smoothing parameter is selected such that the linear relationship in fractional first differences $rd(B(t)) = \frac{B(t)-B(t-1)}{B(t)}$ between the annual birth series and adjusted offspring series $rd(B(c))$ for years 1775-1890 matches that for the reference years 1877-1968 as closely as possible. Specifically, we select $\lambda$ so as to minimize the sum of the difference in the slope and residual standard deviation for the period before and after 1891. Further clarifications about this adjustment, and code for diagnostic plots can be found in the annotated code repository. The end effect is to adjust the series to look like Fig.~\ref{fig:better}.
+
+\begin{figure}[ht!]
+\centering
+ \includegraphics[scale=.6]{Figures/App_postAdjustment.pdf}
+\caption{The adjusted }
+\label{fig:better}
+\end{figure}
 \end{appendix}
+
+We adjusted in this way for the sake of a more nuanced time series of total offspring, but this approach may be used to good effect in graduating age-structured counts (births, deaths, populations) whenever time series are long enough to permit information on birth cohort size to propagate through the Lexis surface. 
 
 \singlespacing
 \bibliographystyle{plainnat}

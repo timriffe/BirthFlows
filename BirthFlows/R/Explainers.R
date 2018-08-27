@@ -233,11 +233,18 @@ SWE <- local(get(load("Data/SWE.Rdata")))
 Ph <- tapply(SWE$Total,SWE$Year,sum)
 Ch <- tapply(SWE$Cohort,SWE$Year,sum)
 
-PC <- acast(SWE, Year~Cohort, sum, value.var = "Total")
-per <- rowSums(PC)
-coh <- colSums(PC)
+PCin   <- acast(SWE, Year~Cohort, sum, value.var = "Total")
+per  <- rowSums(PCin)
+coh  <- colSums(PCin)
 cohs <- as.integer(names(coh))
-yrs <- as.integer(names(per))
+yrs  <- as.integer(names(per))
+rc <- function(x){
+	rev(cumsum(Rev(x)))
+}
+PCc <- apply(PCin,2,cumsum)
+fyrs  <- 1836:1876
+frac <- PCc["1890",as.character(fyrs)]
+
 
 pdf("Figures/App_preAdjustment.pdf",height=5,width=10)
 plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1721, 2014), ylim = c(-150000,150000))
@@ -250,13 +257,97 @@ axis(1)
 text(1860,-240000,"Reference year", xpd = TRUE,cex=1.5)
 text(1680,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
 text(1680,-200000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)
-rect(1775,-150000,1890,0)
-text(1775,-130000,"Too smooth",pos=4)
+
+#rect(1775,-150000,1875,0)
+polygon(c(1775,1775,1836,fyrs),c(0,-150000,-150000,-frac))
+
+text(1775,-127000,"Too smooth\n(artifact of pclm)",pos=4)
 text(1775,-130000,"B",font=2,cex=1.5,xpd=TRUE,pos=2)
 rect(1775,150000,1890,0)
-text(1775,170000,"Observed roughness",pos=4,xpd=TRUE)
+text(1775,170000,"Ages graduated with pclm",pos=4,xpd=TRUE)
 text(1775,170000,"A",font=2,cex=1.5,xpd=TRUE,pos=2)
+
+rect(1876,-155000,1968,155000,border=gray(.2),lty="82")
+text(1876,175000,"Structural echo preserved",pos=4,xpd=TRUE)
+text(1876,175000,"C",font=2,cex=1.5,xpd=TRUE,pos=2)
+
 dev.off()
+
+
+per  <- rowSums(PCi)
+yrs  <- as.integer(names(per))
+coh  <- colSums(PCi)
+cohs <- as.integer(names(coh)) 
+PCc  <- apply(PCi,2,cumsum)
+frac <- PCc["1890",as.character(fyrs)]
+pdf("Figures/App_postAdjustment.pdf",height=5,width=10)
+plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1721, 2014), ylim = c(-150000,150000))
+polygon(x=c(yrs,rev(yrs)),y=c(per,rep(0,length(yrs))),col="#AADDDD", border = NA)
+polygon(x=c(cohs,rev(cohs)),y=c(-coh,rep(0,length(cohs))),col="#AADDAA", border = NA)
+grid(lty=1,col="white")
+axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000), 
+		labels=c("150000","100000","50000","0","50000","100000","150000"))
+axis(1)
+polygon(c(1775,1775,1836,fyrs),c(0,-150000,-150000,-frac))
+text(1775,-130000,"Adjusted counts",pos=4)
+text(1860,-240000,"Reference year", xpd = TRUE,cex=1.5)
+text(1680,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
+text(1680,-200000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)
+dev.off()
+
+# ---------------------------
+#compareplot <- function(PCin, PCi, year = 1800){
+#	yrc <- as.character(year)
+#	ind <- PCin[yrc, ] > 0
+#	
+#	plot(PCin[yrc, ind])
+#	lines(PCi[yrc, ind])
+#}
+#for (i in 1810:1895){
+#	compareplot(PCin, PCi, year = i)
+#	title(i, cex = 2)
+#	locator(1)
+#}
+#compareplot(PCin, PCi, year = 1885)
+#
+#
+#plot(1775:1968,coh[yrsc]/per[yrsc],type='l')
+#
+#rper <- diff(per)/per[-length(per)]
+#rcoh <- diff(coh)/coh[-length(coh)]
+#yrsm <- 1775:1968
+#plot(rper[yrsc],rcoh[yrsc],asp=1,type="n")
+#abline(a=0,b=1)
+#points(rper[yrsc],rcoh[yrsc],col=ifelse(yrsm<1876,"red",gray(.5)))
+#yrsm <- 1775:1968
+#abline()
+#
+#afteri <- as.character(1876:1968)
+#plot(rper[afteri],rcoh[afteri],asp=1,type="n")
+#abline(a=0,b=1)
+#points(rper[afteri],rcoh[afteri])
+#abline(lm(rcoh[afteri]~rper[afteri]),col="red")
+#
+#beforei <- as.character(1775:1875)
+#plot(rper[beforei],rcoh[beforei],asp=1,type="n")
+#abline(a=0,b=1)
+#points(rper[beforei],rcoh[beforei])
+#abline(lm(rcoh[beforei]~rper[beforei]),col="red")
+#
+#plot(1775:1968,rper[yrsc],type='l', ylim=c(-.2,.2))
+#lines(1775:1968,rcoh[yrsc],col="red")
+#abline(v=1876)
+#
+#plot(1775:1968,rper[yrsc]-rcoh[yrsc])
+#abline(v=1876)
+#abline(h=0)
+#
+## what if the adjustment were not to send a difference shock,
+## but rather hmmm
+#
+#plot(1775:1968,(rper[yrsc]-rcoh[yrsc])/rper[yrsc])
+#abline(v=1876)
+#abline(h=0)
 
 ## once-off gif and twitter header
 #library(animation)

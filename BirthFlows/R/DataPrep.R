@@ -186,92 +186,162 @@ constrainBlocks <- function(SWE, PCpert, maxit = 100, tol = .1){
 	PCout
 }
 
-perturbDiffs <- function(par=.5,SWE){
-	# a 2 step operation 
-	# First perturb offspring diffs to keep a fraction 
-	# of first diffs of birth series (i.e. structural echo),
-	# then rescale to keep totals as desired.
+# This perturbation method is based on transfering differences from period
+# to offspring. Differences are proportional differences from observerd
+# period totals and a loess smooth of the same series, where the single
+# parameter span determines the smoothness of the reference. This is meant
+# to mimick the smoothing that offspring reference cohorts will have undergone
+# from pclm. SWE is the master file, post graduation.
+pertspan <- function(SWE, span = .05){
+	PCin   <- acast(SWE, Year~Cohort, sum, value.var = "Total")
 	
-	# 1) take input SWE file, i.e. where years pre 1891 are smooth
-	# from graduation exercise, reshape to PC matrix
-	PCin            <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
-	# 2) make a copy
-	PC              <- PCin
-	# 3) create mask delimiting Lexis bounds of perturbation
-	PCmask          <- makeMask(PCin)
-	# 4) annual birth totals, to preserve.
-	Bt              <- rowSums(PCin)
-	ny              <- length(Bt)
-	yrs             <- as.integer(names(Bt))
-	# year identifier TRUE for years within the perturbation range
-	yrsi            <- yrs >= 1775 & yrs < 1891
-	# 5) first differences we expect to echo some
-	dBt             <- diff(Bt)
+	# period and offspring(coh) series
+	per    <- rowSums(PCin)
+	coh    <- colSums(PCin)
 	
-	# 6) change relative to last year's births
-	rdBt            <- dBt/Bt[-ny]
-	# -----------------
-	# 7) total offspring from mother cohort (by cohort)
-	Bc              <- colSums(PCin)
-	nc              <- length(Bc)
-	cohs            <- as.integer(names(Bc))
-	# we're allowed to perturb cohorts 1775 through 1891
-	cohsi           <- cohs >= 1775 & cohs < 1891
-	# 8) perturbation factor. par is a prior, to come from separate optimization.
-	# par is positive, ca .4, so perturbation is:
-	# 1 - (.4 of relative change in size of mother cohort).
-	pertc           <- (1 - (rdBt[yrsi] * par))
+	# x variables
+	yrs    <- as.integer(names(per))
+	yrsi   <- yrs < 1891
+	cohs   <- as.integer(colnames(PCin))
+	cohsi  <- cohs >= 1775 & cohs < 1891
 	
-	PC[, cohsi]     <- t(t(PC[, cohsi]) * pertc)
-	PC[PCmask]      <- PCin[PCmask]
+    # fit loess to period of given span parameter
+	lo     <- loess(per~yrs, span = span)
+	# and what is the relative difference?
+	ratio  <- (lo$y[yrsi] / lo$fitted[yrsi])
+	PCi    <- PCin
+	# perturb offspring cohorts by that much
+	PCi[, cohsi] <- t(t(PCi[, cohsi]) * ratio)
+	# now constrain back (5-year age constraint + only allowed
+	# to perturb in data that were graduated.
+	PCi    <- constrainBlocks(SWE, PCi, maxit = 100, tol = .1)
 	
-	# 9) constrain and return
-	PC              <- constrainBlocks(SWE, PCpert = PC)
-	PC
+	PCi
 }
 
-minpert <- function(par, SWE){
-	# now find the optimal echo factor
+# optimize best span given slope and sd of relative first differences
+# in period vs offspring series pre and post adjustment break.
+minspan <- function(SWE, span = .05){
+	PCpert    <- pertspan(SWE, span = span)
 	
-	# 1) get PC matrix from original SWE file, where births from
-	# mothers born in years < 1891 are overly smooth
-	PC     <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
-	
-	# 2) for the given perturbation factor, give back the martix,
-	# with values only for cohorts 1775-1890 before year 1891 perturbed
-	PC2       <- perturbDiffs(par, SWE)
-	# 3) get marginals from which to calculate differences
-	Bt        <- rowSums(PC)
-	Bc        <- colSums(PC2)
-	ny        <- length(Bt)
-	nc        <- length(Bc)
+	BC        <- colSums(PCpert)
+	Bt        <- rowSums(PCpert)
 	# 4) rel first differences in annual births
-	rdt       <- diff(Bt) / Bt[-ny]
+	rdt       <- diff(Bt) / Bt[-length(Bt)]
 	# 5) rel first differences in offspring size
-	rdc       <- diff(Bc) / Bc[-nc]
+	rdc       <- diff(Bc) / Bc[-length(Bc)]
 	
 	# 6) canonical values. How well do rel first differences correlate,
 	# and what is the slope in their size relationship?
-	compgen   <- as.character(1891:1959)
+	compgen   <- as.character(1876:1959)
 	# correlation
-	cr        <- cor(rdt[compgen], rdc[compgen])
+	# cr        <- cor(rdt[compgen], rdc[compgen])
 	# slope parameter
-	slp       <- lm(rdt[compgen]~ rdc[compgen])$coef[2]
-	
+	mod1      <- lm(rdt[compgen]~ rdc[compgen])
+	slp       <- mod1$coef[2]
+	se        <- sd(mod1$residuals)
 	# 7) perturbed values
-	pertgen   <- as.character(1776:1890)
+	pertgen   <- as.character(1776:1875)
 	# correlation in rel first diffs in adjustment area
-	cr_p      <- cor(rdt[pertgen], rdc[pertgen])
+	# cr_p      <- cor(rdt[pertgen], rdc[pertgen])
 	# slope in rel first diffs in adjustment area
-	slp_p     <- lm(rdt[pertgen]~ rdc[pertgen])$coef[2]
-	
-	# 8) how close do we get to correlation and slope?
-	# calc residual:
-	# we want both slope and correlation to be
-	# as close as possible. This is the quantity we try to 
-	# minimize by changing the input 'par'
-	(cr - cr_p)^2 + (slp - slp_p)^2
+	mod2      <- lm(rdt[pertgen]~ rdc[pertgen])
+	slp_p     <- mod2$coef[2]
+	se_p      <- sd(mod2$residuals)
+	3*(se - se_p)^2 + 7*(slp - slp_p)^2
 }
+
+# ---------------------------------------------
+# deprecated perturbation method
+#perturbDiffs <- function(par=.5,SWE){
+#	# a 2 step operation 
+#	# First perturb offspring diffs to keep a fraction 
+#	# of first diffs of birth series (i.e. structural echo),
+#	# then rescale to keep totals as desired.
+#	
+#	# 1) take input SWE file, i.e. where years pre 1891 are smooth
+#	# from graduation exercise, reshape to PC matrix
+#	PCin            <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
+#	# 2) make a copy
+#	PC              <- PCin
+#	# 3) create mask delimiting Lexis bounds of perturbation
+#	PCmask          <- makeMask(PCin)
+#	# 4) annual birth totals, to preserve.
+#	Bt              <- rowSums(PCin)
+#	ny              <- length(Bt)
+#	yrs             <- as.integer(names(Bt))
+#	# year identifier TRUE for years within the perturbation range
+#	yrsi            <- yrs >= 1775 & yrs < 1876
+#	# 5) first differences we expect to echo some
+#	dBt             <- diff(Bt)
+#	
+#	# 6) change relative to last year's births
+#	rdBt            <- dBt/Bt[-ny]
+#	# -----------------
+#	# 7) total offspring from mother cohort (by cohort)
+#	Bc              <- colSums(PCin)
+#	nc              <- length(Bc)
+#	cohs            <- as.integer(names(Bc))
+#	# we're allowed to perturb cohorts 1775 through 1891
+#	cohsi           <- cohs >= 1775 & cohs < 1876
+#	# 8) perturbation factor. par is a prior, to come from separate optimization.
+#	# par is positive, ca .4, so perturbation is:
+#	# 1 - (.4 of relative change in size of mother cohort).
+#	pertc           <- (1 - (rdBt[yrsi] * par))
+#	
+#	PC[, cohsi]     <- t(t(PC[, cohsi]) * pertc)
+#	PC[PCmask]      <- PCin[PCmask]
+#	
+#	# 9) constrain and return
+#	PC              <- constrainBlocks(SWE, PCpert = PC)
+#	PC
+#}
+#
+#minpert <- function(par, SWE){
+#	# now find the optimal echo factor
+#	
+#	# 1) get PC matrix from original SWE file, where births from
+#	# mothers born in years < 1891 are overly smooth
+#	PC     <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
+#	
+#	# 2) for the given perturbation factor, give back the martix,
+#	# with values only for cohorts 1775-1890 before year 1891 perturbed
+#	PC2       <- perturbDiffs(par, SWE)
+#	# 3) get marginals from which to calculate differences
+#	Bt        <- rowSums(PC)
+#	Bc        <- colSums(PC2)
+#	ny        <- length(Bt)
+#	nc        <- length(Bc)
+#	# 4) rel first differences in annual births
+#	rdt       <- diff(Bt) / Bt[-ny]
+#	# 5) rel first differences in offspring size
+#	rdc       <- diff(Bc) / Bc[-nc]
+#	
+#	# 6) canonical values. How well do rel first differences correlate,
+#	# and what is the slope in their size relationship?
+#	compgen   <- as.character(1876:1959)
+#	# correlation
+#	# cr        <- cor(rdt[compgen], rdc[compgen])
+#	# slope parameter
+#	mod1     <- lm(rdt[compgen]~ rdc[compgen])
+#	slp      <- mod1$coef[2]
+#	se       <- sd(mod1$residuals)
+#	# 7) perturbed values
+#	pertgen   <- as.character(1776:1875)
+#	# correlation in rel first diffs in adjustment area
+#	# cr_p      <- cor(rdt[pertgen], rdc[pertgen])
+#	# slope in rel first diffs in adjustment area
+#	mod2      <- lm(rdt[pertgen]~ rdc[pertgen])
+#	slp_p     <- mod2$coef[2]
+#	se_p      <- sd(mod2$residuals)
+#
+#	# 8) how close do we get to correlation and slope?
+#	# calc residual:
+#	# we want both slope and correlation to be
+#	# as close as possible. This is the quantity we try to 
+#	# minimize by changing the input 'par'
+#	3*(se - se_p)^2 + 7*(slp - slp_p)^2
+#}
 # -------------------------------------------------
 
 # these are the historical births
@@ -319,28 +389,14 @@ save(SWE, file = "Data/SWE.Rdata")
 
 # adjust mother cohort size based on first diffs in daughter cohort size
 # 
+span   <- optimize(minspan, interval = c(.01,.5), SWE = SWE)
+PCi    <- pertspan(SWE, span = span$minimum)
+(span$minimum)
+Bt     <- rowSums(PCi) # same as previous
+Bc     <- colSums(PCi)
 
-mod    <- optimize(minpert, interval = c(.3,3), SWE = SWE)
-PC     <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
-PCout  <- perturbDiffs(par = mod$min, SWE)
-Bt     <- rowSums(PC)
-Bc     <- colSums(PCout)
-
-# rdt <- diff(Bt) / Bt[-ny]
-# rdc <- diff(Bc) / Bc[-nc]
-# pertgen <- as.character(1776:1890)
-# plot(rdt[pertgen],rdc[pertgen])
-# abline(a=0,b=1)
-
-# plot(yrs, rowSums(PCout), type = 'l', ylim = c(-2e5,2e5), xlim = c(1720,2015))
-# lines(cohs, - colSums(PCout))
-# lines(cohs, - colSums(PC))
-# plot(cohs,colSums(PC),type='l')
-# lines(cohs, colSums(PCout))
-# abline(v=1775)
-# abline(v=1891)
 # 
-PC <- PCout
+PC      <- PCi
 
 minYR   <- min(SWE$Year)
 minCoh  <- min(SWE$Cohort)
@@ -372,11 +428,11 @@ P5Ccs <- rbind(0,P5Ccs)
 # ---------------------
 # make a meander:
 # let's get a ratio (coh / period):
-BT    <- colSums(PC5)
-BC    <- colSums(P5C) 
+BT      <- colSums(PC5)
+BC      <- colSums(P5C) 
 
-yrs   <- 1775:1968
-yrsc  <- as.character(yrs)
+yrs     <- 1775:1968
+yrsc    <- as.character(yrs)
 
 meander <- BC[yrsc] / BT[yrsc] 
 start   <- meander[1]
@@ -398,3 +454,5 @@ meander_smoothed <- (meander_smoothed - subt) * 2 + subt
 
 
 #PC5[,"1907"]
+#plot(PC["1850",])
+#lines(PCout["1850",])
