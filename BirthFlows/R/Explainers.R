@@ -289,7 +289,7 @@ axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000),
 		labels=c("150000","100000","50000","0","50000","100000","150000"))
 axis(1)
 polygon(c(1775,1775,1836,fyrs),c(0,-150000,-150000,-frac))
-text(1775,-130000,"Adjusted counts",pos=4)
+text(1775,-130000,"Adjusted B(c)'",pos=4)
 text(1860,-240000,"Reference year", xpd = TRUE,cex=1.5)
 text(1680,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
 text(1680,-200000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)

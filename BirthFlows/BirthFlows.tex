@@ -230,17 +230,17 @@ At this stage data are binned and Lexis-conformable with HFD data for years 1891
 \label{fig:toosmooth}
 \end{figure}
 
-This adjustment works by smoothing the annual birth series according to some smoothness parameter, $\lambda$.\footnote{For the present case we've used a loess smoother, using the \texttt{R} function \texttt{loess()} with smoothing parameter $\lambda =$ \texttt{span}. It would be straightforward to swap this smoothing method out with a different one.} The ratio of the original birth series to the smoothed birth series defines the multiplicative adjustment factor that we carry over to the already-smooth cohort offspring series for the reference years 1775-1876. Counts in single ages are then rescaled to sum to the original totals in 5-year age groups, and counts for years $>$ 1890 are unaffected. The smoothing parameter is selected such that the linear relationship in fractional first differences $rd(B(t)) = \frac{B(t)-B(t-1)}{B(t)}$ between the annual birth series and adjusted offspring series $rd(B(c))$ for years 1775-1890 matches that for the reference years 1877-1968 as closely as possible. Specifically, we select $\lambda$ so as to minimize the sum of the difference in the slope and residual standard deviation for the period before and after 1891. Further clarifications about this adjustment, and code for diagnostic plots can be found in the annotated code repository. The end effect is to adjust the series to look like Fig.~\ref{fig:better}.
+This adjustment works by extracting the fluctuation pattern from \textbf{A} and transfering it to \textbf{B}. We do this by first smoothing the annual time series of total cohort size $B(t)$ according to some smoothness parameter, $\lambda$.\footnote{For the present case we've used a loess smoother, using the \texttt{R} function \texttt{loess()} with smoothing parameter $\lambda =$ \texttt{span}. It would be straightforward to swap this smoothing method out with a different one.} The ratio of $B(t)$ to the smoothed birth series $B(t)^s$ defines the multiplicative adjustment factor, $adj(t) = B(t)/B(t)^s$. Total offspring size $B(c)$ is then adjusted as $B(c)' = adj(t)*B(c), \mathrm{~for~} c = t$. Counts in single ages are then rescaled to sum to the original totals in 5-year age groups, and counts for years $>$ 1890 are unaffected. The smoothing parameter is selected such that the linear relationship in fractional first differences $rd(B(t)) = \frac{B(t+1)-B(t)}{B(t)}$ between the annual birth series and adjusted offspring series $rd(B(c)')$ for years 1775-1890 matches that for the reference years 1877-1968 as closely as possible. Specifically, we select $\lambda$ so as to minimize the sum of the difference in the slope and residual standard deviation for the periods before and after 1891. Further clarifications about this adjustment, and code for diagnostic plots can be found in the annotated code repository. The end effect is to adjust the series to look like Fig.~\ref{fig:better}.
 
 \begin{figure}[ht!]
 \centering
  \includegraphics[scale=.6]{Figures/App_postAdjustment.pdf}
-\caption{The adjusted }
+\caption{The adjusted birth series. Annual total births $B(t)$ on top axis and annual total offspring $B(c)$ on bottom axis, with adjusted offspring counts $B(c)'$ outlined.}
 \label{fig:better}
 \end{figure}
 \end{appendix}
 
-We adjusted in this way for the sake of a more nuanced time series of total offspring, but this approach may be used to good effect in graduating age-structured counts (births, deaths, populations) whenever time series are long enough to permit information on birth cohort size to propagate through the Lexis surface. 
+We adjusted in this way for the sake of a more nuanced time series of total offspring, but this approach may be used to good effect in graduating age-structured counts (births, deaths, populations) whenever time series are long enough to permit information on birth cohort size to propagate through the Lexis surface. These aspects are visible to some degree in the shaded polygons of Fig.~\ref{fig:foldout} in years $<$ 1891.
 
 \singlespacing
 \bibliographystyle{plainnat}

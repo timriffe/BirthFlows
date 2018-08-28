@@ -224,7 +224,7 @@ pertspan <- function(SWE, span = .05){
 minspan <- function(SWE, span = .05){
 	PCpert    <- pertspan(SWE, span = span)
 	
-	BC        <- colSums(PCpert)
+	Bc        <- colSums(PCpert)
 	Bt        <- rowSums(PCpert)
 	# 4) rel first differences in annual births
 	rdt       <- diff(Bt) / Bt[-length(Bt)]
