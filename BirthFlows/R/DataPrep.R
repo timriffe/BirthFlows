@@ -1,3 +1,4 @@
+# TODO: decide how to weight sd vs slope in lm()
 
 setwd("/home/tim/git/BirthFlows/BirthFlows")
 # download birthsVV (period-cohort Lexis shape for birth counts) from HFD. 
@@ -82,10 +83,16 @@ graduatechunk <- function(chunk){
 	if (x[1] == 19){
 		x[1] <- 15
 	}
-
+	# how far should we distribute the open age group. This
+	# will turn out to be 5 ages every time (50-54)
+	nlast   <- 55 - max(x)
+	if (nlast < 1){
+		nlast <- 1
+	}
     # data now in single ages, not strictly constrained,
 	# but we take care of this later.
-	bout    <- ungroup::pclm(x = x, y = y, nlast = 5)$fitted
+
+	bout    <- ungroup::pclm(x = x, y = y, nlast = nlast)$fitted
 	Age     <- sapply(names(bout),bin2age)
 	# then shift ages back up
 	
@@ -219,9 +226,10 @@ pertspan <- function(SWE, span = .05){
 	PCi
 }
 
+# TODO: decide how to weight sd vs slope in lm()
 # optimize best span given slope and sd of relative first differences
 # in period vs offspring series pre and post adjustment break.
-minspan <- function(SWE, span = .05){
+minspan <- function(SWE, span = .05, maxAge = 45){
 	PCpert    <- pertspan(SWE, span = span)
 	
 	Bc        <- colSums(PCpert)
@@ -233,7 +241,7 @@ minspan <- function(SWE, span = .05){
 	
 	# 6) canonical values. How well do rel first differences correlate,
 	# and what is the slope in their size relationship?
-	compgen   <- as.character(1876:1959)
+	compgen   <- as.character(1876:rightCoh(SWE, Age = maxAge))
 	# correlation
 	# cr        <- cor(rdt[compgen], rdc[compgen])
 	# slope parameter
@@ -248,7 +256,15 @@ minspan <- function(SWE, span = .05){
 	mod2      <- lm(rdt[pertgen]~ rdc[pertgen])
 	slp_p     <- mod2$coef[2]
 	se_p      <- sd(mod2$residuals)
-	3*(se - se_p)^2 + 7*(slp - slp_p)^2
+	2*(se - se_p)^2 + 8*(slp - slp_p)^2
+}
+
+# which is the oldest 'complete' cohort?
+rightCoh <- function(SWE, Age = 45){
+	ind <- SWE$Year == max(SWE$Year) &
+			SWE$ARDY == Age
+	SWE$Cohort[ind]
+	
 }
 
 # ---------------------------------------------
@@ -347,13 +363,14 @@ minspan <- function(SWE, span = .05){
 # these are the historical births
 SWEh  <- read.csv("Data/SWEbirths.txt",na.strings = ".")
 SWEh  <- SWEh[SWEh$Year < 1891, ]
+
 # remove TOT, not useful
 SWEh  <- SWEh[SWEh$Age != "TOT", ]
 SWEh  <- data.table(SWEh)
 
 # step 1, redistribute births of unknown maternal age
 SWEh  <- SWEh[, b_unk(.SD), by = list(Year)]
-
+cat("Graduating historical data to single ages...\n")
 # step 2, graduate to single ages
 SWEh1 <- SWEh[, graduatechunk(.SD), by = list(Year)]
 
@@ -388,14 +405,14 @@ SWE     <- rbind(SWEh1, SWE)
 save(SWE, file = "Data/SWE.Rdata")
 
 # adjust mother cohort size based on first diffs in daughter cohort size
-# 
+cat("Adjusting graduated data...\n")
 span   <- optimize(minspan, interval = c(.01,.5), SWE = SWE)
 PCi    <- pertspan(SWE, span = span$minimum)
 (span$minimum)
 Bt     <- rowSums(PCi) # same as previous
 Bc     <- colSums(PCi)
 
-# 
+cat("Creating figure data objects...\n")
 PC      <- PCi
 
 minYR   <- min(SWE$Year)
@@ -431,7 +448,7 @@ P5Ccs <- rbind(0,P5Ccs)
 BT      <- colSums(PC5)
 BC      <- colSums(P5C) 
 
-yrs     <- 1775:1968
+yrs     <- 1775:rightCoh(SWE,45)
 yrsc    <- as.character(yrs)
 
 meander <- BC[yrsc] / BT[yrsc] 
@@ -452,6 +469,7 @@ meander_smoothed <- (meander_smoothed - subt) * 2 + subt
 # plot(yrs_smooth, meander_smoothed, ylim = c(.2,3))
 # lines(yrs_smooth,(meander_smoothed - subt) * 2 + subt)
 
+cat("DataPrep.R all done!\n")
 
 #PC5[,"1907"]
 #plot(PC["1850",])

@@ -7,14 +7,14 @@ source("R/DataPrep.R")
 
 
 
-offspring <- PC[,"1800"]  # children born to 1800 mothers
-grandmas  <- PC["1800", ] # births in 1800 by mother cohorts
+#offspring <- PC[,"1800"]  # children born to 1800 mothers
+#grandmas  <- PC["1800", ] # births in 1800 by mother cohorts
 
-yrs       <- as.integer(names(offspring))
-cohs      <- as.integer(names(grandmas))
-
-plot(yrs, offspring, xlim = c(1750,1850), type= 'l')
-lines(cohs, grandmas)
+#yrs       <- as.integer(names(offspring))
+#cohs      <- as.integer(names(grandmas))
+#
+#plot(yrs, offspring, xlim = c(1750,1850), type= 'l')
+#lines(cohs, grandmas)
 
 
 
@@ -22,7 +22,7 @@ wmean <- function(x,w){
 	sum((x+.5)*w)/sum(w)
 }
 
-g2dist <- function(PC,year = 1800){
+g2m <- function(PC,year = 1800){
 	yrs       <- as.integer(rownames(PC))
 	cohs      <- as.integer(colnames(PC))
 	yrc       <- as.character(year)
@@ -52,20 +52,19 @@ g2sd <- function(PC,year = 1800){
 	sqrt(sum(((diffs - mn)^2) * og) / sum(og))
 }
 
-# mean distance by reference year.
-refyrs    <- 1775:1968
-gdists    <- sapply(refyrs,g2dist,PC=PC)
 
-plot(refyrs,gdists)
-g2dist(PC,1800)
-g2sd(PC,1800)
-gsds <- sapply(refyrs,g2sd,PC=PC)
-
-
-plot(refyrs,gsds)
-plot(refyrs,gdists, type = 'l', ylim=c(45,75))
-polygon(c(refyrs,rev(refyrs)), 
-		c(gdists - gsds,rev(gdists+gsds)),col = "#00000050")
+#gdists    <- sapply(refyrs,g2dist,PC=PC)
+#
+#plot(refyrs,gdists)
+#g2dist(PC,1800)
+#g2sd(PC,1800)
+#gsds <- sapply(refyrs,g2sd,PC=PC)
+#
+#
+#plot(refyrs,gsds)
+#plot(refyrs,gdists, type = 'l', ylim=c(45,75))
+#polygon(c(refyrs,rev(refyrs)), 
+#		c(gdists - gsds,rev(gdists+gsds)),col = "#00000050")
 
 
 # and quantiles?
@@ -101,12 +100,13 @@ g2quant <- function(PC, year = 1800, probs = c(.01,.025,.25,.5,.75,.975,.99)){
 	dt$pc <- cumsum(dt$p)
 	splinefun(dt$diffs~dt$pc,method="monoH.FC")(probs)
 }
-
+# mean distance by reference year.
+refyrs            <- 1775:rightCoh(SWE,45)
 gQuants           <- sapply(refyrs, g2quant, PC=PC)
 rownames(gQuants) <- c(.01,.025,.25,.5,.75,.975,.99)
 colnames(gQuants) <- refyrs
 
-gm <- sapply(refyrs,g2dist,PC=PC)
+gm        <- sapply(refyrs,g2m,PC=PC)
 names(gm) <- refyrs
 
 # plot intergenerational maternal distances

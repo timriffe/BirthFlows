@@ -3,6 +3,7 @@
 \documentclass{article}
 \usepackage[a4paper, margin=2.5cm]{geometry}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{caption}
 \usepackage{placeins}
 \usepackage{graphicx}
@@ -127,7 +128,7 @@ The births in a year are classified by mothers' cohort, i.e. cohort \emph{origin
 
 The two distributions in Fig.~\ref{fig:juxt} are related, and of comparable scale, but different in kind. The $x$ coordinate of the left distribution is indexed to mothers's birth cohort, whereas the $x$ coordinate of the right distribution is indexed to child cohort, ocurrence year. In this way the $x$ coordinates belong to grandmothers and grandchildren, where the \emph{ego} generation is 1900. These are two quantities that we may wish to compare in various ways to get a better feel and understanding of the Swedish birth series. 
 
-For the case of these Swedish data, we have 241 such distribution pairs, making single-axis rendering impractical. An honest attempt might look like Fig.~\ref{fig:reflect1}, where we reflect the Fig.~\ref{fig:juxt} left distribution over $y$ (\textbf{A}), keeping the Fig.~\ref{fig:juxt} right-side distribution on top (\textbf{B}). These two distributions are linked by the year 1900, which of course overlaps with neither of them. In this representation, \textbf{A} and \textbf{B} are re-drawn for each possible ego year (1775-\todo{2015}), and therefore imply a large sequential set of overlapping distributions. Each \nth{20} distribution is highlighted, but despite attempts to make this graph legible, i) the high degree of overlapping and ii) the spatial dissociation of each \textbf{A} --- \textbf{B} pair makes the intended comparison difficult over the series.
+For the case of these Swedish data, we have 241 such distribution pairs, making single-axis rendering impractical. An honest attempt might look like Fig.~\ref{fig:reflect1}, where we reflect the Fig.~\ref{fig:juxt} left distribution over $y$ (\textbf{A}), keeping the Fig.~\ref{fig:juxt} right-side distribution on top (\textbf{B}). These two distributions are linked by the year 1900, which of course overlaps with neither of them. In this representation, \textbf{A} and \textbf{B} are re-drawn for each possible ego year (1775-2016), and therefore imply a large sequential set of overlapping distributions. Each \nth{20} distribution is highlighted, but despite attempts to make this graph legible, i) the high degree of overlapping and ii) the spatial dissociation of each \textbf{A} --- \textbf{B} pair makes the intended comparison difficult over the series.
 
 \begin{figure}[ht!]
  \centering
@@ -172,9 +173,7 @@ The meandering baseline of Fig.~\ref{fig:foldout} is proportional to a smoothed 
 
 To aid the viewer with interpretation, we overlay a known lineage of five female generations,\footnote{This lineage can be located in the public domain on \url{https://www.geni.com/people/Karin-Ottolina-Landsten/6000000022470480183}.} where $x$ position is exact to the year, $y$ position in the top region is matched to the mothers cohort, and $y$ position in the bottom is matched to daughters' year of birth. Wider horizontal spacing between generations over time indicates increasing ages at maternity within this lineage (increasing from 23 to 39).
 
-Several macro features come to the fore in this visualization. These are either known features of the Swedish birth series, or else merit further study. Echoes, booms, why is boom periodicity a recent phenomenon? Is there a dose-response to vertical reverberation in first derivative (can this be referred to as first or second order?) features.
 
-\todo{To be continued.}
 
 \begin{figure}
 \centering
@@ -186,8 +185,14 @@ Several macro features come to the fore in this visualization. These are either 
 \label{fig:foldout}
 \end{figure}
 
+\section{Discussion}
+\todo{To be continued...}
+Several macro features come to the fore in this visualization. These are either known features of the Swedish birth series, or else merit further study. Echoes, booms, why is boom periodicity a recent phenomenon? Is there a dose-response to vertical reverberation in first derivative (can this be referred to as first or second order?) features.
+
+
 \section{Analytical perspectives}
-A few macro patterns can be extracted from the data structure implied by the matrix $\mathbf{B}(c,t)$. \todo{to be described}
+\todo{this sort of thing ought to inspire discussion, but the stuff presently in this section may not belong in the paper.}
+A few macro patterns can be extracted from the data structure implied by the matrix $\mathbf{B}(c,t)$. 
 
 \subsection{Analytical vignette 1}
 An example of macro patterns that can be extracted from this data structure include two-distribution location distance statistics, as demonstrated in Fig.~\ref{fig:gmlag}. For each reference year in the range 1775 to \todo{1970} we have the mothers' cohort distribution and the next-generation childbirth year of ocurrence distribution. Since both distributions are derived from the same table of counts by year of ocurrence and mothers' age, it will help to use a simple notation, where the reference year is denoted with $r$, and following the index position convention $B(c,t)$ where mothers' cohort $c$ takes the first and year of ocurrence $t$ the second position, respectively. In this way $B(c,r)$ are the births in year $r$ to mothers from cohort $c$ and $B(r,t)$ are the births in year $t$ to mothers from cohort $c$ (offspring). In this way, the weighted mean intergenerational lag $\overline{m2}$ is defined as
@@ -216,8 +221,13 @@ One of the most immediately visible features of Fig.~\ref{fig:foldout} is the pr
 \label{fig:rBcrBt}
 \end{figure}
 
-
 \FloatBarrier
+
+\singlespacing
+\bibliographystyle{plainnat}
+  \bibliography{references} 
+  
+\pagebreak
 \begin{appendix}
 \section{Data sources and adjustments}
 \label{sec:dataprep}
@@ -225,7 +235,7 @@ Data presented here are from three separate series. The first
 contains birth counts in the period-cohort Lexis shape,
 \texttt{SWEbirthsVV.txt}, as produced by the \citet{HFD} according to the Methods
 Protocol \citep{hfd2015methods}. This file contains births by calendar year and
-mother birth cohort for the years 1891 until \todo{2016}, and we use it as-is. A
+mother birth cohort for the years 1891 until 2016, and we use it as-is. A
 second file contains births for ocurrence years 1775 until 1890. These data are
 age-period classified, and given in a mixture of age classes, with a
 predominance 5-year age classes (especially for ages 20-50), but also sometimes
@@ -259,7 +269,7 @@ adjusted in four main steps. First, births of unknown maternal age were redistri
 \caption{The count regrouping procedure for years 1776 to 1890, step three of data adjustment. Data are graduated to single ages (Fig.~\ref{fig:app1}), then split in half (Fig.~\ref{fig:app2}) and regrouped to period cohort (PC) bins (Fig.~\ref{fig:app3}).}
 \label{fig:AP2PC}
 \end{figure}
-At this stage data are binned and Lexis-conformable with HFD data for years 1891 and forward. With data processed as of step three, one could produce two time series represented in Fig.~\ref{fig:foldout}, with a subtle artifact visible in Fig.~\ref{fig:toosmooth}. In area \textbf{A} of this figure, birth counts in age bins have been graduated using the previously mentioned pclm method, which has the usually-desired artifact of smoothness. For the affected range of years, mother cohorts are identified via the identity $C = P - A - 1$ .\footnote{One subtracts 1 because data are in period-cohort bins.} Since age patterns of counts are smooth, these sum in Lexis diagonals to a smooth time series of cohort total offspring, as seen in the profile of area \textbf{B} of the same figure. Area \textbf{C} of this figure delimits years 1876 until \todo{1968}, where both cohort and matched offspring sizes are directly observed, and where fluctuations would appear to covary quite strongly. In the first instance for reasons of aesthetic continuity, and in the second instance for the sake of a more sensible count graduation, we have opted to adjust the counts in area \textbf{B} to carry the pattern of fluctuation observed over cohort size from 1775 to 1890.
+At this stage data are binned and Lexis-conformable with HFD data for years 1891 and forward. With data processed as of step three, one could produce two time series represented in Fig.~\ref{fig:foldout}, with a subtle artifact visible in Fig.~\ref{fig:toosmooth}. In area \textbf{A} of this figure, birth counts in age bins have been graduated using the previously mentioned pclm method, which has the usually-desired artifact of smoothness. For the affected range of years, mother cohorts are identified via the identity $C = P - A - 1$ .\footnote{One subtracts 1 because data are in period-cohort bins.} Since age patterns of counts are smooth, these sum in Lexis diagonals to a smooth time series of cohort total offspring, as seen in the profile of area \textbf{B} of the same figure. Area \textbf{C} of this figure delimits years 1876 until 1971, where both cohort and matched offspring sizes are directly observed, and where fluctuations would appear to covary quite strongly. In the first instance for reasons of aesthetic continuity, and in the second instance for the sake of a more sensible count graduation, we have opted to adjust the counts in area \textbf{B} to carry the pattern of fluctuation observed over cohort size from 1775 to 1890.
 
 \begin{figure}[ht!]
 \centering
@@ -268,7 +278,7 @@ At this stage data are binned and Lexis-conformable with HFD data for years 1891
 \label{fig:toosmooth}
 \end{figure}
 
-This adjustment works by extracting the fluctuation pattern from \textbf{A} and transfering it to \textbf{B}. We do this by first smoothing the annual time series of total cohort size $B(t)$ according to some smoothness parameter, $\lambda$.\footnote{For the present case we've used a loess smoother, using the \texttt{R} function \texttt{loess()} with smoothing parameter $\lambda =$ \texttt{span}. It would be straightforward to swap this smoothing method out with a different one.} The ratio of $B(t)$ to the smoothed birth series $B(t)^s$ defines the multiplicative adjustment factor, $adj(t) = B(t)/B(t)^s$. Total offspring size $B(c)$ is then adjusted as $B(c)' = adj(t)*B(c), \mathrm{~for~} c = t$. Counts in single ages are then rescaled to sum to the original totals in 5-year age groups, and counts for years $>$ 1890 are unaffected. The smoothing parameter is selected such that the linear relationship in fractional first differences $rd(B(t)) = \frac{B(t+1)-B(t)}{B(t)}$ between the annual birth series and adjusted offspring series $rd(B(c)')$ for years 1775-1890 matches that for the reference years 1877-\todo{1968} as closely as possible. Specifically, we select $\lambda$ so as to minimize the sum of the difference in the slope and residual standard deviation for the periods before and after 1891. Further clarifications about this adjustment, and code for diagnostic plots can be found in the annotated code repository. The end effect is to adjust the series to look like Fig.~\ref{fig:better}.
+This adjustment works by extracting the fluctuation pattern from \textbf{A} and transfering it to \textbf{B}. We do this by first smoothing the annual time series of total cohort size $B(t)$ according to some smoothness parameter, $\lambda$.\footnote{For the present case we've used a loess smoother, using the \texttt{R} function \texttt{loess()} with smoothing parameter $\lambda =$ \texttt{span}. It would be straightforward to swap this smoothing method out with a different one.} The ratio of $B(t)$ to the smoothed birth series $B(t)^s$ defines the multiplicative adjustment factor, $adj(t) = B(t)/B(t)^s$. Total offspring size $B(c)$ is then adjusted as $B(c)' = adj(t)*B(c), \mathrm{~for~} c = t$. Counts in single ages are then rescaled to sum to the original totals in 5-year age groups, and counts for years $>$ 1890 are unaffected. The smoothing parameter is selected such that the linear relationship in fractional first differences $rd(B(t)) = \frac{B(t+1)-B(t)}{B(t)}$ between the annual birth series and adjusted offspring series $rd(B(c)')$ for years 1775-1890 matches that for the reference years 1877-1971 as closely as possible. Specifically, we select $\lambda$ so as to minimize the sum of the difference in the slope and residual standard deviation for the periods before and after 1891. Further clarifications about this adjustment, and code for diagnostic plots can be found in the annotated code repository. The end effect is to adjust the series to look like Fig.~\ref{fig:better}.
 
 \begin{figure}[ht!]
 \centering
@@ -282,10 +292,21 @@ We adjusted in this way for the sake of a more nuanced time series of total offs
 
 \subsection{Projected birth counts}
 \todo{complete when exercise done}
-Offspring counts by year of ocurrence, $B(c,t)$ are only fully observed for years $\le$ \todo{1968}. To complete the reflection, we have opted to project birth counts for cohorts whose fertility careers are incomplete. This is done by combining a projection of cohort fertility rates using the method proposed by \citet{de1985time} with a standard projection of population denominators (mortality projection too? Could also just take the pop projection from Statistics Sweden.). Light documentation to follow here, as well as an update of Fig.~\ref{fig:better}.
+Offspring counts by year of ocurrence, $B(c,t)$ are only fully observed for years $\le$ 1971. To complete the reflection, we have opted to project birth counts for cohorts whose fertility careers are incomplete. This is done by combining a projection of cohort fertility rates using the method proposed by \citet{de1985time} with a standard projection of population denominators (mortality projection too? Could also just take the pop projection from Statistics Sweden.). Light documentation to follow here, as well as an update of Fig.~\ref{fig:better}.
+
+\subsection{Meandering baseline}
+A peculiar feature of Fig.~\ref{fig:foldout} is the meandering baseline, which replaces the standard straight-line $x$-axis. The baseline is derived from the crude cohort replacement rate $\mathbb{R}(c)$, defined as $\mathbb{R}(c) = B(c=r) / B(t=r)$. This measure is not a replacement for the classic measure of net reproduction $R_0$, which differs in a few key ways: i) crude replacement is not sex-specific (our birth series is composed of boy and girl births combined), whereas $R_0$ is typically defined for females only. ii) while births arise from fertility rates over the life course, the number of potential mothers over the life course is not a mere function of mortality, but of migration as well, and the Swedish birth series will have been affected by heavy out-migration from 1850 until the Second World War (cite SCB), and some in-migration in more recent decades. Cohort $R_0$ is purged of population structure such as this (except to the extent that subgroups have differential vital rates), whereas $\mathbb{R}(c)$ is not, and for this reason we call it \emph{crude}.
+
+The series of $\mathbb{R}(c)$ is rather smooth without further treatment, save for 11 periodic breaks between 1970 and 1840, a period of rupture between 1865 and 1880, and another set of at least four breaks since the great depression in the 1930s. Rather than preserve these ruptures, we opt to smooth them out and instead capture long term trends in $\mathbb{R}(c)$ in the baseline. Fig.~\ref{meander}. Keeping the baseline meander smooth minimizes the visual penalty in assessing the variation in $B(c)$ or $B(t)$ separately, but it enhances our ability to see the long term pattern.
+
+\begin{figure}[ht!]
+\centering
+ \includegraphics[scale=.6]{Figures/Meander.pdf}
+\caption{The time series of crude cohort replacement, $\mathbb{R}(c)$, and its smooth pattern (blue line) on which the Fig.~\ref{fig:foldout} meandering baseline is based.}
+\label{fig:meander}
+\end{figure}
+
+\end{appendix}
 
 
-\singlespacing
-\bibliographystyle{plainnat}
-  \bibliography{references} 
 \end{document}

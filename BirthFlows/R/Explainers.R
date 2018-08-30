@@ -113,7 +113,6 @@ text(-.1,-c(5000,50000,100000)-gap,ylabs,pos=2)
 rect(0,Topc[-10],1,Topc[-1],border=gray(.2))
 rect(0,Botc[-10],1,Botc[-1],border=gray(.2))
 
-# TODO: continue with alignment here
 ytop <- Topc + c(2000,8000,13000,7000,0,0,0,-3000,0,4000)
 text(1.7,ytop[-length(ytop)],BI5$C5,pos=4,xpd=TRUE)
 segments(1.1,Topc[-c(5:7,length(Topc))],1.8,ytop[-c(5:7,length(ytop))])
@@ -147,11 +146,11 @@ ytix    <- seq(-10000,10000,by=2000)
 pdf("Figures/FxFlowReflect.pdf",height=3.7,width=10)
 # fresh plane
 par(mai=c(.5,1,.5,.6),xaxs="i",yaxs="i",xpd=TRUE)
-plot(NULL, xlim = range(1720,2015),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
+plot(NULL, xlim = range(1720,2017),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
 
 # grid lines
 segments(seq(1720,2010,by=10),-10000,seq(1720,2010,by=10),10000,col = gray(.8))
-segments(1720,ytix,2015,ytix,col = gray(.8))
+segments(1720,ytix,2017,ytix,col = gray(.8))
 
 # axis labels
 text(seq(1720,2000,by=20),-10000,seq(1720,2000,by=20),pos=1)
@@ -173,7 +172,7 @@ arrows(1900,-10000,1900,-max(PC[,"1900"]),length=.05)
 arrows(1900,10000,1900,max(PC["1900",]),length=.05)
 
 # centerline
-segments(1720,0,2015,0,lwd=.5)
+segments(1720,0,2017,0,lwd=.5)
 
 # formalize labels of 1900
 text(1871,-8485,"A",font=2,cex=1.5)
@@ -239,7 +238,7 @@ coh  <- colSums(PCin)
 cohs <- as.integer(names(coh))
 yrs  <- as.integer(names(per))
 rc <- function(x){
-	rev(cumsum(Rev(x)))
+	rev(cumsum(rev(x)))
 }
 PCc <- apply(PCin,2,cumsum)
 fyrs  <- 1836:1876
@@ -247,7 +246,7 @@ frac <- PCc["1890",as.character(fyrs)]
 
 
 pdf("Figures/App_preAdjustment.pdf",height=5,width=10)
-plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1721, 2014), ylim = c(-150000,150000))
+plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1721, 2017), ylim = c(-150000,150000))
 polygon(x=c(yrs,rev(yrs)),y=c(per,rep(0,length(yrs))),col="#AADDDD", border = NA)
 polygon(x=c(cohs,rev(cohs)),y=c(-coh,rep(0,length(cohs))),col="#AADDAA", border = NA)
 grid(lty=1,col="white")
@@ -281,7 +280,7 @@ cohs <- as.integer(names(coh))
 PCc  <- apply(PCi,2,cumsum)
 frac <- PCc["1890",as.character(fyrs)]
 pdf("Figures/App_postAdjustment.pdf",height=5,width=10)
-plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1721, 2014), ylim = c(-150000,150000))
+plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1721, 2017), ylim = c(-150000,150000))
 polygon(x=c(yrs,rev(yrs)),y=c(per,rep(0,length(yrs))),col="#AADDDD", border = NA)
 polygon(x=c(cohs,rev(cohs)),y=c(-coh,rep(0,length(cohs))),col="#AADDAA", border = NA)
 grid(lty=1,col="white")

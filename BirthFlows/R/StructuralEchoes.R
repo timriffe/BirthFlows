@@ -40,7 +40,7 @@ polygon(c(x,rev(x)),c(p1$fit - 2*p1$se.fit,rev(p1$fit + 2*p1$se.fit)),col="#FF00
 polygon(c(x,rev(x)),c(p2$fit - 2*p2$se.fit,rev(p2$fit + 2*p2$se.fit)),col="#0000FF20",border=NA)
 abline(lm1,col="magenta")
 abline(lm2,col="blue")
-text(.1,c(-.04,-.06),c("1775-1890","1891-1968"),col=c("magenta","blue"))
+text(.1,c(-.04,-.06),c("1775-1890",paste0("1891-", rightCoh(SWE,45))),col=c("magenta","blue"))
 text(.15,.15,"unity",srt=45,pos=3)
 
 dev.off()
