@@ -191,6 +191,12 @@ To aid the viewer with interpretation, we overlay a known lineage of five female
 \label{fig:foldout}
 \end{figure}
 
+\subsection{Notes on visual form}
+This visualization derives from stacked area charts in general and riverplots (theme river) and streamgraphs in particular \citep{byron2008stacked}, but we wish to point out a few notable differences. Our birth flow visualization is composed of two separate stacked area graphs, where polygons appear in chronological order from left to right. If the top and bottom graph sections were vertically centered independently of one another, then these would comprise two ``river'' graphs. Instead, the two series are squeezed together to share a $y$ coordinate at 0, and vertical centering is approximated on average by smooth baseline shifts. Different kinds of visual analytic tasks are probably penalized by this choice of form. For example, using the metrics proposed by \citet{thudt2016assessing}, we hypothesize that our visualization would perform moderately well in terms of ``individual discrimination'' (presumably conditioned on non-zero birth counts!), \emph{very} well in terms of ``stream comparison'', since the rendering of each birth distribution is matches to $x$, and \emph{very} well in terms of aggregate discrimination of top vs bottom (because the meandering baseline gives this), and moderately well in terms of aggregate discrimination of top plus bottom, because river and stream plots also perform well on this metric and our visualization resembles these. On the other hand, certain visual tasks are augmented due to the nature of the data: visual discrimination of polygons is all but guaranteed. Chronological order is clear to the viewer. Color darkness and saturation may make it easier to compare the areas of non-adjacent polygons. Even so, we accept high losses of value lookup ability, for the sake of an aesthetic welcome mat to those who wish to learn more about the funamentals of demography in general and the Swedish birth flow in particular. Few large questions can be answered with this graphic, but many may be inspired.
+
+On the other hand, this visualization is not an augmented table, but is rather intended to covertly introduce the active viewer into some fundamental features of demography in general and Sweden in particular. It is supposed to infect with curiosity rather than diagnose data. We accept this tradeoff, but note that in a small trial 
+
+
 \section{Discussion}
 \todo{To be continued...This section and the following analytical perspectives section are only temporary. We probably won't want to introduce new}
 Several macro features come to the fore in this visualization. These are either known features of the Swedish birth series, or else merit further study. Echoes, booms, why is boom periodicity a recent phenomenon? Is there a dose-response to vertical reverberation in first derivative (can this be referred to as first or second order?) features.
@@ -226,6 +232,10 @@ One of the most immediately visible features of Fig.~\ref{fig:foldout} is the pr
 \caption{A roughly 1:1 does-response relationship in relative size of structural echo.}
 \label{fig:rBcrBt}
 \end{figure}
+
+\subsection{Analytical vignette 3}
+\todo{KB suggests highlighting changes in the distribution of maternal age.} This is an interesting take: indeed the outer profiles would end up being the same, but the filled polygons would look different. If we did both at once then it'd make a plaid feel. Worth thought. Age could map to some other color property within polygons? Note: the younger-older gradient isn't reflected over $x$, as chronology is enforced. That is, earlier years of birth of offspring mean young (outside on bottom), but earlier years of birth of mother means old (outside on top). So earlier on the outside moves to later on the inside of the flow, but the younger-older gradient rather follows a down-up pattern within both the top and bottom. So adding age to the picture would require further care. But that's not to say there couldn't be an entirely separate plot of the same data indexed to age. Of the plaid remix of APC, with `younger-to-older' or `older-to-younger' from the baseline outward. 
+
 
 \FloatBarrier
 
