@@ -445,6 +445,18 @@ P5Ccs <- rbind(0,P5Ccs)
 # ---------------------
 # make a meander:
 # let's get a ratio (coh / period):
+
+# ---------------------------------
+# TODO:
+# 2) optimize so that Bc + Bt is centered on average.
+
+# NOTE: the object used in BirthFlows.R
+# is meander_smoothed,
+# and it is modified as so:
+# meander_smoothed <- meander_smoothed * 7e4
+# the value 7e4 can probably be optimized to achieve centering.
+# ---------------------------------
+
 BT      <- colSums(PC5)
 BC      <- colSums(P5C) 
 
@@ -461,11 +473,12 @@ meander_extended <- c(rep(start,Nstart),meander,rep(end,Nend))
 
 yrs_smooth       <- min(Cohs):max(Yrs)
 
-meander_smoothed <- smooth.spline(x = yrs_smooth, y =meander_extended, lambda = .00001)$y
+meander_smoothed <- smooth.spline(x = yrs_smooth, y = meander_extended, lambda = .00001)$y
 names(meander_smoothed) <- yrs_smooth
 
-subt <- (meander_smoothed[1] + meander_smoothed[length(meander_smoothed)]) / 2
+subt             <- (meander_smoothed[1] + meander_smoothed[length(meander_smoothed)]) / 2
 meander_smoothed <- (meander_smoothed - subt) * 2 + subt
+
 # plot(yrs_smooth, meander_smoothed, ylim = c(.2,3))
 # lines(yrs_smooth,(meander_smoothed - subt) * 2 + subt)
 
