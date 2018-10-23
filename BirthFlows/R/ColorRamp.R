@@ -108,7 +108,15 @@ blend <- function(col1, col2){
 	rgbnew <- sqrt((rgb1^2+rgb2^2)/2)
 	rgb2hex(c(rgbnew))
 }
-
+pow.blend <- function(col1, col2, pow = 2){
+	rgb1   <- col2rgb(col1)
+	rgb2   <- col2rgb(col2)
+	rgbnew <- ((rgb1^pow+rgb2^pow)/2)^(1/pow)
+	rgb2hex(c(rgbnew))
+}
+sblend <- function(cols1,cols2,blendfun=pow.blend,...){
+	mapply(blendfun,cols1,cols2,...)
+}
 
 # darkens a color to a specific grayscale target darkness. not vectorized
 darken.to <- function(hexcol,target=.2){
@@ -356,5 +364,33 @@ vangoghcorn         <- rev(eqspace2(cols14,.3,.7,.8,.4))
 # # show.pal(cols2[pick],FALSE)
 # # text(.5:(length(pick)-.5),0,pick,pos=1,cex=.5,xpd=TRUE)
 # colorsharvest <- cols2[pick]
+
+# ramp blending tests:
+library(RColorBrewer)
+display.brewer.all()
+
+
+par(mfrow=c(3,1))
+show.pal(brewer.pal(9,"YlGn"),F)
+show.pal(mapply(blend,brewer.pal(9,"Greens"),brewer.pal(9,"Blues")),F)
+show.pal(brewer.pal(9,"YlGnBu"),F)
+
+show.pal(c(darkenhex("#F7F0C7",0),
+				darkenhex("#F7F0C7",.1),
+				darkenhex("#F7F0C7",.2),
+				darkenhex("#F7F0C7",.3)))
+yellows <-sapply(seq(0,.5,length=9),darkenhex,hexcols="#F7F0C7")
+show.pal(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1),T)
+
+show.pal(c(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/16),
+		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/8),
+		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/4),
+        sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/2),
+		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1),
+		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=2),
+		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=4),
+		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=8),
+		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=16)))
+
 
 
