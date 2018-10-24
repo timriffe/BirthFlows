@@ -4,361 +4,83 @@ setwd("/home/tim/git/BirthFlows/BirthFlows")
 # download birthsVV (period-cohort Lexis shape for birth counts) from HFD. 
 library(RColorBrewer)
 library(HMDHFDplus)
-library(pclm)
+library(ungroup)
 library(reshape2)
 library(data.table)
+library(DemoTools)
 
-# group single ages (useful for rescaling)
-groupN <- function(x,y,n){
-	tapply(x, y - y %% n, sum)
-}
-
-# (adjustment step 1)
-# redistribute births of unknown mother age (UNK)
-b_unk <- function(Chunk){
-	if (! "UNK" %in% Chunk$Age){
-		return(Chunk)
-	}
-	UNK          <- Chunk$Births[Chunk$Age == "UNK"]
-	Chunk        <- Chunk[Chunk$Age != "UNK", ]
-	w            <- Chunk$Births / sum(Chunk$Births)
-	Chunk$Births <- Chunk$Births + w * UNK
-	Chunk
-}
-
-# use early version of pclm algorithm to graduate
-# re write to use ungroup package
-#graduatechunk <- function(chunk){
-#	if (length(unique(chunk$Vital))>1){
-#		chunk <- chunk[chunk$Vital == min(chunk$Vital),]
-#	}
-#	# some years have lower age cat <= 19, but we want to extend
-#	# lower bound to 15-19. Assume sorted age (they are)
-#	a <- as.integer(chunk$Age)
-#	if (a[1] == 19){
-#		a[1] <- 15
-#	}
-#	minA    <- min(a)
-#	add     <- rev(diff(a))[1]
-#	# upper bound of highest age
-#	a[length(a)+1] <- a[length(a)] + add
-#	
-#	B       <- chunk$Births
-#	
-#	# early implementation of pclm assumed start at age 0...
-#	breaks  <- a - minA
-#	# this gets the result already (assumes single age output)
-#	# also only returned a single vector back then
-#	bout    <- pclm(dta = B, breaks)
-#	# then shift ages back up
-#	Age 	<- minA:(max(a)-1)
-#	N 		<- length(Age)
-#	out     <- data.frame(
-#			          PopName = rep("SWE", N),
-#					  Year = rep(unique(chunk$Year), N),
-#					  Age = Age,
-#					  AgeInt = rep(1, length(Age)),
-#					  Lexis = rep("RR", N),
-#					  Births = bout$fitted.values[,1])
-#	
-#	out
-#}
-
-bin2age <- function(binchar = "[15,16)"){
-	matches <- regmatches(binchar, gregexpr("[[:digit:]]+", binchar))
-	as.numeric(unlist(matches))[1]
-}
-# adjustment step 2
-# now uses most recent ungroup package
-graduatechunk <- function(chunk){
-	if (length(unique(chunk$Vital))>1){
-		chunk <- chunk[chunk$Vital == min(chunk$Vital),]
-	}
-	cat(chunk$Year[1],"\n")
-	# some years have lower age cat <= 19, but we want to extend
-	# lower bound to 15-19. Assume sorted age (they are)
-	
-	x       <- as.integer(chunk$Age)
-	y       <- chunk$Births
-	if (x[1] == 19){
-		x[1] <- 15
-	}
-	# how far should we distribute the open age group. This
-	# will turn out to be 5 ages every time (50-54)
-	nlast   <- 55 - max(x)
-	if (nlast < 1){
-		nlast <- 1
-	}
-    # data now in single ages, not strictly constrained,
-	# but we take care of this later.
-
-	bout    <- ungroup::pclm(x = x, y = y, nlast = nlast)$fitted
-	Age     <- sapply(names(bout),bin2age)
-	# then shift ages back up
-	
-	N 		<- length(Age)
-	out     <- data.frame(
-			     PopName = rep("SWE", N),
-			     Year = rep(unique(chunk$Year), N),
-			     Age = Age,
-			     AgeInt = rep(1, length(Age)),
-			     Lexis = rep("RR", N),
-			     Births = bout)
-	
-	out
-}
-
-# Shift to PC parallelograms (adjustment step 3)
-RR2VV <- function(chunk){
-	n             <- nrow(chunk)
-	chunk1        <- chunk
-	chunk1$Births <- chunk1$Births / 2
-	chunk2        <- chunk1
-	chunk2$Births[-1] <- chunk2$Births[-1] + chunk2$Births[-n]
-	chunk2$Lexis  <- "VV"
-	chunk2
-}
-
-# functions for first-difference matching sort of.
-makeMask <- function(PC, maxYr = 1891, maxCoh = 1775){
-	PCmask                   <- PC
-	cohs                     <- as.integer(colnames(PC))
-	yrs                      <- as.integer(rownames(PC))
-	PCmask[yrs >= maxYr, ]   <- 0
-	PCmask[yrs < maxYr, ]    <- 1
-	PCmask[, cohs < maxCoh]  <- 0
-	PCmask                   <- !PCmask
-	PCmask
-}
-
-# reverse engineer this to
-constrainBlocks <- function(SWE, PCpert, maxit = 100, tol = .1){
-	
-	# SWE is a file whose totals in 5-year age groups we wish
-	# to treat as canonical. It needs to be reshaped to a matrix.
-	# PCpert is said matrix, with years < 1891 perturbed to 
-	# approximate an echo strength from first order differences
-	# in the period birth series. We use SWE to constrain it back,
-	# keeping perturbations in single ages.
-	SWE$Age5                  <- SWE$ARDY - SWE$ARDY %% 5
-	SWE$Age5[SWE$Age5  == 10] <- 12 
-	
-	# 1) shape SWE to same dims as PCpert
-	PCin     <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
-	# 2) get period and cohort vectors
-	yrs      <- as.integer(rownames(PCin))
-	cohs     <- as.integer(colnames(PCin))
-	# 3) create logical mask to delimit cells for rescaling,
-	# to be used later
-	PCmask   <- makeMask(PCin)
-	# 4) reshape PCpert to long format to merge w SWE
-	PChat    <- melt(PCpert, varnames = c("Year","Cohort"), value.name = "Bhapert")
-	# 5) merge them together
-	SWEmerge <- merge(SWE, PChat, by = c("Year","Cohort"), all.x = TRUE, all.y = FALSE)
-	# 6) change class for easy group operations
-	SWEmerge <- data.table(SWEmerge)
-	# 7) get totals in 5 year age groups 
-	# before and after single age perturbation
-	SWEmerge[, GroupTot:=sum(Total),by=list(Year,Age5)]    # canonical
-	SWEmerge[, Grouphat:=sum(Bhapert),by=list(Year,Age5)]  # to rescale
-	# 8) rescale to sum properly
-	SWEmerge[, Bhat := (Bhapert / Grouphat) * GroupTot, ]
-	# 9) might induce NaN, etc. Keep orig values if so.
-	nanor0                <- SWEmerge$Bhat == 0 | is.nan(SWEmerge$Bhat)
-	SWEmerge$Bhat[nanor0] <- SWEmerge$Total[nanor0]
-	# 10) reshape back to PC matrix
-	PCout         <- acast(SWEmerge, Year ~ Cohort, sum, value.var = "Bhat")
-	# 11) impute original, unperturbed values outside 
-	# Lexis bounds of adjustment
-	PCout[PCmask] <- PCin[PCmask]
-	
-	# 12) Now constrain annual totals
-	# create vector of canonical period totals
-	Bknown <- rowSums(PCin)
-	for (i in 1:maxit){
-		# annual totals as of now
-		Bi     <- rowSums(PCout) 
-		# break condition
-		if (sum(abs(Bi-Bknown))<tol){
-			break
-		}
-		# now rescale to sum to canonical year total
-	    # this affects some cells we wish to hold as canonical,
-	    # so wash, wrinse, repeat
-		PCout  <- PCout * (Bknown / Bi)
-		# put back in canonical values
-		PCout[PCmask] <- PCin[PCmask]
-	}
-	# return result.
-	PCout
-}
-
-# This perturbation method is based on transfering differences from period
-# to offspring. Differences are proportional differences from observerd
-# period totals and a loess smooth of the same series, where the single
-# parameter span determines the smoothness of the reference. This is meant
-# to mimick the smoothing that offspring reference cohorts will have undergone
-# from pclm. SWE is the master file, post graduation.
-pertspan <- function(SWE, span = .05){
-	PCin   <- acast(SWE, Year~Cohort, sum, value.var = "Total")
-	
-	# period and offspring(coh) series
-	per    <- rowSums(PCin)
-	coh    <- colSums(PCin)
-	
-	# x variables
-	yrs    <- as.integer(names(per))
-	yrsi   <- yrs < 1891
-	cohs   <- as.integer(colnames(PCin))
-	cohsi  <- cohs >= 1775 & cohs < 1891
-	
-    # fit loess to period of given span parameter
-	lo     <- loess(per~yrs, span = span)
-	# and what is the relative difference?
-	ratio  <- (lo$y[yrsi] / lo$fitted[yrsi])
-	PCi    <- PCin
-	# perturb offspring cohorts by that much
-	PCi[, cohsi] <- t(t(PCi[, cohsi]) * ratio)
-	# now constrain back (5-year age constraint + only allowed
-	# to perturb in data that were graduated.
-	PCi    <- constrainBlocks(SWE, PCi, maxit = 100, tol = .1)
-	
-	PCi
-}
-
-# TODO: decide how to weight sd vs slope in lm()
-# optimize best span given slope and sd of relative first differences
-# in period vs offspring series pre and post adjustment break.
-minspan <- function(SWE, span = .05, maxAge = 45){
-	PCpert    <- pertspan(SWE, span = span)
-	
-	Bc        <- colSums(PCpert)
-	Bt        <- rowSums(PCpert)
-	# 4) rel first differences in annual births
-	rdt       <- diff(Bt) / Bt[-length(Bt)]
-	# 5) rel first differences in offspring size
-	rdc       <- diff(Bc) / Bc[-length(Bc)]
-	
-	# 6) canonical values. How well do rel first differences correlate,
-	# and what is the slope in their size relationship?
-	compgen   <- as.character(1876:rightCoh(SWE, Age = maxAge))
-	# correlation
-	# cr        <- cor(rdt[compgen], rdc[compgen])
-	# slope parameter
-	mod1      <- lm(rdt[compgen]~ rdc[compgen])
-	slp       <- mod1$coef[2]
-	se        <- sd(mod1$residuals)
-	# 7) perturbed values
-	pertgen   <- as.character(1776:1875)
-	# correlation in rel first diffs in adjustment area
-	# cr_p      <- cor(rdt[pertgen], rdc[pertgen])
-	# slope in rel first diffs in adjustment area
-	mod2      <- lm(rdt[pertgen]~ rdc[pertgen])
-	slp_p     <- mod2$coef[2]
-	se_p      <- sd(mod2$residuals)
-	2*(se - se_p)^2 + 8*(slp - slp_p)^2
-}
-
-# which is the oldest 'complete' cohort?
-rightCoh <- function(SWE, Age = 45){
-	ind <- SWE$Year == max(SWE$Year) &
-			SWE$ARDY == Age
-	SWE$Cohort[ind]
-	
-}
-
-# ---------------------------------------------
-# deprecated perturbation method
-#perturbDiffs <- function(par=.5,SWE){
-#	# a 2 step operation 
-#	# First perturb offspring diffs to keep a fraction 
-#	# of first diffs of birth series (i.e. structural echo),
-#	# then rescale to keep totals as desired.
-#	
-#	# 1) take input SWE file, i.e. where years pre 1891 are smooth
-#	# from graduation exercise, reshape to PC matrix
-#	PCin            <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
-#	# 2) make a copy
-#	PC              <- PCin
-#	# 3) create mask delimiting Lexis bounds of perturbation
-#	PCmask          <- makeMask(PCin)
-#	# 4) annual birth totals, to preserve.
-#	Bt              <- rowSums(PCin)
-#	ny              <- length(Bt)
-#	yrs             <- as.integer(names(Bt))
-#	# year identifier TRUE for years within the perturbation range
-#	yrsi            <- yrs >= 1775 & yrs < 1876
-#	# 5) first differences we expect to echo some
-#	dBt             <- diff(Bt)
-#	
-#	# 6) change relative to last year's births
-#	rdBt            <- dBt/Bt[-ny]
-#	# -----------------
-#	# 7) total offspring from mother cohort (by cohort)
-#	Bc              <- colSums(PCin)
-#	nc              <- length(Bc)
-#	cohs            <- as.integer(names(Bc))
-#	# we're allowed to perturb cohorts 1775 through 1891
-#	cohsi           <- cohs >= 1775 & cohs < 1876
-#	# 8) perturbation factor. par is a prior, to come from separate optimization.
-#	# par is positive, ca .4, so perturbation is:
-#	# 1 - (.4 of relative change in size of mother cohort).
-#	pertc           <- (1 - (rdBt[yrsi] * par))
-#	
-#	PC[, cohsi]     <- t(t(PC[, cohsi]) * pertc)
-#	PC[PCmask]      <- PCin[PCmask]
-#	
-#	# 9) constrain and return
-#	PC              <- constrainBlocks(SWE, PCpert = PC)
-#	PC
-#}
-#
-#minpert <- function(par, SWE){
-#	# now find the optimal echo factor
-#	
-#	# 1) get PC matrix from original SWE file, where births from
-#	# mothers born in years < 1891 are overly smooth
-#	PC     <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
-#	
-#	# 2) for the given perturbation factor, give back the martix,
-#	# with values only for cohorts 1775-1890 before year 1891 perturbed
-#	PC2       <- perturbDiffs(par, SWE)
-#	# 3) get marginals from which to calculate differences
-#	Bt        <- rowSums(PC)
-#	Bc        <- colSums(PC2)
-#	ny        <- length(Bt)
-#	nc        <- length(Bc)
-#	# 4) rel first differences in annual births
-#	rdt       <- diff(Bt) / Bt[-ny]
-#	# 5) rel first differences in offspring size
-#	rdc       <- diff(Bc) / Bc[-nc]
-#	
-#	# 6) canonical values. How well do rel first differences correlate,
-#	# and what is the slope in their size relationship?
-#	compgen   <- as.character(1876:1959)
-#	# correlation
-#	# cr        <- cor(rdt[compgen], rdc[compgen])
-#	# slope parameter
-#	mod1     <- lm(rdt[compgen]~ rdc[compgen])
-#	slp      <- mod1$coef[2]
-#	se       <- sd(mod1$residuals)
-#	# 7) perturbed values
-#	pertgen   <- as.character(1776:1875)
-#	# correlation in rel first diffs in adjustment area
-#	# cr_p      <- cor(rdt[pertgen], rdc[pertgen])
-#	# slope in rel first diffs in adjustment area
-#	mod2      <- lm(rdt[pertgen]~ rdc[pertgen])
-#	slp_p     <- mod2$coef[2]
-#	se_p      <- sd(mod2$residuals)
-#
-#	# 8) how close do we get to correlation and slope?
-#	# calc residual:
-#	# we want both slope and correlation to be
-#	# as close as possible. This is the quantity we try to 
-#	# minimize by changing the input 'par'
-#	3*(se - se_p)^2 + 7*(slp - slp_p)^2
-#}
 # -------------------------------------------------
+
+# Total births for single years 1736 to 1775
+oldtotals <- read.csv("Data/HistoricalTotals1736to1775.csv")
+#plot(oldtotals$Year,oldtotals$Births)
+
+# These are single-age ASFR, in 5-year groups. Graduated
+# by HFC, data originally in 5x5 Lexis cells. Years 1751+
+# ASFR  <- readHFCweb("SWE","ASFRst
+#save(ASFR,file = "Data/ASFR_1751to1775.Rdata")and_TOT")
+# ASFR  <- ASFR[ASFR$Year <= 1775,]
+#lt <- readHMDweb("SWE","bltper_1x1",username = us, password = pw)
+#lt <- lt[lt$Year <= 1755, ]
+#Expos <- readHMDweb("SWE","Exposures_1x1",username = us, password = pw)
+#Expos <- Expos[Expos$Year == 1751, ]
+#save(Expos,file="Data/Expos1751.Rdata")
+#save(lt,file = "Data/lt_1751to1755.Rdata")
+Pop <- readHMDweb("SWE","Population",username = us, password = pw)
+devtools::load_all("/home/tim/git/IDButils/IDButils/IDButils")
+Pin <- readIDBcurrent("SWE","pop",full.path = "/home/tim/git/BirthFlows/BirthFlows/Data/SWEpop.txt")
+Pin <- Pin[Pin$Year == 1751, ]
+Pt  <- Pin$Population[Pin$Sex == "f"] + Pin$Population[Pin$Sex == "m"] 
+A   <- Pin$Age[Pin$Sex == "f"]
+AI  <-  as.integer(Pin$AgeInterval[Pin$Sex == "f"])
+
+# What the fuck. Do I need to split 1751 census myself?
+plot(A, Pt / AI,type="S")
+lines(0:110, Pop$Total1[Pop$Year ==1751])
+lines(0:110, Ex, col = "red")
+
+
+plot(Pop$Total1[Pop$Year ==1751])
+ASFR <- local(get(load("Data/ASFR_1751to1775.Rdata")))
+
+
+asfr <- acast(ASFR, Age~Year,value.var = "ASFR")
+
+lt   <- local(get(load("Data/lt_1751to1755.Rdata")))
+Ex   <- local(get(load("Data/Expos1751.Rdata")))$Total
+LT   <- acast(lt, Age~Year, value.var = "lx")
+#matplot(LT,type='l')
+#lines(rowMeans(LT),col="blue",lwd=2)
+
+ n <- 1:60
+ hyrs  <- 1736:1750
+ExHist <- matrix(0,nrow=60,ncol=length(hyrs),dimnames=list(0:59,hyrs)) 
+
+for (i in 1:15){
+	ExHist[, 16-i] <- ratx(LT[,5],-i)[n] * shift.vector(Ex,-i)[n]
+}
+plot(hyrs, ExHist[1,],ylim=c(40000,75000))
+lines(hyrs, oldtotals$Births[oldtotals$Year < 1751])
+#t(t(asfr) / colSums(asfr,na.rm=TRUE))
+#matplot(14:50,t(t(asfr) / colSums(asfr,na.rm=TRUE)),type='l')
+
+
+
+# STEPS:
+# 1) given asfr, uniform over 5-year Year-intervals, what are
+# predicted birth counts for each year? \hat{B(t)}
+# 2) rescale to observed totals, multiplying all age groups by same factor.
+# \hat{B(a,t)} * B(t) / \hat(B(t)}
+# 3) B(a,t) is in ACY, so use RR2VV to split to VV and add on.
+
+# 4) are shocks already imlied? I think so.. So what join in 1775 looks like:
+# 2 estimates for 1775,1776,1777,1778,1779, do spot check
+
+# STEP 2:
+# consider age-breakdown of births for years 1736-1750. 
+# lx-inflate year 1751 population backwards.
+
+
 
 # these are the historical births
 SWEh  <- read.csv("Data/SWEbirths.txt",na.strings = ".")
