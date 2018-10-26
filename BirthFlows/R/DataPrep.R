@@ -15,57 +15,96 @@ library(DemoTools)
 oldtotals <- read.csv("Data/HistoricalTotals1736to1775.csv")
 #plot(oldtotals$Year,oldtotals$Births)
 
+# --------------------------
+# deprecated test code
 # These are single-age ASFR, in 5-year groups. Graduated
 # by HFC, data originally in 5x5 Lexis cells. Years 1751+
 # ASFR  <- readHFCweb("SWE","ASFRst
 #save(ASFR,file = "Data/ASFR_1751to1775.Rdata")and_TOT")
 # ASFR  <- ASFR[ASFR$Year <= 1775,]
-#lt <- readHMDweb("SWE","bltper_1x1",username = us, password = pw)
+#lt <- readHMDweb("SWE","fltper_1x1",username = us, password = pw)
 #lt <- lt[lt$Year <= 1755, ]
 #Expos <- readHMDweb("SWE","Exposures_1x1",username = us, password = pw)
-#Expos <- Expos[Expos$Year == 1751, ]
-#save(Expos,file="Data/Expos1751.Rdata")
+#Expos <- Expos[Expos$Year < 1775, ]
+#save(Expos,file="Data/Expos1751to1774.Rdata")
 #save(lt,file = "Data/lt_1751to1755.Rdata")
-Pop <- readHMDweb("SWE","Population",username = us, password = pw)
-devtools::load_all("/home/tim/git/IDButils/IDButils/IDButils")
-Pin <- readIDBcurrent("SWE","pop",full.path = "/home/tim/git/BirthFlows/BirthFlows/Data/SWEpop.txt")
-Pin <- Pin[Pin$Year == 1751, ]
-Pt  <- Pin$Population[Pin$Sex == "f"] + Pin$Population[Pin$Sex == "m"] 
-A   <- Pin$Age[Pin$Sex == "f"]
-AI  <-  as.integer(Pin$AgeInterval[Pin$Sex == "f"])
+#Pop <- readHMDweb("SWE","Population",username = us, password = pw)
+#devtools::load_all("/home/tim/git/IDButils/IDButils/IDButils")
+#Ex   <- local(get(load("Data/Expos1751.Rdata")))$Female
+#Pin  <- readIDBcurrent("SWE","pop",full.path = "/home/tim/git/BirthFlows/BirthFlows/Data/SWEpop.txt")
+#Pt   <- Pin[Pin$Year == 1751 & Pin$Sex == "f", ]$Population
+# --------------------------
 
-# What the fuck. Do I need to split 1751 census myself?
-plot(A, Pt / AI,type="S")
-lines(0:110, Pop$Total1[Pop$Year ==1751])
-lines(0:110, Ex, col = "red")
-
-
-plot(Pop$Total1[Pop$Year ==1751])
+# this object useful for years 1736-1775
 ASFR <- local(get(load("Data/ASFR_1751to1775.Rdata")))
 
-
-asfr <- acast(ASFR, Age~Year,value.var = "ASFR")
-
+# lifetables for retrojection
 lt   <- local(get(load("Data/lt_1751to1755.Rdata")))
-Ex   <- local(get(load("Data/Expos1751.Rdata")))$Total
 LT   <- acast(lt, Age~Year, value.var = "lx")
-#matplot(LT,type='l')
-#lines(rowMeans(LT),col="blue",lwd=2)
+# Read in year 1751 female census (July 1, proxy for exposure)
+Pt   <- c(27127L, 49895L, 47264L, 89148L, 88017L, 83206L, 81877L, 75966L, 
+		64870L, 55368L, 50642L, 43647L, 43411L, 33508L, 39769L, 28201L, 
+		19507L, 9273L, 6352L, 2004L, 1039L)
+# age and age intervals, could also come from data..
+A    <- c(0, 1, 3, seq(5, 90, by = 5))
+AI   <- c(diff(A), 1)
 
- n <- 1:60
- hyrs  <- 1736:1750
-ExHist <- matrix(0,nrow=60,ncol=length(hyrs),dimnames=list(0:59,hyrs)) 
+#splitMono(Pt, AgeInt = c(1,2,2,rep(5,17),1), OAG=TRUE)
 
+# ---------------------------------------------
+# adjust 1751 midyear population to use a jump-off for retrojection
+# 1) smooth over 5-year age groups
+smoothed5      <- c(Pt[1:3],
+		            agesmth(Pt, A, ageMin = 5, ageMax = 80,
+				    method = "United Nations", 
+					young.tail = "Original", old.tail = "Original")[-1])
+# 2) graduate to single ages
+smoothed1      <- sprague(smoothed5, Age = A, OAG=TRUE)
+
+# 3) and get back original totals for ages 0-4. Plays no role in
+# retrojection, just a perfectionist detail.
+smoothed1      <- rescaleAgeGroups(
+		            Value1 = smoothed1, 
+		            AgeInt1 = rep(1,length(smoothed1)), 
+		            Value2 = smoothed5, 
+		            AgeInt2 = AI, 
+		            splitfun = splitUniform,
+					recursive = TRUE)
+# ---------------------------------------------
+
+# parameters and container for retrojection
+n        <- 1:60
+hyrs     <- 1736:1750
+ExRetro  <- matrix(0, nrow = 60, ncol = length(hyrs), dimnames = list(0:59, hyrs)) 
+# loop back 1 == 1750, 15 = 1736
 for (i in 1:15){
-	ExHist[, 16-i] <- ratx(LT[,5],-i)[n] * shift.vector(Ex,-i)[n]
+	# ratx() is lagged ratios
+	ExRetro[, 16-i] <- ratx(rowMeans(LT), -i)[n] * shift.vector(smoothed1, -i)[n]
 }
-plot(hyrs, ExHist[1,],ylim=c(40000,75000))
-lines(hyrs, oldtotals$Births[oldtotals$Year < 1751])
-#t(t(asfr) / colSums(asfr,na.rm=TRUE))
-#matplot(14:50,t(t(asfr) / colSums(asfr,na.rm=TRUE)),type='l')
 
+# recast fertility in AP matrix form
+asfr        <- acast(ASFR, Age~Year,value.var = "ASFR")
+asfr        <- asfr[as.character(15:49), ] # NAs in open ages, cut off
+# average standardized ASFR over the period. Very stable age pattern.
+masfr       <- colMeans(t(asfr) / colSums(asfr))
+# first-pass implied totals (note masfr implied tfr of 1 each year)
+B1.3        <- ExRetro[16:50,] * masfr
+# ratios to inflate birth counts = implied TFR per year. 
+cof.3       <- oldtotals$Births[oldtotals$Year < 1751] / colSums(B1.3)
+# rescale first pass of births by age, save this object to append to historical series.
+Boldold_AP  <- t(B1.3) * cof.3
 
+# ---------------------------------
+# Now adjustments for births in years 1751-1774
+Expos <- local(get(load("Data/Expos1751to1774.Rdata")))
 
+# get female exposure in AP matrix:
+ExAP   <- acast(Expos[Expos$Year < 1775, ], Age~Year, value.var = "Female")[16:50, ]
+asfrAP <- t(apply(asfr,1,rep,times=c(rep(5,4),4)))
+BAP    <- ExAP * asfrAP
+Bobs   <- oldtotals$Births[oldtotals$Year >= 1751 & oldtotals$Year < 1775] 
+cof    <- Bobs / colSums(BAP)
+B_1751to1774 <- t(t(BAP) * cof)
 # STEPS:
 # 1) given asfr, uniform over 5-year Year-intervals, what are
 # predicted birth counts for each year? \hat{B(t)}
