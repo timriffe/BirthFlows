@@ -1,4 +1,5 @@
 # TODO: decide how to weight sd vs slope in lm()
+# planned solution: weight such that series is on average centered.
 
 setwd("/home/tim/git/BirthFlows/BirthFlows")
 # download birthsVV (period-cohort Lexis shape for birth counts) from HFD. 
@@ -8,6 +9,7 @@ library(ungroup)
 library(reshape2)
 library(data.table)
 library(DemoTools)
+source("/home/tim/git/BirthFlows/BirthFlows/R/Functions.R")
 
 # -------------------------------------------------
 
@@ -92,7 +94,13 @@ B1.3        <- ExRetro[16:50,] * masfr
 # ratios to inflate birth counts = implied TFR per year. 
 cof.3       <- oldtotals$Births[oldtotals$Year < 1751] / colSums(B1.3)
 # rescale first pass of births by age, save this object to append to historical series.
-Boldold_AP  <- t(B1.3) * cof.3
+B_1736to1750  <- t(B1.3) * cof.3
+
+# turn into object conformable with downstream objects
+B_1736to1750  <- melt(B_1736to1750, varnames = c("Year","Age"), value.name = "Births")
+B_1736to1750  <- B_1736to1750[order(B_1736to1750$Year, B_1736to1750$Age), ]
+B_1736to1750  <- data.table(B_1736to1750)
+B_1736to1750  <- B_1736to1750[,RR2VV(.SD), by = list(Year)]
 
 # ---------------------------------
 # Now adjustments for births in years 1751-1774
@@ -100,29 +108,33 @@ Expos <- local(get(load("Data/Expos1751to1774.Rdata")))
 
 # get female exposure in AP matrix:
 ExAP   <- acast(Expos[Expos$Year < 1775, ], Age~Year, value.var = "Female")[16:50, ]
+# repeat asfr for each year in 5 year bins
 asfrAP <- t(apply(asfr,1,rep,times=c(rep(5,4),4)))
+# get preliminary implied births
 BAP    <- ExAP * asfrAP
+# gather vector of known totals
 Bobs   <- oldtotals$Births[oldtotals$Year >= 1751 & oldtotals$Year < 1775] 
+
+#B <- readHMDweb("SWE","Births",username = us, password = pw)
+#B$Total[B$Year >= 1751 & B$Year < 1775] - Bobs # 0000000
 cof    <- Bobs / colSums(BAP)
 B_1751to1774 <- t(t(BAP) * cof)
-# STEPS:
-# 1) given asfr, uniform over 5-year Year-intervals, what are
-# predicted birth counts for each year? \hat{B(t)}
-# 2) rescale to observed totals, multiplying all age groups by same factor.
-# \hat{B(a,t)} * B(t) / \hat(B(t)}
-# 3) B(a,t) is in ACY, so use RR2VV to split to VV and add on.
 
-# 4) are shocks already imlied? I think so.. So what join in 1775 looks like:
-# 2 estimates for 1775,1776,1777,1778,1779, do spot check
+# steps to make conformable with the larger data object.
+B_1751to1774 <- melt(B_1751to1774, varnames = c("Age","Year"), value.name = "Births")
+B_1751to1774 <- data.table(B_1751to1774)
+B_1751to1774 <- B_1751to1774[,RR2VV(.SD), by = list(Year)]
 
-# STEP 2:
-# consider age-breakdown of births for years 1736-1750. 
-# lx-inflate year 1751 population backwards.
+# append and standardize further
+B_oldold        <- rbind(B_1736to1750, B_1751to1774)
+B_oldold$Cohort <- B_oldold$Year - B_oldold$Age
+setnames(B_oldold,c("Age","Births"), c("ARDY", "Total"))
+B_oldold        <- as.data.frame(B_oldold)
+B_oldold$Lexis  <- NULL
 
-
-
-# these are the historical births
-SWEh  <- read.csv("Data/SWEbirths.txt",na.strings = ".")
+# -------------------------------------------
+# these are the historical births from SK, 1775-1890
+SWEh  <- read.csv("Data/SWEbirths.txt",na.strings = ".",stringsAsFactors=FALSE)
 SWEh  <- SWEh[SWEh$Year < 1891, ]
 
 # remove TOT, not useful
@@ -138,7 +150,7 @@ SWEh1 <- SWEh[, graduatechunk(.SD), by = list(Year)]
 # step 3, shift to PC (VV)
 SWEh1 <- SWEh1[,RR2VV(.SD), by = list(Year)]
 
-# tidy the data obeject to be able to join it to the
+# tidy the data object to be able to join it to the
 # already-in-shape HFD file for years 1891+
 SWEh1         <- data.frame(SWEh1)
 SWEh1$PopName <- NULL
@@ -150,12 +162,18 @@ SWEh1$Cohort  <- SWEh1$Year - SWEh1$Age
 colnames(SWEh1)[colnames(SWEh1) == "Age"]    <- "ARDY"
 colnames(SWEh1)[colnames(SWEh1) == "Births"] <- "Total"
 
+#####################################################
+# Append
+SWEh1 <- rbind(B_oldold, SWEh1)
+# SWEh1 is the entire pre-HFD series.
+#####################################################
+
 # This is from the full-HFD zip file:
 SWE     <- readHFD("Data/SWEbirthsVV.txt")
 SWE$OpenInterval <- NULL
 
 # ---------------------------------
-# select like columns
+# sort columns too
 SWEh1   <- SWEh1[,colnames(SWE)]
 
 # stack files
