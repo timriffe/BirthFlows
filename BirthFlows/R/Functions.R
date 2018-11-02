@@ -238,6 +238,7 @@ minspan <- function(SWE, span = .05, maxAge = 45){
 	
 	# 6) canonical values. How well do rel first differences correlate,
 	# and what is the slope in their size relationship?
+	# TODO adjust default date ranges, now need to push leftward
 	compgen   <- as.character(1876:rightCoh(SWE, Age = maxAge))
 	# correlation
 	# cr        <- cor(rdt[compgen], rdc[compgen])
