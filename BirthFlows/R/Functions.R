@@ -207,7 +207,7 @@ pertspan <- function(SWE, span = .05){
 	yrs    <- as.integer(names(per))
 	yrsi   <- yrs < 1891
 	cohs   <- as.integer(colnames(PCin))
-	cohsi  <- cohs >= 1775 & cohs < 1891
+	cohsi  <- cohs >= minYear(SWE) & cohs < 1891
 	
 	# fit loess to period of given span parameter
 	lo     <- loess(per~yrs, span = span)
@@ -239,7 +239,7 @@ minspan <- function(SWE, span = .05, maxAge = 45){
 	# 6) canonical values. How well do rel first differences correlate,
 	# and what is the slope in their size relationship?
 	# TODO adjust default date ranges, now need to push leftward
-	compgen   <- as.character(1876:rightCoh(SWE, Age = maxAge))
+	compgen   <- as.character(minYear(SWE):rightCoh(SWE, Age = maxAge))
 	# correlation
 	# cr        <- cor(rdt[compgen], rdc[compgen])
 	# slope parameter
@@ -247,7 +247,7 @@ minspan <- function(SWE, span = .05, maxAge = 45){
 	slp       <- mod1$coef[2]
 	se        <- sd(mod1$residuals)
 	# 7) perturbed values
-	pertgen   <- as.character(1776:1875)
+	pertgen   <- as.character(minYear(SWE):1875)
 	# correlation in rel first diffs in adjustment area
 	# cr_p      <- cor(rdt[pertgen], rdc[pertgen])
 	# slope in rel first diffs in adjustment area
@@ -264,7 +264,9 @@ rightCoh <- function(SWE, Age = 45){
 	SWE$Cohort[ind]
 	
 }
-
+leftYear <- function(SWE, Age = 45){
+	min(SWE$Year)
+}
 # ---------------------------------------------
 # deprecated perturbation method
 #perturbDiffs <- function(par=.5,SWE){
