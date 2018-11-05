@@ -9,7 +9,7 @@ library(ungroup)
 library(reshape2)
 library(data.table)
 library(DemoTools)
-source("/home/tim/git/BirthFlows/BirthFlows/R/Functions.R")
+source("R/Functions.R")
 
 # -------------------------------------------------
 
@@ -35,18 +35,21 @@ oldtotals <- read.csv("Data/HistoricalTotals1736to1775.csv")
 #Ex   <- local(get(load("Data/Expos1751.Rdata")))$Female
 #Pin  <- readIDBcurrent("SWE","pop",full.path = "/home/tim/git/BirthFlows/BirthFlows/Data/SWEpop.txt")
 #Pt   <- Pin[Pin$Year == 1751 & Pin$Sex == "f", ]$Population
-# --------------------------
 
+# --------------------------------------------------------
 # this object useful for years 1736-1775
+
 ASFR <- local(get(load("Data/ASFR_1751to1775.Rdata")))
 
 # lifetables for retrojection
 lt   <- local(get(load("Data/lt_1751to1755.Rdata")))
 LT   <- acast(lt, Age~Year, value.var = "lx")
+
 # Read in year 1751 female census (July 1, proxy for exposure)
 Pt   <- c(27127L, 49895L, 47264L, 89148L, 88017L, 83206L, 81877L, 75966L, 
 		64870L, 55368L, 50642L, 43647L, 43411L, 33508L, 39769L, 28201L, 
 		19507L, 9273L, 6352L, 2004L, 1039L)
+
 # age and age intervals, could also come from data..
 A    <- c(0, 1, 3, seq(5, 90, by = 5))
 AI   <- c(diff(A), 1)
@@ -60,8 +63,9 @@ smoothed5      <- c(Pt[1:3],
 		            agesmth(Pt, A, ageMin = 5, ageMax = 80,
 				    method = "United Nations", 
 					young.tail = "Original", old.tail = "Original")[-1])
+	
 # 2) graduate to single ages
-smoothed1      <- sprague(smoothed5, Age = A, OAG=TRUE)
+smoothed1      <- sprague(smoothed5, Age = A, OAG = TRUE)
 
 # 3) and get back original totals for ages 0-4. Plays no role in
 # retrojection, just a perfectionist detail.
@@ -85,14 +89,18 @@ for (i in 1:15){
 }
 
 # recast fertility in AP matrix form
-asfr        <- acast(ASFR, Age~Year,value.var = "ASFR")
-asfr        <- asfr[as.character(15:49), ] # NAs in open ages, cut off
+asfr          <- acast(ASFR, Age~Year,value.var = "ASFR")
+asfr          <- asfr[as.character(15:49), ] # NAs in open ages, cut off
+
 # average standardized ASFR over the period. Very stable age pattern.
-masfr       <- colMeans(t(asfr) / colSums(asfr))
+masfr         <- colMeans(t(asfr) / colSums(asfr))
+
 # first-pass implied totals (note masfr implied tfr of 1 each year)
-B1.3        <- ExRetro[16:50,] * masfr
+B1.3          <- ExRetro[16:50,] * masfr
+
 # ratios to inflate birth counts = implied TFR per year. 
-cof.3       <- oldtotals$Births[oldtotals$Year < 1751] / colSums(B1.3)
+cof.3         <- oldtotals$Births[oldtotals$Year < 1751] / colSums(B1.3)
+
 # rescale first pass of births by age, save this object to append to historical series.
 B_1736to1750  <- t(B1.3) * cof.3
 
@@ -102,22 +110,26 @@ B_1736to1750  <- B_1736to1750[order(B_1736to1750$Year, B_1736to1750$Age), ]
 B_1736to1750  <- data.table(B_1736to1750)
 B_1736to1750  <- B_1736to1750[,RR2VV(.SD), by = list(Year)]
 
-# ---------------------------------
-# Now adjustments for births in years 1751-1774
-Expos <- local(get(load("Data/Expos1751to1774.Rdata")))
+# ----------------------------------------------#
+# Now adjustments for births in years 1751-1774 #
+# ----------------------------------------------#
+Expos        <- local(get(load("Data/Expos1751to1774.Rdata")))
 
 # get female exposure in AP matrix:
-ExAP   <- acast(Expos[Expos$Year < 1775, ], Age~Year, value.var = "Female")[16:50, ]
+ExAP         <- acast(Expos[Expos$Year < 1775, ], Age~Year, value.var = "Female")[16:50, ]
+
 # repeat asfr for each year in 5 year bins
-asfrAP <- t(apply(asfr,1,rep,times=c(rep(5,4),4)))
+asfrAP       <- t(apply(asfr, 1, rep, times = c(rep(5, 4), 4)))
+
 # get preliminary implied births
-BAP    <- ExAP * asfrAP
+BAP          <- ExAP * asfrAP
+
 # gather vector of known totals
-Bobs   <- oldtotals$Births[oldtotals$Year >= 1751 & oldtotals$Year < 1775] 
+Bobs         <- oldtotals$Births[oldtotals$Year >= 1751 & oldtotals$Year < 1775] 
 
 #B <- readHMDweb("SWE","Births",username = us, password = pw)
 #B$Total[B$Year >= 1751 & B$Year < 1775] - Bobs # 0000000
-cof    <- Bobs / colSums(BAP)
+cof          <- Bobs / colSums(BAP)
 B_1751to1774 <- t(t(BAP) * cof)
 
 # steps to make conformable with the larger data object.
@@ -125,7 +137,10 @@ B_1751to1774 <- melt(B_1751to1774, varnames = c("Age","Year"), value.name = "Bir
 B_1751to1774 <- data.table(B_1751to1774)
 B_1751to1774 <- B_1751to1774[,RR2VV(.SD), by = list(Year)]
 
-# append and standardize further
+# -----------------------------------------#
+# append and standardize further           #
+# -----------------------------------------#
+
 B_oldold        <- rbind(B_1736to1750, B_1751to1774)
 B_oldold$Cohort <- B_oldold$Year - B_oldold$Age
 setnames(B_oldold,c("Age","Births"), c("ARDY", "Total"))
@@ -134,7 +149,7 @@ B_oldold$Lexis  <- NULL
 
 # -------------------------------------------
 # these are the historical births from SK, 1775-1890
-SWEh  <- read.csv("Data/SWEbirths.txt",na.strings = ".",stringsAsFactors=FALSE)
+SWEh  <- read.csv("Data/SWEbirths.txt", na.strings = ".", stringsAsFactors = FALSE)
 SWEh  <- SWEh[SWEh$Year < 1891, ]
 
 # remove TOT, not useful
@@ -143,6 +158,7 @@ SWEh  <- data.table(SWEh)
 
 # step 1, redistribute births of unknown maternal age
 SWEh  <- SWEh[, b_unk(.SD), by = list(Year)]
+
 cat("Graduating historical data to single ages...\n")
 # step 2, graduate to single ages
 SWEh1 <- SWEh[, graduatechunk(.SD), by = list(Year)]
@@ -162,11 +178,13 @@ SWEh1$Cohort  <- SWEh1$Year - SWEh1$Age
 colnames(SWEh1)[colnames(SWEh1) == "Age"]    <- "ARDY"
 colnames(SWEh1)[colnames(SWEh1) == "Births"] <- "Total"
 
-#####################################################
-# Append
+#---------------------------------------------------#
+# Append all historical data                        #
+#---------------------------------------------------#
+
 SWEh1 <- rbind(B_oldold, SWEh1)
 # SWEh1 is the entire pre-HFD series.
-#####################################################
+#---------------------------------------------------#
 
 # This is from the full-HFD zip file:
 SWE     <- readHFD("Data/SWEbirthsVV.txt")
@@ -185,11 +203,15 @@ save(SWE, file = "Data/SWE.Rdata")
 
 # adjust mother cohort size based on first diffs in daughter cohort size
 cat("Adjusting graduated data...\n")
-span   <- optimize(minspan, interval = c(.01,.5), SWE = SWE)
-PCi    <- pertspan(SWE, span = span$minimum)
-(span$minimum)
+(span  <- optimize(minspan, interval = c(.01,.5), SWE = SWE)) # 0.09068448
+PCi    <- pertspan(SWE, span = span$minimum, maxit = 5000)
+
 Bt     <- rowSums(PCi) # same as previous
 Bc     <- colSums(PCi)
+
+#plot(1736:2016,Bt,type='l',xlim=c(1687,2016),ylim=c(-150000,150000))
+#lines(1687:2004,-Bc)
+
 
 cat("Creating figure data objects...\n")
 PC      <- PCi
@@ -239,30 +261,35 @@ P5Ccs <- rbind(0,P5Ccs)
 BT      <- colSums(PC5)
 BC      <- colSums(P5C) 
 
-yrs     <- 1775:rightCoh(SWE,45)
+yrs     <- leftYear(SWE):rightCoh(SWE,45)
 yrsc    <- as.character(yrs)
 
-meander <- BC[yrsc] / BT[yrsc] 
-start   <- meander[1]
-end     <- meander[length(meander)]
+# ratio of offspring to original cohort size
+# defines meander
+meander           <- BC[yrsc] / BT[yrsc] 
 
-Nstart  <- min(yrs) - min(Cohs) 
-Nend    <- max(Yrs) - max(yrs)
-meander_extended <- c(rep(start,Nstart),meander,rep(end,Nend))
+# pad left w average crude replacement of first 10 cohorts
+start             <- mean(meander[1:10])
 
-yrs_smooth       <- min(Cohs):max(Yrs)
+# pad right w average crude replacement of last 5 cohorts
+end               <- mean(meander[(length(meander)-5):length(meander)])
 
-meander_smoothed <- smooth.spline(x = yrs_smooth, y = meander_extended, lambda = .00001)$y
+# how far left and right do we need to pad?
+Nstart            <- min(yrs) - min(Cohs) 
+Nend              <- max(Yrs) - max(yrs)
+
+# concatenate the raw meander
+meander_extended  <- c(rep(start,Nstart),meander,rep(end,Nend))
+
+# get x variable
+yrs_smooth        <- min(Cohs):max(Yrs)
+
+# smooth the meander
+meander_smoothed  <- smooth.spline(x = yrs_smooth, y = log(meander_extended), lambda = 1/1e5)$y
 names(meander_smoothed) <- yrs_smooth
 
-subt             <- (meander_smoothed[1] + meander_smoothed[length(meander_smoothed)]) / 2
-meander_smoothed <- (meander_smoothed - subt) * 2 + subt
-
-# plot(yrs_smooth, meander_smoothed, ylim = c(.2,3))
-# lines(yrs_smooth,(meander_smoothed - subt) * 2 + subt)
+#plot(yrs_smooth, log(meander_extended))
+#lines(yrs_smooth,meander_smoothed)
+#abline(h=0)
 
 cat("DataPrep.R all done!\n")
-
-#PC5[,"1907"]
-#plot(PC["1850",])
-#lines(PCout["1850",])

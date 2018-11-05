@@ -117,7 +117,7 @@ RR2VV <- function(chunk){
 }
 
 # functions for first-difference matching sort of.
-makeMask <- function(PC, maxYr = 1891, maxCoh = 1775){
+makeMask <- function(PC, maxYr = 1891, maxCoh = 1736){
 	PCmask                   <- PC
 	cohs                     <- as.integer(colnames(PC))
 	yrs                      <- as.integer(rownames(PC))
@@ -142,29 +142,39 @@ constrainBlocks <- function(SWE, PCpert, maxit = 100, tol = .1){
 	
 	# 1) shape SWE to same dims as PCpert
 	PCin     <- acast(SWE, Year ~ Cohort, sum, value.var = "Total")
+	
 	# 2) get period and cohort vectors
 	yrs      <- as.integer(rownames(PCin))
 	cohs     <- as.integer(colnames(PCin))
+	
 	# 3) create logical mask to delimit cells for rescaling,
 	# to be used later
-	PCmask   <- makeMask(PCin)
+	PCmask   <- makeMask(PCin, maxYr = 1891, maxCoh = leftYear(SWE))
+	
 	# 4) reshape PCpert to long format to merge w SWE
 	PChat    <- melt(PCpert, varnames = c("Year","Cohort"), value.name = "Bhapert")
+	
 	# 5) merge them together
 	SWEmerge <- merge(SWE, PChat, by = c("Year","Cohort"), all.x = TRUE, all.y = FALSE)
+	
 	# 6) change class for easy group operations
 	SWEmerge <- data.table(SWEmerge)
+	
 	# 7) get totals in 5 year age groups 
 	# before and after single age perturbation
 	SWEmerge[, GroupTot:=sum(Total),by=list(Year,Age5)]    # canonical
 	SWEmerge[, Grouphat:=sum(Bhapert),by=list(Year,Age5)]  # to rescale
+	
 	# 8) rescale to sum properly
 	SWEmerge[, Bhat := (Bhapert / Grouphat) * GroupTot, ]
+	
 	# 9) might induce NaN, etc. Keep orig values if so.
 	nanor0                <- SWEmerge$Bhat == 0 | is.nan(SWEmerge$Bhat)
 	SWEmerge$Bhat[nanor0] <- SWEmerge$Total[nanor0]
+	
 	# 10) reshape back to PC matrix
 	PCout         <- acast(SWEmerge, Year ~ Cohort, sum, value.var = "Bhat")
+	
 	# 11) impute original, unperturbed values outside 
 	# Lexis bounds of adjustment
 	PCout[PCmask] <- PCin[PCmask]
@@ -175,6 +185,7 @@ constrainBlocks <- function(SWE, PCpert, maxit = 100, tol = .1){
 	for (i in 1:maxit){
 		# annual totals as of now
 		Bi     <- rowSums(PCout) 
+		
 		# break condition
 		if (sum(abs(Bi-Bknown))<tol){
 			break
@@ -183,9 +194,11 @@ constrainBlocks <- function(SWE, PCpert, maxit = 100, tol = .1){
 		# this affects some cells we wish to hold as canonical,
 		# so wash, wrinse, repeat
 		PCout  <- PCout * (Bknown / Bi)
+		
 		# put back in canonical values
 		PCout[PCmask] <- PCin[PCmask]
 	}
+	cat(i," iterations\n")
 	# return result.
 	PCout
 }
@@ -196,7 +209,7 @@ constrainBlocks <- function(SWE, PCpert, maxit = 100, tol = .1){
 # parameter span determines the smoothness of the reference. This is meant
 # to mimick the smoothing that offspring reference cohorts will have undergone
 # from pclm. SWE is the master file, post graduation.
-pertspan <- function(SWE, span = .05){
+pertspan <- function(SWE, span = .05, maxit = 100){
 	PCin   <- acast(SWE, Year~Cohort, sum, value.var = "Total")
 	
 	# period and offspring(coh) series
@@ -207,18 +220,20 @@ pertspan <- function(SWE, span = .05){
 	yrs    <- as.integer(names(per))
 	yrsi   <- yrs < 1891
 	cohs   <- as.integer(colnames(PCin))
-	cohsi  <- cohs >= minYear(SWE) & cohs < 1891
+	cohsi  <- cohs >= leftYear(SWE) & cohs < 1891
 	
 	# fit loess to period of given span parameter
 	lo     <- loess(per~yrs, span = span)
 	# and what is the relative difference?
 	ratio  <- (lo$y[yrsi] / lo$fitted[yrsi])
 	PCi    <- PCin
+	
 	# perturb offspring cohorts by that much
 	PCi[, cohsi] <- t(t(PCi[, cohsi]) * ratio)
+	
 	# now constrain back (5-year age constraint + only allowed
 	# to perturb in data that were graduated.
-	PCi    <- constrainBlocks(SWE, PCi, maxit = 100, tol = .1)
+	PCi    <- constrainBlocks(SWE, PCi, maxit = maxit, tol = .1)
 	
 	PCi
 }
@@ -239,7 +254,7 @@ minspan <- function(SWE, span = .05, maxAge = 45){
 	# 6) canonical values. How well do rel first differences correlate,
 	# and what is the slope in their size relationship?
 	# TODO adjust default date ranges, now need to push leftward
-	compgen   <- as.character(minYear(SWE):rightCoh(SWE, Age = maxAge))
+	compgen   <- as.character(1876:rightCoh(SWE, Age = maxAge))
 	# correlation
 	# cr        <- cor(rdt[compgen], rdc[compgen])
 	# slope parameter
@@ -247,7 +262,7 @@ minspan <- function(SWE, span = .05, maxAge = 45){
 	slp       <- mod1$coef[2]
 	se        <- sd(mod1$residuals)
 	# 7) perturbed values
-	pertgen   <- as.character(minYear(SWE):1875)
+	pertgen   <- as.character(leftYear(SWE):1875)
 	# correlation in rel first diffs in adjustment area
 	# cr_p      <- cor(rdt[pertgen], rdc[pertgen])
 	# slope in rel first diffs in adjustment area
@@ -257,14 +272,14 @@ minspan <- function(SWE, span = .05, maxAge = 45){
 	2*(se - se_p)^2 + 8*(slp - slp_p)^2
 }
 
-# which is the oldest 'complete' cohort?
+# which is the youngest 'complete' cohort?
 rightCoh <- function(SWE, Age = 45){
 	ind <- SWE$Year == max(SWE$Year) &
 			SWE$ARDY == Age
 	SWE$Cohort[ind]
 	
 }
-leftYear <- function(SWE, Age = 45){
+leftYear <- function(SWE){
 	min(SWE$Year)
 }
 # ---------------------------------------------

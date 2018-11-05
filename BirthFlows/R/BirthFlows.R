@@ -14,8 +14,8 @@ CohortColors <- autumn1
 # -------------------------------
 # a simple flat-line undecomposed version of the graphic,
 # as a cleaner reference
-yp <- as.integer(names(BT)) 
-yc <- as.integer(names(BC))
+yp           <- as.integer(names(BT)) 
+yc           <- as.integer(names(BC))
 # pdf("/home/tim/workspace/Other/IDEMVIZ/Figures/flatline.pdf",width=9,height=5)
 # plot(yp,BT, xlim=range(yrs_smooth),ylim=c(-15e4,15e4),type = 'n', 
 # 	 axes = FALSE, xlab = "", ylab = "")

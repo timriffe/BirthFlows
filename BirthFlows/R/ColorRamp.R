@@ -380,7 +380,7 @@ show.pal(c(darkenhex("#F7F0C7",0),
 				darkenhex("#F7F0C7",.2),
 				darkenhex("#F7F0C7",.3)))
 yellows <-sapply(seq(0,.5,length=9),darkenhex,hexcols="#F7F0C7")
-show.pal(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1),T)
+show.pal(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1),F)
 
 show.pal(c(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/16),
 		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/8),
@@ -392,5 +392,12 @@ show.pal(c(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/16),
 		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=8),
 		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=16)))
 
+
+par(mfrow=c(3,1))
+show.pal(yellows,F)
+show.pal(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1),F)
+show.pal(brewer.pal(9,"YlGnBu"),F)
+
+cols9 <- sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1)
 
 
