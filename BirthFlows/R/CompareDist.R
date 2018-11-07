@@ -101,7 +101,7 @@ g2quant <- function(PC, year = 1800, probs = c(.01,.025,.25,.5,.75,.975,.99)){
 	splinefun(dt$diffs~dt$pc,method="monoH.FC")(probs)
 }
 # mean distance by reference year.
-refyrs            <- 1775:rightCoh(SWE,45)
+refyrs            <- 1736:rightCoh(SWE,45)
 gQuants           <- sapply(refyrs, g2quant, PC=PC)
 rownames(gQuants) <- c(.01,.025,.25,.5,.75,.975,.99)
 colnames(gQuants) <- refyrs

@@ -5,10 +5,35 @@ library(HMDHFDplus)
 library(ungroup)
 library(reshape2)
 library(data.table)
-# group single ages (useful for rescaling)
-groupN <- function(x,y,n){
-	tapply(x, y - y %% n, sum)
+
+wmean <- function(x,w){
+	sum(x*w) / sum(w)
 }
+wsd   <- function(x,w){
+	mn <- wmean(x,w)
+	sqrt(sum((mn-x)^2*(w/sum(w))))
+}
+
+IQR <- function(x,w){
+	Fx <- cumsum(w) / sum(w)
+	pts <- try(splinefun(x~Fx,method="monoH.FC")(c(.25,.75)),silent=TRUE)
+	if (class(pts) == "try-error"){
+		return(NA)
+	}
+	diff(pts)
+}
+
+
+
+
+
+
+
+# group single ages (useful for rescaling)
+groupN <- function(x,y,n,fun=sum){
+	tapply(x, y - y %% n, fun)
+}
+
 
 # (adjustment step 1)
 # redistribute births of unknown mother age (UNK)

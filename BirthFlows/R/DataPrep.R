@@ -243,6 +243,7 @@ P5Ccs <- apply(P5C,2,cumsum)
 PC5cs <- rbind(0,PC5cs)
 P5Ccs <- rbind(0,P5Ccs)
 
+
 # ---------------------
 # make a meander:
 # let's get a ratio (coh / period):

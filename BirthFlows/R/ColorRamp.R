@@ -1,5 +1,5 @@
 setwd("/home/tim/git/BirthFlows/BirthFlows")
-
+library(RColorBrewer)
 library(colorspace)
 library(spatstat)
 
@@ -366,38 +366,157 @@ vangoghcorn         <- rev(eqspace2(cols14,.3,.7,.8,.4))
 # colorsharvest <- cols2[pick]
 
 # ramp blending tests:
-library(RColorBrewer)
-display.brewer.all()
+
+#display.brewer.all()
 
 
-par(mfrow=c(3,1))
-show.pal(brewer.pal(9,"YlGn"),F)
-show.pal(mapply(blend,brewer.pal(9,"Greens"),brewer.pal(9,"Blues")),F)
-show.pal(brewer.pal(9,"YlGnBu"),F)
+#par(mfrow=c(3,1))
+#show.pal(brewer.pal(9,"YlGn"),F)
+#show.pal(mapply(blend,brewer.pal(9,"Greens"),brewer.pal(9,"Blues")),F)
+#show.pal(brewer.pal(9,"YlGnBu"),F)
+#
+#show.pal(c(darkenhex("#F7F0C7",0),
+#				darkenhex("#F7F0C7",.1),
+#				darkenhex("#F7F0C7",.2),
+#				darkenhex("#F7F0C7",.3)))
+#yellows <-sapply(seq(0,.5,length=9),darkenhex,hexcols="#F7F0C7")
+#show.pal(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1),F)
 
-show.pal(c(darkenhex("#F7F0C7",0),
-				darkenhex("#F7F0C7",.1),
-				darkenhex("#F7F0C7",.2),
-				darkenhex("#F7F0C7",.3)))
-yellows <-sapply(seq(0,.5,length=9),darkenhex,hexcols="#F7F0C7")
-show.pal(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1),F)
+#show.pal(c(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/16),
+#		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/8),
+#		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/4),
+#        sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/2),
+#		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1),
+#		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=2),
+#		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=4),
+#		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=8),
+#		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=16)))
+#
+#
+#par(mfrow=c(3,1))
+#show.pal(yellows,F)
+#show.pal(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1),F)
+#show.pal(brewer.pal(9,"YlGnBu"),F)
 
-show.pal(c(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/16),
-		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/8),
-		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/4),
-        sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1/2),
-		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=1),
-		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=2),
-		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=4),
-		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=8),
-		sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=16)))
+# present test ramp
 
+cols9    <- sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1)
+colsRamp <- colorRampPalette(cols9[-c(1:2)], space = "Lab")
 
-par(mfrow=c(3,1))
-show.pal(yellows,F)
-show.pal(sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1),F)
-show.pal(brewer.pal(9,"YlGnBu"),F)
-
-cols9 <- sblend(yellows,brewer.pal(9,"YlGnBu"),blendfun=pow.blend,pow=.1)
+library(viridisLite)
 
 
+#show.pal(colsRamp(32),F)
+
+#Bx <- rev(PC["2016",as.character(1963:2004)])
+#a <- 12:53
+#cbind(a,Bx)
+#plot(a,Bx)
+#wmean <- function(x,w){
+#	sum(x*w) / sum(w)
+#}
+#wsd   <- function(x,w){
+#	mn <- wmean(x,w)
+#	sqrt(sum((mn-x)^2*(w/sum(w))))
+#}
+#wsd(a+.5,Bx)
+#
+#Yrs  <- as.integer(rownames(PC))
+#Cohs <- as.integer(colnames(PC))
+#
+#plot(Yrs,apply(PC,1,wsd,x=Cohs+.5))
+#plot(1720:1972,apply(PC,2,wsd,x=Yrs+.5)[as.character(1720:1972)])
+cohNA <- Cohs<1720 | Cohs > rightCoh(SWE)
+Coh_MAB <- apply(PC,2,wmean,x=Yrs+.5) - Cohs
+Coh_MAB[cohNA] <- NA
+Per_MAB <- Yrs - apply(PC,1,wmean,x=Cohs+.5)
+Coh_SD  <- apply(PC,2,wsd,x=Yrs+.5)
+Coh_SD[cohNA] <- NA
+Per_SD  <- apply(PC,1,wsd,x=Cohs+.5)
+
+Coh_MAB - Cohs
+
+Per_MAB5  <- groupN(Per_MAB,y=Yrs,n=5,fun=mean)
+Coh_MAB5  <- groupN(Coh_MAB,y=Cohs,n=5,fun=mean)
+Per_SD5  <- groupN(Per_SD,y=Yrs,n=5,fun=mean)
+Coh_SD5  <- groupN(Coh_SD,y=Cohs,n=5,fun=mean)
+#plot(Coh_SD/Coh_MAB)
+#plot(Per_SD/Per_MAB)
+#
+#plot(Yrs, Per_SD/(Yrs - Per_MAB),ylim=c(.17,.23))
+#plot(Cohs,Coh_SD/(Coh_MAB-Cohs),xlim=c(1720,1970),ylim=c(.17,.23))
+#
+#plot(groupN(Per_SD/(Yrs - Per_MAB),y=Yrs,n=5,fun=mean),ylim=c(.17,.23), type= "o")
+#plot(groupN(Coh_SD/(Coh_MAB-Cohs),y=Cohs,n=5,fun=mean),ylim=c(.17,.23), type= "o")
+Per_CV5  <- groupN(Per_SD/Per_MAB,y=Yrs,n=5,fun=mean)
+Coh_CV5  <- groupN(Coh_SD/Coh_MAB,y=Cohs,n=5,fun=mean)
+Per_SD5  <- groupN(Per_SD,y=Yrs,n=5,fun=mean)
+Coh_SD5  <- groupN(Coh_SD,y=Cohs,n=5,fun=mean)
+
+Per_IQR  <- apply(PC,1,IQR,x=Cohs)
+Coh_IQR  <- apply(PC,2,IQR,x=Yrs)
+Coh_IQR[cohNA] <- NA
+Per_IQR5 <- groupN(Per_IQR,y=Yrs,n=5,fun=mean)
+Coh_IQR5 <- groupN(Coh_IQR,y=Cohs,n=5,fun=mean)
+
+
+colorProfile <- function(x, y, breaks, ramp,...){
+	xl <- min(x)-10
+	xr <- max(x)+10
+	cols <- ramp(length(breaks)-1,...)
+	plot(x, y, type = 'o', panel.first = {
+					rect(xl,breaks[-length(breaks)],xr,breaks[-1],border=NA,col=cols)
+				}
+		)
+}
+colorTest <- function(values, ramp,...){
+	colorProfile(names2age(values),values,breaks=pretty(values,25), ramp = ramp,...)
+}
+colorTest(Per_CV5, ramp = colsRamp)
+colorTest(Coh_CV5, ramp = colsRamp)
+
+colorTest(Per_SD5, ramp = colsRamp)
+colorTest(Coh_SD5, ramp = colsRamp)
+
+colorTest(Per_MAB, ramp = colsRamp)
+colorTest(Coh_MAB, ramp = colsRamp)
+
+colorTest(Per_IQR5, ramp = colsRamp)
+colorTest(Coh_IQR5, ramp = colsRamp)
+
+par(mfrow=c(2,3))
+colorTest(Per_IQR5, ramp = viridis, option = "A")
+colorTest(Per_IQR5, ramp = viridis, option = "B")
+colorTest(Per_IQR5, ramp = viridis, option = "C")
+colorTest(Coh_IQR5, ramp = viridis, option = "D")
+colorTest(Coh_IQR5, ramp = viridis, option = "E")
+
+
+x <- names2age(Per_CV5)
+y <- Per_CV5
+
+# ---------------------------------- #
+# Or 
+colorTest(Coh_MAB5, ramp = colsRamp)
+colorTest(Per_MAB5, ramp = colsRamp)
+
+blendramp <- function(cols1,cols2,pow=1){
+	colorRampPalette(sblend(cols1,cols2,blendfun=pow.blend,pow=pow),space="Lab")
+}
+
+par(mfrow=c(2,3))
+colorTest(Per_IQR5, ramp = viridis,option="A")
+colorTest(Per_IQR5, ramp = blendramp(
+				cols1=viridis(25,option="A"),cols2=viridis(25,option="D"),pow=100
+))
+colorTest(Per_IQR5, ramp = blendramp(
+				cols1=viridis(25,option="A"),cols2=viridis(25,option="D"),pow=1
+		))
+colorTest(Per_IQR5, ramp = blendramp(
+				cols1=viridis(25,option="A"),cols2=viridis(25,option="D"),pow=1/100
+		))
+colorTest(Per_IQR5, ramp = viridis,option="D")
+
+viridisblend <- blendramp(
+		cols1=viridis(25,option="A"),cols2=viridis(25,option="D"),pow=100
+)
