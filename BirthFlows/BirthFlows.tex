@@ -318,10 +318,13 @@ predominance 5-year age classes (especially for ages 20-50), but also sometimes
 single ages (especially for ages 15-19), and time-varying top and bottom open
 ages. We standardize these data in a few simple steps.
 
-First, births of unknown maternal age were redistributed proportionally to the distribution of births of known maternal age. Second, counts are graduated to single ages using the graduation method proposed by \citet{rizzi2015efficient} and implemented in \texttt{R} in the package \texttt{ungroup}. 
+First, births of unknown maternal age were redistributed proportionally to the distribution of births of known maternal age. Second, counts are graduated to single ages using the graduation method proposed by \citet{rizzi2015efficient} and implemented in \texttt{R} in the package \texttt{ungroup} \citep{ungroup}. 
 
+\subsection{Years 1736 - 1890}
+At this stage of processing all birth counts for years 1736 until 1890 are in single age-period (AP) bins. Two further adjustments are performed, the first to move AP-bins into period-cohort (PC) bins. The second adjustment compensates for the smoothness of graduation methods so as to preserve the expected relationship between a cohort's size its total offspring size.
 
-Third, counts were shifted into period-cohort Lexis bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}.
+\subsubsection{Adjustment to PC bins}
+Counts were shifted from AP Lexis bins into PC bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}.
 
 \begin{figure}[ht!]
 \centering
@@ -343,10 +346,12 @@ Third, counts were shifted into period-cohort Lexis bins assuming that half of t
   \caption{Regroup to PC bins}
   \label{fig:app3}
 \end{subfigure}
-\caption{The count regrouping procedure for years 1776 to 1890, step three of data adjustment. Data are graduated to single ages (Fig.~\ref{fig:app1}), then split in half (Fig.~\ref{fig:app2}) and regrouped to period cohort (PC) bins (Fig.~\ref{fig:app3}).}
+\caption{The count regrouping procedure for years 1736 to 1890. Data are graduated to single ages (Fig.~\ref{fig:app1}), then split in half (Fig.~\ref{fig:app2}) and regrouped to period cohort (PC) bins (Fig.~\ref{fig:app3}).}
 \label{fig:AP2PC}
 \end{figure}
-At this stage data are binned and Lexis-conformable with HFD data for years 1891 and forward. With data processed as of step three, one could produce two time series represented in Fig.~\ref{fig:foldout}, with a subtle artifact visible in Fig.~\ref{fig:toosmooth}. In area \textbf{A} of this figure, birth counts in age bins have been graduated using the previously mentioned pclm method, which has the usually-desired artifact of smoothness. For the affected range of years, mother cohorts are identified via the identity $C = P - A - 1$ .\footnote{One subtracts 1 because data are in period-cohort bins.} Since age patterns of counts are smooth, these sum in Lexis diagonals to a smooth time series of cohort total offspring, as seen in the profile of area \textbf{B} of the same figure. Area \textbf{C} of this figure delimits years 1876 until 1971, where both cohort and matched offspring sizes are directly observed, and where fluctuations would appear to co-vary quite strongly. In the first instance for reasons of aesthetic continuity, and in the second instance for the sake of a more sensible count graduation, we have opted to adjust the counts in area \textbf{B} to carry the pattern of fluctuation observed over cohort size from 1775 to 1890.
+At this stage data are binned and Lexis-conformable with HFD data, and together comprising a single series from 1736 until 2016 in consistent single-year PC bins.
+
+As such, one could produce two time series represented in Fig.~\ref{fig:foldout}, with a subtle artifact visible in Fig.~\ref{fig:toosmooth}. In area \textbf{A} of this figure, birth counts in age bins have been graduated using the previously mentioned pclm method, which has the usually-desired artifact of smoothness. For the affected range of years, mother cohorts are identified via the identity $C = P - A - 1$ .\footnote{One subtracts 1 because data are in period-cohort bins.} Since age patterns of counts are smooth, these sum in Lexis diagonals to a smooth time series of cohort total offspring, as seen in the profile of area \textbf{B} of the same figure. Area \textbf{C} of this figure delimits years 1875 until 1971, where both cohort and matched offspring sizes are directly observed, and where fluctuations would appear to co-vary quite strongly. In the first instance for reasons of aesthetic continuity, and in the second instance for the sake of a more sensible count graduation, we have opted to adjust the counts in area \textbf{B} to carry the pattern of fluctuation observed over cohort size from 1775 to 1890.
 
 \begin{figure}[ht!]
 \centering
