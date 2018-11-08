@@ -32,46 +32,7 @@ yc           <- as.integer(names(BC))
 # axis(2,seq(-150000,150000,by=50000),c(150,100,50,"",50,100,150),las=2)
 # axis(1,seq(1780,1960,by=20))
 # dev.off()
-# -------------------------------
-# the meander is just relative now, so it needs
-# to be scaled.
-multiply         <- 1e5
-meander_smoothed <- meander_smoothed * multiply
-# -------------------
-# shift flow
-PC5cs2 <- t(t(PC5cs) + meander_smoothed[colnames(PC5cs)])
-P5Ccs2 <- t(t(P5Ccs) - meander_smoothed[colnames(P5Ccs)])
 
-
-
-
-# get family coords
-Lineage <- read.csv("Data/Swedishfamilybranch.csv")
-Lineage$year.daughters.birth <- c(Lineage$date.of.birth[-1],NA)
-Lineage$year.mothers.birth   <- c(1757,Lineage$date.of.birth[-5])
-Lineage$age.of.mother        <- c(30,Lineage$age.at.daughters.birth[-5])
-colnames(Lineage) <- c("first","last","C","AB","DC","MC","AM")
-# Now. assign mother age quantile to birth?
-# i <- 1
-Lineage$ytop    <- NA
-Lineage$ybottom <- NA
-for (i in 1:5){
-	ybase <- meander_smoothed[as.character(Lineage$C[i])]
-	ind1 <- SWE$Year == Lineage$C[i]
-	B <- sum(SWE$Total[ind1])
-	Bx <- cumsum(SWE$Total[ind1])
-	ages <- SWE$ARDY[ind1]
-	By <- splinefun(Bx ~ I(ages))(Lineage$AM[i])
-	Lineage$ytop[i] <- ybase + B - By
-	
-	# now bottm y coord
-	ind2 <- SWE$Cohort == Lineage$C[i]
-	Bx   <- cumsum(SWE$Total[ind2])
-	ages <- SWE$ARDY[ind2]
-
-	By <- splinefun(Bx ~ I(ages))(Lineage$AB[i])
-	Lineage$ybottom[i] <- ybase - By
-}
 # ------------
 
 # color based on area in bar
@@ -98,29 +59,29 @@ for (i in 1:5){
 #		breaks = qts2,
 #		labels = CohortColors, include.lowest = TRUE))
 
-# Colors based on CV
-breaks <- seq(.16,.23,by=.005)
-ColsC <- as.character(cut(Per_CV5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-ColsP <- as.character(cut(Coh_CV5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-ColsP[is.na(ColsP)] <- gray(.8)
-
-# Colors based on SD
-breaks <- seq(4.5,7,by=.1)
-ColsC <- as.character(cut(Per_SD5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-ColsP <- as.character(cut(Coh_SD5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-ColsP[is.na(ColsP)] <- gray(.8)
-
-# Colors based on IQR
-breaks <- seq(6,11,by=.1)
-ColsC <- as.character(cut(Per_IQR5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-ColsP <- as.character(cut(Coh_IQR5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-ColsP[is.na(ColsP)] <- gray(.8)
-
-# try our viridis on IQR
-breaks <- seq(6,11,by=.1)
-ColsC <- as.character(cut(Per_IQR5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
-ColsP <- as.character(cut(Coh_IQR5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
-ColsP[is.na(ColsP)] <- gray(.8)
+## Colors based on CV
+#breaks <- seq(.16,.23,by=.005)
+#ColsC <- as.character(cut(Per_CV5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
+#ColsP <- as.character(cut(Coh_CV5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
+#ColsP[is.na(ColsP)] <- gray(.8)
+#
+## Colors based on SD
+#breaks <- seq(4.5,7,by=.1)
+#ColsC <- as.character(cut(Per_SD5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
+#ColsP <- as.character(cut(Coh_SD5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
+#ColsP[is.na(ColsP)] <- gray(.8)
+#
+## Colors based on IQR
+#breaks <- seq(6,11,by=.1)
+#ColsC <- as.character(cut(Per_IQR5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
+#ColsP <- as.character(cut(Coh_IQR5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
+#ColsP[is.na(ColsP)] <- gray(.8)
+#
+## try our viridis on IQR
+#breaks <- seq(6,11,by=.1)
+#ColsC <- as.character(cut(Per_IQR5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
+#ColsP <- as.character(cut(Coh_IQR5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
+#ColsP[is.na(ColsP)] <- gray(.8)
 
 # try our viridis on SD
 breaks <- pretty(c(Per_SD5,Coh_SD5),35)
@@ -208,16 +169,16 @@ for (measure in c("IQR","CV","MAB","SD")){
 		
 # y-guides
 		segments(xticks20,
-				meander_smoothed[xticks20c]+15e4,
+				baseline[xticks20c]+15e4,
 				xticks20,
-				meander_smoothed[xticks20c]-15e4,
+				baseline[xticks20c]-15e4,
 				col=gray(.7))
 		
 # y axis reference lines
 		for (i in 1:length(yticks)){
-			lines(yrs_smooth, yticks[i] + meander_smoothed, col = gray(.8),lwd=.6)
+			lines(yrs_smooth, yticks[i] + baseline, col = gray(.8),lwd=.6)
 		}
-		push <- meander_smoothed[1]
+		push <- baseline[1]
 		segments(min(Cohs),
 				-15e4 + push, 
 				min(Cohs), 
@@ -244,7 +205,7 @@ for (measure in c("IQR","CV","MAB","SD")){
 		if (do.this){
 		# start experimental age bands
 		matplot(Yrs,t(APc[age_bands,]) + 
-						meander_smoothed[colnames(AP)],type='l',col="white",lwd=.2,lty=1,add=TRUE)
+						baseline[colnames(AP)],type='l',col="white",lwd=.2,lty=1,add=TRUE)
 		
 		lines(Yrs, apply(AP,2,function(Bx){
 									y <- cumsum(Bx)
@@ -252,25 +213,25 @@ for (measure in c("IQR","CV","MAB","SD")){
 									MAB <- wmean(w=Bx,x=x)
 									splinefun(y~x, method = "monoH.FC")(MAB)
 								})+ 
-						meander_smoothed[colnames(AP)], col = "white")
+						baseline[colnames(AP)], col = "white")
 		
 		matplot(Cohs,t(-ACc[age_bands,]) + 
-						meander_smoothed[colnames(AC)],type='l',col="white",lwd=.2,lty=1,add=TRUE)
+						baseline[colnames(AC)],type='l',col="white",lwd=.2,lty=1,add=TRUE)
 		lines(Cohs, -apply(AC,2,function(Bx){
 									y <- cumsum(Bx)
 									x <- names2age(Bx)
 									MAB <- wmean(w=Bx,x=x)
 									splinefun(y~x, method = "monoH.FC")(MAB)
 								})+ 
-						meander_smoothed[colnames(AC)], col = "white")
+						baseline[colnames(AC)], col = "white")
 	}
 		# end experiemental age bands
-		lines(yrs_smooth, meander_smoothed, col = "white")
-		segments(xticks, meander_smoothed[xticksc] - 5000, xticks, meander_smoothed[xticksc] + 5000, col = "white")
-		text(xticks20, meander_smoothed[xticks20c] - 15e4, xticks20, pos = 1, cex = .7, xpd = TRUE)
+		lines(yrs_smooth, baseline, col = "white")
+		segments(xticks, baseline[xticksc] - 5000, xticks, baseline[xticksc] + 5000, col = "white")
+		text(xticks20, baseline[xticks20c] - 15e4, xticks20, pos = 1, cex = .7, xpd = TRUE)
 		
 		for (i in 1:length(yticks)){
-			lines(yrs_smooth, yticks[i] + meander_smoothed, col = "#FFFFFF50",lwd=.3)
+			lines(yrs_smooth, yticks[i] + baseline, col = "#FFFFFF50",lwd=.3)
 		}
 		
 		segments(1736,0,rightCoh(SWE),0,col="white",lwd=.5)
@@ -307,17 +268,17 @@ plot(NULL,
 
 # y-guides
 segments(xticks20,
-		 meander_smoothed[xticks20c]+15e4,
+		baseline[xticks20c]+15e4,
 		 xticks20,
-		 meander_smoothed[xticks20c]-15e4,
+		 baseline[xticks20c]-15e4,
 		 col=gray(.7))
 
 # y axis reference lines
 for (i in 1:length(yticks)){
-	lines(yrs_smooth, yticks[i] + meander_smoothed, col = gray(.8),lwd=.6)
+	lines(yrs_smooth, yticks[i] + baseline, col = gray(.8),lwd=.6)
 }
 # left y axis
-push <- meander_smoothed[1]
+push <- baseline[1]
 segments(min(Cohs),
 		 -15e4 + push, 
 		 min(Cohs), 
@@ -332,7 +293,7 @@ text(min(Cohs),18e4+push,"Births in year (1000s)",pos=2,cex=.9)
 text(min(Cohs),-18e4+push,"Births from cohort",pos=2,cex=.9)
 
 # right y axis
-push2 <- meander_smoothed[length(meander_smoothed)]
+push2 <- baseline[length(baseline)]
 segments(max(Yrs),
 		-15e4 + push2, 
 		max(Yrs), 
@@ -353,13 +314,13 @@ for (i in 1:(nrow(P5Ccs) - 1)){
 	polygon(c(Cohs, rev(Cohs)), -c(P5Ccs2[i, ], rev(P5Ccs2[i + 1, ])), col = ColsC[i], border = "#FFFFFF", lwd = .2)
 }
 
-lines(yrs_smooth, meander_smoothed, col = "white")
-segments(xticks, meander_smoothed[xticksc] - 5000, xticks, meander_smoothed[xticksc] + 5000, col = "white")
-text(xticks20, meander_smoothed[xticks20c] - 15e4, xticks20, pos = 1, cex = .7, xpd = TRUE)
-text(xticks20, meander_smoothed[xticks20c] + 15e4, xticks20, pos = 3, cex = .7, xpd = TRUE)
+lines(yrs_smooth, baseline, col = "white")
+segments(xticks, baseline[xticksc] - 5000, xticks, baseline[xticksc] + 5000, col = "white")
+text(xticks20, baseline[xticks20c] - 15e4, xticks20, pos = 1, cex = .7, xpd = TRUE)
+text(xticks20, baseline[xticks20c] + 15e4, xticks20, pos = 3, cex = .7, xpd = TRUE)
 
 for (i in 1:length(yticks)){
-	lines(yrs_smooth, yticks[i] + meander_smoothed, col = "#FFFFFF50",lwd=.3)
+	lines(yrs_smooth, yticks[i] + baseline, col = "#FFFFFF50",lwd=.3)
 }
 
 segments(1736,0,rightCoh(SWE),0,col="white",lwd=.5)

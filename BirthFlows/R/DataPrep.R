@@ -292,5 +292,44 @@ names(meander_smoothed) <- yrs_smooth
 #plot(yrs_smooth, log(meander_extended))
 #lines(yrs_smooth,meander_smoothed)
 #abline(h=0)
+# -------------------------------
+# the meander is just relative now, so it needs
+# to be scaled.
+multiply         <- 1e5
+baseline <- meander_smoothed * multiply
+# -------------------
+# shift flow
+PC5cs2 <- t(t(PC5cs) + baseline[colnames(PC5cs)])
+P5Ccs2 <- t(t(P5Ccs) - baseline[colnames(P5Ccs)])
+
+
+# --------------------------------------------------
+# get family coords, maybe swap out this family
+Lineage <- read.csv("Data/Swedishfamilybranch.csv")
+Lineage$year.daughters.birth <- c(Lineage$date.of.birth[-1],NA)
+Lineage$year.mothers.birth   <- c(1757,Lineage$date.of.birth[-5])
+Lineage$age.of.mother        <- c(30,Lineage$age.at.daughters.birth[-5])
+colnames(Lineage) <- c("first","last","C","AB","DC","MC","AM")
+# Now. assign mother age quantile to birth?
+# i <- 1
+Lineage$ytop    <- NA
+Lineage$ybottom <- NA
+for (i in 1:5){
+	ybase <- baseline[as.character(Lineage$C[i])]
+	ind1 <- SWE$Year == Lineage$C[i]
+	B <- sum(SWE$Total[ind1])
+	Bx <- cumsum(SWE$Total[ind1])
+	ages <- SWE$ARDY[ind1]
+	By <- splinefun(Bx ~ I(ages))(Lineage$AM[i])
+	Lineage$ytop[i] <- ybase + B - By
+	
+	# now bottm y coord
+	ind2 <- SWE$Cohort == Lineage$C[i]
+	Bx   <- cumsum(SWE$Total[ind2])
+	ages <- SWE$ARDY[ind2]
+	
+	By <- splinefun(Bx ~ I(ages))(Lineage$AB[i])
+	Lineage$ybottom[i] <- ybase - By
+}
 
 cat("DataPrep.R all done!\n")

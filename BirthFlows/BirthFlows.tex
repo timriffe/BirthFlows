@@ -3,6 +3,7 @@
 \documentclass{article}
 \usepackage[a4paper, margin=2.5cm]{geometry}
 \usepackage{amsmath}
+\usepackage{mathtools}
 \usepackage{amssymb}
 \usepackage{caption}
 \usepackage{placeins}
@@ -19,6 +20,13 @@
 \usepackage{nth}
 \usepackage{authblk}
 \usepackage{blindtext}
+\usepackage{makecell}
+
+% \renewcommand\theadalign{bc}
+% \renewcommand\theadfont{\bfseries}
+% \renewcommand\theadgape{\Gape[4pt]}
+% \renewcommand\cellgape{\Gape[4pt]}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 % for the d in integrals
 \newcommand{\dd}{\; \mathrm{d}}
 \newcommand{\tc}{\quad\quad\text{,}}
@@ -154,26 +162,9 @@ Fig.~\ref{fig:reflect1} produces at least two noteworthy artifacts that we may w
           \label{fig:refl}
 \end{wrapfigure}
 % text under goes to the left then builds down
-In this way the two distributions that we might wish to compare for a given ego
-year are already available at a like coordinate, but comparison is stifled by
-overplotting. If instead we stack the slices that are indecipherably overlapped
-in \textbf{a} (and likewise for \textbf{b}) we get something like that shown in
-Fig.~\ref{fig:refl}, cumulative birth distributions.\footnote{Young mothers are
-on top and older mothers on bottom for both distributions. It would also make
-sense to plot increasing (or decreasing) ages emanating out from the centerline
-in both directions.} Here the total bar length is proportional to the total
-cohort (offspring) size, and stacked bins reflect 5-year mother cohorts
-(occurrence years). From this representation it is clear that mothers born in the
-20 years between 1860 and 1880 produced the bulk of the 1900 cohort (86\%),
-which itself produced the majority of its offspring in the 20 years between 1920
-and 1940 (90\%). It is also quite visible that the 1900 cohort did not replace
-itself in a crude sense: 138,139 babies formed a cohort whose mothers gave birth
-to 95,379 babies over their lifecourse, a crude replacement of 69\%. Other
-perspectives on reproduction that account for survival and attrition of the
-mother cohort through migration would give a more optimistic assessment \citep{henry1965reflexions}. The key
-feature of Fig.~\ref{fig:refl} is that the two distributions that were disjoint in Fig.~\ref{fig:juxt} and hard to pick out in Fig.~\ref{fig:reflect1} can now be associated at a common $x$ coordinate. This virtue allows us to view the time series of Fig.~\ref{fig:reflect1} with greater clarity and hopefully reveal some macro properties of the history of Swedish natality.
+In this way the two distributions that we might wish to compare for a given ego year are already available at a like coordinate, but comparison is stifled by overplotting. If instead we stack the slices that are indecipherably overlapped in \textbf{a} (and likewise for \textbf{b}) we get something like that shown in Fig.~\ref{fig:refl}, cumulative birth distributions.\footnote{Young mothers are on top and older mothers on bottom for both distributions. It would also make sense to plot increasing (or decreasing) ages emanating out from the centerline in both directions.} Here the total bar length is proportional to the total cohort (offspring) size, and stacked bins reflect 5-year mother cohorts (occurrence years). From this representation it is clear that mothers born in the 20 years between 1860 and 1880 produced the bulk of the 1900 cohort (86\%), which itself produced the majority of its offspring in the 20 years between 1920 and 1940 (90\%). It is also quite visible that the 1900 cohort did not replace itself in a crude sense: 138,139 babies formed a cohort whose mothers gave birth to 95,379 babies over their lifecourse, a crude replacement of 69\%. Other perspectives on reproduction that account for survival and attrition of the mother cohort through migration would give a more optimistic assessment \citep{henry1965reflexions}. The key feature of Fig.~\ref{fig:refl} is that the two distributions that were disjoint in Fig.~\ref{fig:juxt} and hard to pick out in Fig.~\ref{fig:reflect1} can now be associated at a common $x$ coordinate. This virtue allows us to view the time series of Fig.~\ref{fig:reflect1} with greater clarity and hopefully reveal some macro properties of the history of Swedish natality.
 
-Fig.~\ref{fig:foldout} is a depiction of the exercise of Fig.~\ref{fig:refl}, cohort bars on top reflected with offspring bars on the bottom. Equal bounded bins from Fig.~\ref{fig:refl} are joined into continuous regions. For the top region, filled polygons represent the births of mothers from quinquennial cohorts, spread over time. For the bottom region, filled polygons represent the mother-cohort origins of the births in quinquennial periods. The darkness and saturation of polygon fill colors are approximately proportional to the total births in the polygon (and therefore true to grayscale printing), whereas hue is irrelevant. In this way, darkness and saturation on the top are proportional to total height (with respect to baseline) on the bottom, and vice versa. 
+Fig.~\ref{fig:foldout} is a depiction of the exercise of Fig.~\ref{fig:refl}, cohort bars on top reflected with offspring bars on the bottom. Equal bounded bins from Fig.~\ref{fig:refl} are joined into continuous regions. For the top region, filled polygons represent the births of mothers from quinquennial cohorts, spread over time. For the bottom region, filled polygons represent the mother-cohort origins of the births in quinquennial periods. Color darkness is proportional to the standard deviation of the birth distribution in each stacked polygon, with darker areas indicating more compact and lighter/brighter areas indicate wider distributions. 
 
 The meandering baseline of Fig.~\ref{fig:foldout} is proportional to a smoothed time series of the crude cohort replacement rate. We overlay a horizontal line to indicate periods of approximate growth, replacement, and contraction. Periods where the meandering $x$-baseline is above this line (ca 1780 to 1860) indicate crude growth, and periods below the horizontal reference line (ca 1870 to 1930) indicate crude generation contraction. The nineteenth century was characterized by steady replacement by this measure.
 
@@ -187,18 +178,18 @@ To aid the viewer with interpretation, we overlay a known lineage of five female
 \includegraphics[scale=.3]{Figures/a4demonstration.png}
 %\includegraphics[scale=.9]{Figures/SwedenBirthFlowsManFoldout.pdf}
 %\includepdf[landscape]{Figures/SwedenBirthFlowsManFoldout.pdf}
-\caption{A time series of the same graphical construct as presented in Fig.~\ref{fig:refl}. The $x$ axis now meanders proportional to a smoothed time series of the crude cohort replacement rate. Fill color darkness and saturation are approximately proportional to the total number of births in each birth distribution. The birth series now appears as a flow, but reveals echoes in cohort and offspring size, an odd periodicity in recent decades, and a long term dampening of the crude replacement rate. A 5-generation female lineage is annotated atop to serve as a guide.}
+\caption{A time series of the same graphical construct as presented in Fig.~\ref{fig:refl}. The $x$ axis now meanders proportional to a smoothed time series of the crude cohort replacement ratio. Fill color darkness is proportional to the standard deviation of each birth distribution. The birth series now appears as a flow, but reveals echoes in cohort and offspring size, an odd periodicity in recent decades, and a long term dampening of the crude replacement rate. A 5-generation female lineage is annotated atop to serve as a guide.}
 \label{fig:foldout}
 \end{figure}
 
-\subsection{Notes on visual form}
-This visualization form derives from stacked area charts in general and river plots (theme river) and stream graphs in particular \citep{byron2008stacked}, but we wish to point out a few notable differences. Our birth flow visualization is composed of two separate stacked area graphs, where polygons appear in chronological order from left to right. If the top and bottom graph sections were vertically centered independently of one another, then these would comprise two ``river'' plots. Instead, the two series are squeezed together to share a $y$ coordinate at 0, and vertical centering is approximated on average by smooth baseline shifts as a function of the crude replacement ratio. 
+%\subsection{Notes on visual form}
+%This visualization form derives from stacked area charts in general and river plots (theme river) and stream graphs in particular \citep{byron2008stacked}, but we wish to point out a few notable differences. Our birth flow visualization is composed of two separate stacked area graphs, where polygons appear in chronological order from left to right. If the top and bottom graph sections were vertically centered independently of one another, then these would comprise two ``river'' plots. Instead, the two series are squeezed together to share a $y$ coordinate at 0 on the baseline, and vertical centering is approximated on average by smooth baseline shifts as a function of the crude replacement ratio. 
 
-Different kinds of visual analytic tasks are probably penalized by this choice of form. For example, using the metrics proposed by \citet{thudt2016assessing}, we hypothesize that our visualization would perform poorly or moderately well in terms of ``individual discrimination'' because most birth distributions vary within the same order of magnitude. For example, it is not easy to visually discriminate the larger of ``number of children born in 1900 to mothers born between 1865 and 1869'' versus ``number of children that mothers born in 1900 had between the years 1925 and 1929'', (even though these share an $x$ coordinate) and such comparisons may be even more difficult the greater the distance in $y$ and $x$ between comparisons. 
+%Different kinds of visual analytic tasks are probably penalized by this choice of form. For example, using the metrics proposed by \citet{thudt2016assessing}, we hypothesize that our visualization would perform poorly or moderately well in terms of ``individual discrimination'' because most birth distributions vary within the same order of magnitude. For example, it is not easy to visually discriminate the larger of ``number of children born in 1900 to mothers born between 1865 and 1869'' versus ``number of children that mothers born in 1900 had between the years 1925 and 1929'', (even though these share an $x$ coordinate) and such comparisons may be even more difficult the greater the distance in $y$ and $x$ between comparisons. 
 
-If we wish to compare the area of polygons, our reflected axes are advantageous: for example, it is not easy to visually compare the area of the top-level polygon ``children to mothers born 1870-1874'' versus the area of the bottom-level polygon ``children born 1910-1914''. The darkness and saturation of polygon fill colors transmit this information, but the two fill colors are too similar to be very helpful in this case, especially since they are non-adjacent. However, these two polygons are redundantly encoded in a more comparable way: the first is coded to the average from 1870-1874 of the total height on the bottom $y$ axis, and the second is encoded to the average total height from 1910-1914 on the top $y$ axis. This requires active decoding from the viewer, and such tasks are surely not quick, but likely result in precise judgments: Using height to decode, we see determine that the first polygon is larger than the second. For this kind of comparison, the polygons themselves are a distraction, as the same information is coded the height, but if there were no polygons then we would not be reminded that these two distributions are linked through time and through generations: the polygons overlap in $x$, and this is one of the prime data qualities that we wish to exemplify.
+%If we wish to compare the area of polygons, our reflected axes are advantageous: for example, it is not easy to visually compare the area of the top-level polygon ``children to mothers born 1870-1874'' versus the area of the bottom-level polygon ``children born 1910-1914''. The darkness and saturation of polygon fill colors transmit this information, but the two fill colors are too similar to be very helpful in this case, especially since they are non-adjacent. However, these two polygons are redundantly encoded in a more comparable way: the first is coded to the average from 1870-1874 of the total height on the bottom $y$ axis, and the second is encoded to the average total height from 1910-1914 on the top $y$ axis. This requires active decoding from the viewer, and such tasks are surely not quick, but likely result in precise judgments: Using height to decode, we see determine that the first polygon is larger than the second. For this kind of comparison, the polygons themselves are a distraction, as the same information is coded the height, but if there were no polygons then we would not be reminded that these two distributions are linked through time and through generations: the polygons overlap in $x$, and this is one of the prime data qualities that we wish to exemplify.
 
-Again using the metrics of \citet{thudt2016assessing}, we presume to fare \emph{very} well in terms of ``stream comparison'', since the rendering of each birth distribution is matched to $x$, and also \emph{very} well in terms of aggregate discrimination of top versus bottom (because the meandering baseline gives this). Our visualization would presumably perform moderately well in terms of aggregate discrimination of top plus bottom, because river and stream plots also performed well on this metric, and our visualization resembles these in its manner of centering. In our case, the stream centering method brings the crude replacement ratio to the fore. On the other hand, certain visual tasks are augmented due to the nature of the data: visual discrimination of polygons is all but guaranteed. Chronological order is clear to the viewer. Even so, we accept high losses of value look-up ability, for the sake of an aesthetic welcome mat to those who wish to learn more about the fundamentals of demography in general and the Swedish birth flow in particular. Few small questions can be answered with this graphic, but some large ones may be inspired.
+%Again using the metrics of \citet{thudt2016assessing}, we presume to fare \emph{very} well in terms of ``stream comparison'', since the rendering of each birth distribution is matched to $x$, and also \emph{very} well in terms of aggregate discrimination of top versus bottom (because the meandering baseline gives this). Our visualization would presumably perform moderately well in terms of aggregate discrimination of top plus bottom, because river and stream plots also performed well on this metric, and our visualization resembles these in its manner of centering. In our case, the stream centering method brings the crude replacement ratio to the fore. On the other hand, certain visual tasks are augmented due to the nature of the data: visual discrimination of polygons is all but guaranteed. Chronological order is clear to the viewer. Even so, we accept high losses of value look-up ability, for the sake of an aesthetic welcome mat to those who wish to learn more about the fundamentals of demography in general and the Swedish birth flow in particular. Few small questions can be answered with this graphic, but some large ones may be inspired.
 
 \section{Discussion}
 \todo{To be continued...This section and the following analytic perspectives section are only temporary. We probably won't want to introduce new}
@@ -238,12 +229,12 @@ One of the most immediately visible features of Fig.~\ref{fig:foldout} is the pr
 \begin{figure}
 % fig from StructuralEchoes.R
 \includegraphics[scale=.6]{Figures/rBcrBt.pdf}
-\caption{A roughly 1:1 does-response relationship in relative size of structural echo.}
+\caption{A roughly 1:1 dose-response relationship in relative size of structural echo.}
 \label{fig:rBcrBt}
 \end{figure}
 
-\subsection{Analytic vignette 3}
-\todo{KB suggests highlighting changes in the distribution of maternal age.} This is an interesting take: indeed the outer profiles would end up being the same, but the filled polygons would look different. If we did both at once then it'd make a plaid feel. Worth thought. Age could map to some other color property within polygons? Note: the younger-older gradient isn't reflected over $x$, as chronology is enforced. That is, earlier years of birth of offspring mean young (outside on bottom), but earlier years of birth of mother means old (outside on top). So earlier on the outside moves to later on the inside of the flow, but the younger-older gradient rather follows a down-up pattern within both the top and bottom. So adding age to the picture would require further care. But that's not to say there couldn't be an entirely separate plot of the same data indexed to age. Of the plaid remix of APC, with `younger-to-older' or `older-to-younger' from the baseline outward. 
+%\subsection{Analytic vignette 3}
+%\todo{KB suggests highlighting changes in the distribution of maternal age.} This is an interesting take: indeed the outer profiles would end up being the same, but the filled polygons would look different. If we did both at once then it'd make a plaid feel. Worth thought. Age could map to some other color property within polygons? Note: the younger-older gradient isn't reflected over $x$, as chronology is enforced. That is, earlier years of birth of offspring mean young (outside on bottom), but earlier years of birth of mother means old (outside on top). So earlier on the outside moves to later on the inside of the flow, but the younger-older gradient rather follows a down-up pattern within both the top and bottom. So adding age to the picture would require further care. But that's not to say there couldn't be an entirely separate plot of the same data indexed to age. Of the plaid remix of APC, with `younger-to-older' or `older-to-younger' from the baseline outward. 
 
 
 \FloatBarrier
@@ -256,21 +247,81 @@ One of the most immediately visible features of Fig.~\ref{fig:foldout} is the pr
 \begin{appendix}
 \section{Data sources and adjustments}
 \label{sec:dataprep}
-Data presented here are from three separate series. The first
-contains birth counts in the period-cohort Lexis shape,
-\texttt{SWEbirthsVV.txt}, as produced by the \citet{HFD} according to the Methods
-Protocol \citep{hfd2015methods}. This file contains births by calendar year and
-mother birth cohort for the years 1891 until 2016, and we use it as-is. A
-second file contains births for occurrence years 1775 until 1890. These data are
-age-period classified, and given in a mixture of age classes, with a
+Data presented here are from several different data sources, covering different time periods. These data originate in different APC bins, and some are derived using indirect methods or projection methods. These full list of sources is outlined in Tab.~\ref{app:sources}. This appendix describes all steps taken to bring data into a standard format suitable for this study. The data format required to build these visualizations consists in birth counts tabulated by single year and cohort. Input data cover the years 1736 until 2016, with an oldest mother cohort of 1687. We complete the fertility of incomplete cohorts through 2016, bringing the latest year of occurence to \todo{2066}.
+
+\begin{table}[ht]
+\begin{tabular}{lllllc}
+From & To & Data & Bins & Use & Source \\ \hline
+1736 & 1750 & birth counts & totals only & constraint & SCB \\
+1751 & 1755 & life tables & single ages 0-110 & reverse survival & HMD \\
+1751 & each & population census & abridged ages & base for retrojection & HMD \\
+1751 & 1774 & ASFR & single-age, 5-year & \makecell{infer births 1751-1774 \&\\ derive retrojection standard} & HFC \\
+1751 & 1774 & population exposures & single-age and year & infer births & HMD \\
+1751 & 1774 & birth counts & totals only & constraint & HMD \\
+1775 & 1890 & birth counts & abridged ages & constraint & SGF \\
+1891 & 2016 & birth counts & single ages & as-is & HFD \\
+X & 2016 & ASFR & single ages & rate projection & HFD \\
+2017 & 2060 & Population projections & single ages & infer completed fertility &\todo{ SCB / UNPD}
+\end{tabular}
+\caption{Data sources}
+\label{app:sources}
+\end{table}
+
+\subsection{Years 1736 - 1750}
+\label{app:retroject}
+Estimating birth counts by single year of age for the 15 year period from 1736 to 1750 requires several steps of data processing and some strong assumptions. First, we reverse-survive  females observed in the 1751 mid-year population census of Sweden, as extracted from the \citet{HMD} input database. Since this is a July 1 census, we take it as an acceptable proxy for exposure. The census originates in abridged ages $[0,1,3,5,10,15~...~90+]$. Examination of five year age groups suggests a underlying pattern age heaping, and for this reason we first smooth them using the so-called United Nations method \citep[see ][]{carrier1959reduction} as implemented in the \texttt{DemoTools} \texttt{R} package \citep{demotools}. We then graduate to single ages using the Sprague method \citep{sprague1880explanation,Shryock1973} as implemented in the \texttt{DemoTools} \texttt{R} package. This population is now the basis population to be reverse-survived through each single year until 1736, where we only make use of the fertile ages.
+
+To reverse-survive, we use a standard survival curve defined as the age-specific arithmetic mean of the five single-age life table survival functions for the years 1751-1755 \citep{HMD}. The mid-year population count at age $x$, $t$ years before the 1751 census $P(x,1751-n)$ is estimated as:
+\begin{equation}
+\label{eq:Pxhat}
+P(x,1751-n) = P(x+n,1751) * \frac{\ell(x)}{\ell(x+n)} \tc
+\end{equation}
+where $\ell(x)$ is the standard survival function described.
+
+The next step is to derive a standard ASFR curve, $F(x)$. ASFR for the years 1751-1775 is given by the \citet{HFC} in single ages and 5-year bins. If we rescale $F(x)$ in each 5-year period to sum to 1, one sees that there was very little shifting or shape changes in the period 1751: each unity-scaled $F(x)$ curve is for practical purposes equivalent. We therefore take the standard fertility rate curve, F^\star(x)$ to be their age-specific arithmetic mean, and we assume that it is valid for the year-range 1736 until 1750.
+
+A first pass of unscaled birth counts at age $x$, $t$ years before 1751 is taken as the product of estimated exposure and $F^\star(x)$.
+\begin{equation}
+\widehat{B}^\star(x,1751-n) = P(x,1751-n) \cdot F^\star(x)
+\end{equation}
+
+The first pass of birth estimates implies a TFR of 1 in each year. Total births for these years $B(1751-n)$ is known \citep[][Tab.~27 \& Tab.~28]{sweden1969historisk}, so we derive our final estimate of age specific births, $\widehat{B}(x,1751-n)$ as:
+
+\begin{equation}
+\widehat{B}(x,1751-n) = \widehat{B}^\star(x,1751-n) \cdot \frac{B(1751-n)}{\sum _{x=12}^{50}\widehat{B}^\star(x,1751-n) }
+\end{equation}
+
+At this stage of processing, birth count estimates for the years 1736-1750 are given in single ages (AP Lexis squares). Further adjustments are carried out in common with later periods and described in the following sections.
+
+\subsection{Years 1751 - 1774}
+Estimating birth counts in single years and by single year of age for the 24 year period from 1751 to 1774 follows a similar logic, but it requires no retrojection. The \citet{HFC} provides ASFR in single ages\footnote{This data was graduated by the HFC from 5$\times$5 Lexis cells according to the HFC methods protocol \citep{grigorieva2015methods}.} in 5-year bins. The HMD provides exposure estimates $P(x,t)$ in single ages and years over this same period. A first-pass estimate of birth counts, $\widehat{B}(x,t)$ is given by:
+
+\begin{equation}
+\widehat{B}(x,t) = P(x,t) \cdot F(x,t') \tc
+\end{equation}
+
+where $t'$ denotes the 5-year bin in which $t$ happens to fall. Year bins in the data are 5-years wide, and shifted up by 1, ergo 1751-1755, 1756-1760, and so forth. Following the convention of indexing to the lower bound, $t'$ is defined as:
+\begin{equation}
+t' = 5\floor{t/5}+1
+\end{equation}
+
+Births by single year of mothers' age are then rescaled to sum to the annual totals reported in the HMD:
+\begin{equation}
+B(x,t) = \widehat{B}(x,t) * \frac{B(t)}{\sum _{x=12}^{50}\widehat{B}^(x,t)}
+\end{equation}
+
+At this stage of processing, birth count estimates for the years 1751-1774 are given in single ages (AP Lexis squares). Further adjustments are carried out in common with later periods and described in the following sections.
+
+\subsection{Years 1775 - 1890}
+Birth counts for the 116 year period from 1775 to 1890 are available from \citet{sgf1907}. These data are age-period classified, and given in a mixture of age classes, with a
 predominance 5-year age classes (especially for ages 20-50), but also sometimes
 single ages (especially for ages 15-19), and time-varying top and bottom open
-ages. A third time series derives from a projection of cohort fertility for the cohorts born \todo{1970-2016} [Check years].
+ages. 
 
-\subsection{Adjustments to historical data}
-\label{sec:adjhist}
-It is this second file, with data covering years 1890 and earlier, that we have
-adjusted in four main steps. First, births of unknown maternal age were redistributed proportionally to the distribution of births of known maternal age. Second, counts were graduated to single ages using the graduation method proposed by \citet{rizzi2015efficient} and implemented in \texttt{R} in the package \texttt{pclm}\footnote{The \texttt{pclm} package has since been extensively modified, and it is now called \texttt{ungroup} \citep{pclmR}}. Third, counts were shifted into period-cohort Lexis bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}.
+First, births of unknown maternal age were redistributed proportionally to the distribution of births of known maternal age. Second, counts were graduated to single ages using the graduation method proposed by \citet{rizzi2015efficient} and implemented in \texttt{R} in the package \texttt{pclm}\footnote{The \texttt{pclm} package has since been extensively modified, and it is now called \texttt{ungroup} \citep{pclmR}}. 
+
+
+Third, counts were shifted into period-cohort Lexis bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}.
 
 \begin{figure}[ht!]
 \centering
