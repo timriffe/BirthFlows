@@ -278,7 +278,7 @@ P(x,1751-n) = P(x+n,1751) * \frac{\ell(x)}{\ell(x+n)} \tc
 \end{equation}
 where $\ell(x)$ is the standard survival function described.
 
-The next step is to derive a standard ASFR curve, $F(x)$. ASFR for the years 1751-1775 is given by the \citet{HFC} in single ages and 5-year bins. If we rescale $F(x)$ in each 5-year period to sum to 1, one sees that there was very little shifting or shape changes in the period 1751: each unity-scaled $F(x)$ curve is for practical purposes equivalent. We therefore take the standard fertility rate curve, F^\star(x)$ to be their age-specific arithmetic mean, and we assume that it is valid for the year-range 1736 until 1750.
+The next step is to derive a standard ASFR curve, $F(x)$. ASFR for the years 1751-1775 is given by the \citet{HFC} in single ages and 5-year bins. If we rescale $F(x)$ in each 5-year period to sum to 1, one sees that there was very little shifting or shape changes in the period 1751: each unity-scaled $F(x)$ curve is for practical purposes equivalent. We therefore take the standard fertility rate curve, $F^\star(x)$ to be their age-specific arithmetic mean, and we assume that it is valid for the year-range 1736 until 1750.
 
 A first pass of unscaled birth counts at age $x$, $t$ years before 1751 is taken as the product of estimated exposure and $F^\star(x)$.
 \begin{equation}
@@ -316,9 +316,9 @@ At this stage of processing, birth count estimates for the years 1751-1774 are g
 Birth counts for the 116 year period from 1775 to 1890 are available from \citet{sgf1907}. These data are age-period classified, and given in a mixture of age classes, with a
 predominance 5-year age classes (especially for ages 20-50), but also sometimes
 single ages (especially for ages 15-19), and time-varying top and bottom open
-ages. 
+ages. We standardize these data in a few simple steps.
 
-First, births of unknown maternal age were redistributed proportionally to the distribution of births of known maternal age. Second, counts were graduated to single ages using the graduation method proposed by \citet{rizzi2015efficient} and implemented in \texttt{R} in the package \texttt{pclm}\footnote{The \texttt{pclm} package has since been extensively modified, and it is now called \texttt{ungroup} \citep{pclmR}}. 
+First, births of unknown maternal age were redistributed proportionally to the distribution of births of known maternal age. Second, counts are graduated to single ages using the graduation method proposed by \citet{rizzi2015efficient} and implemented in \texttt{R} in the package \texttt{ungroup}. 
 
 
 Third, counts were shifted into period-cohort Lexis bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}.
