@@ -296,7 +296,7 @@ names(meander_smoothed) <- yrs_smooth
 # the meander is just relative now, so it needs
 # to be scaled.
 multiply         <- 1e5
-baseline <- meander_smoothed * multiply
+baseline         <- meander_smoothed * multiply
 # -------------------
 # shift flow
 PC5cs2 <- t(t(PC5cs) + baseline[colnames(PC5cs)])
@@ -305,7 +305,7 @@ P5Ccs2 <- t(t(P5Ccs) - baseline[colnames(P5Ccs)])
 
 # --------------------------------------------------
 # get family coords, maybe swap out this family
-Lineage <- read.csv("Data/Swedishfamilybranch.csv")
+Lineage                      <- read.csv("Data/Swedishfamilybranch.csv")
 Lineage$year.daughters.birth <- c(Lineage$date.of.birth[-1],NA)
 Lineage$year.mothers.birth   <- c(1757,Lineage$date.of.birth[-5])
 Lineage$age.of.mother        <- c(30,Lineage$age.at.daughters.birth[-5])
