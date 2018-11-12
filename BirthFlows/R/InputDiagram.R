@@ -40,7 +40,7 @@ y <- rbind(c(y1),c(y2),c(y3),c(y4),NA)
 
 SWEh[is.na(SWEh$Age),]
 pdf("Figures/HistoricalDimensions.pdf",height=5.5,width=10)
-par(mai=c(.7,.7,.5,.4))
+par(mai=c(0,.7,.3,.2))
 plot(NULL, type="n",xlim=c(1736, 1895), ylim = c(0,60), asp = 1, axes = FALSE, ann = FALSE)
 rect(1736,14,1751,51,border=NA,col = "#fff89b")
 rect(1751,14,1775,51,border=NA,col = "#c0ffbf")

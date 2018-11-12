@@ -246,7 +246,7 @@ frac <- PCc["1890",as.character(fyrs)]
 
 
 pdf("Figures/App_preAdjustment.pdf",height=5,width=10)
-plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1721, 2017), ylim = c(-150000,150000))
+plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1680, 2017), ylim = c(-150000,150000))
 polygon(x=c(yrs,rev(yrs)),y=c(per,rep(0,length(yrs))),col="#AADDDD", border = NA)
 polygon(x=c(cohs,rev(cohs)),y=c(-coh,rep(0,length(cohs))),col="#AADDAA", border = NA)
 grid(lty=1,col="white")
@@ -254,17 +254,17 @@ axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000),
 		labels=c("150000","100000","50000","0","50000","100000","150000"))
 axis(1)
 text(1860,-240000,"Reference year", xpd = TRUE,cex=1.5)
-text(1680,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
-text(1680,-200000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)
+text(1640,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
+text(1640,-200000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)
 
 #rect(1775,-150000,1875,0)
-polygon(c(1775,1775,1836,fyrs),c(0,-150000,-150000,-frac))
+polygon(c(1736,1736,1836,fyrs),c(0,-150000,-150000,-frac))
 
-text(1775,-127000,"Too smooth\n(artifact of pclm)",pos=4)
-text(1775,-130000,"B",font=2,cex=1.5,xpd=TRUE,pos=2)
-rect(1775,150000,1890,0)
-text(1775,170000,"Ages graduated with pclm",pos=4,xpd=TRUE)
-text(1775,170000,"A",font=2,cex=1.5,xpd=TRUE,pos=2)
+text(1736,-127000,"Too smooth\n(artifact of pclm\nand indirect methods)",pos=4)
+text(1736,-130000,"B",font=2,cex=1.5,xpd=TRUE,pos=2)
+rect(1736,150000,1890,0)
+text(1736,170000,"Ages graduated smoothly",pos=4,xpd=TRUE)
+text(1736,170000,"A",font=2,cex=1.5,xpd=TRUE,pos=2)
 
 rect(1876,-155000,1968,155000,border=gray(.2),lty="82")
 text(1876,175000,"Structural echo preserved",pos=4,xpd=TRUE)
@@ -280,18 +280,18 @@ cohs <- as.integer(names(coh))
 PCc  <- apply(PCi,2,cumsum)
 frac <- PCc["1890",as.character(fyrs)]
 pdf("Figures/App_postAdjustment.pdf",height=5,width=10)
-plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1721, 2017), ylim = c(-150000,150000))
+plot(NULL,type="n", ann = FALSE, axes = FALSE, xlim = c(1680, 2017), ylim = c(-150000,150000))
 polygon(x=c(yrs,rev(yrs)),y=c(per,rep(0,length(yrs))),col="#AADDDD", border = NA)
 polygon(x=c(cohs,rev(cohs)),y=c(-coh,rep(0,length(cohs))),col="#AADDAA", border = NA)
 grid(lty=1,col="white")
 axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000), 
 		labels=c("150000","100000","50000","0","50000","100000","150000"))
 axis(1)
-polygon(c(1775,1775,1836,fyrs),c(0,-150000,-150000,-frac))
-text(1775,-130000,"Adjusted B(c)'",pos=4)
+polygon(c(1736,1736,1836,fyrs),c(0,-150000,-150000,-frac))
+text(1736,-130000,"Adjusted B(c)'",pos=4)
 text(1860,-240000,"Reference year", xpd = TRUE,cex=1.5)
-text(1680,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
-text(1680,-200000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)
+text(1640,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
+text(1640,-200000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)
 dev.off()
 
 # ---------------------------
