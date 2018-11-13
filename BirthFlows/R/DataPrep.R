@@ -4,6 +4,7 @@
 setwd("/home/tim/git/BirthFlows/BirthFlows")
 # download birthsVV (period-cohort Lexis shape for birth counts) from HFD. 
 library(RColorBrewer)
+library(viridis)
 library(HMDHFDplus)
 library(ungroup)
 library(reshape2)
@@ -331,5 +332,53 @@ for (i in 1:5){
 	By <- splinefun(Bx ~ I(ages))(Lineage$AB[i])
 	Lineage$ybottom[i] <- ybase - By
 }
+L1 <- Lineage
+# another one to try
+Lineage                      <- read.csv("Data/Swedishfamilybranch2.csv")
+Lineage$year.daughters.birth <- c(Lineage$date.of.birth[-1],NA)
+Lineage$year.mothers.birth   <- c(1800,Lineage$date.of.birth[-6])
+Lineage$age.of.mother        <- c(29,Lineage$age.at.daughters.birth[-6])
+colnames(Lineage)            <- c("first","last","C","AB","DC","MC","AM")
+# Now. assign mother age quantile to birth?
+# i <- 1
+Lineage$ytop    <- NA
+Lineage$ybottom <- NA
+for (i in 1:5){
+	ybase <- baseline[as.character(Lineage$C[i])]
+	ind1 <- SWE$Year == Lineage$C[i]
+	B <- sum(SWE$Total[ind1])
+	Bx <- cumsum(SWE$Total[ind1])
+	ages <- SWE$ARDY[ind1]
+	By <- splinefun(Bx ~ I(ages))(Lineage$AM[i])
+	Lineage$ytop[i] <- ybase + B - By
+	
+	# now bottm y coord
+	ind2 <- SWE$Cohort == Lineage$C[i]
+	Bx   <- cumsum(SWE$Total[ind2])
+	ages <- SWE$ARDY[ind2]
+	
+	By <- splinefun(Bx ~ I(ages))(Lineage$AB[i])
+	Lineage$ybottom[i] <- ybase - By
+}
+
+L2 <- Lineage
+
+# coloring properties (SD)
+cohNA     <- Cohs<1720 | Cohs > rightCoh(SWE)
+Coh_MAB   <- apply(PC,2,wmean,x=Yrs+.5) - Cohs
+Coh_MAB[cohNA] <- NA
+Per_MAB   <- Yrs - apply(PC,1,wmean,x=Cohs+.5)
+Coh_SD    <- apply(PC,2,wsd,x=Yrs+.5)
+Coh_SD[cohNA] <- NA
+Per_SD    <- apply(PC,1,wsd,x=Cohs+.5)
+
+Per_MAB5  <- groupN(Per_MAB,y=Yrs,n=5,fun=mean)
+Coh_MAB5  <- groupN(Coh_MAB,y=Cohs,n=5,fun=mean)
+Per_SD5   <- groupN(Per_SD,y=Yrs,n=5,fun=mean)
+Coh_SD5   <- groupN(Coh_SD,y=Cohs,n=5,fun=mean)
+
+
+
+
 
 cat("DataPrep.R all done!\n")

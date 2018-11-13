@@ -1,13 +1,8 @@
 setwd("/home/tim/git/BirthFlows/BirthFlows")
 source("R/DataPrep.R")
-source("R/ColorRamp.R")
-# -------------------------------
-# an explanation of where the meander comes from
-# pdf("/home/tim/workspace/Other/IDEMVIZ/Figures/Meander.pdf")
-# plot(yrs,meander,pch=16,col = "#00000050",ylab = "Child/Mother", xlab = "Year/Cohort", axes = FALSE)
-# axis(2);axis(1,seq(1780,1960,by=20))
-# lines(yrs,meander_smoothed[yrsc])
-# dev.off()
+#source("R/ColorRamp.R")
+
+
 # -------------------------------
 PeriodColors <- autumn2
 CohortColors <- autumn1
@@ -327,12 +322,38 @@ segments(1736,0,rightCoh(SWE),0,col="white",lwd=.5)
 text(1820, 10000, "crude generation growth",col = "white",cex=.7)
 text(1900, -10000, "crude generation contraction",col = "white",cex=.7)
 
-points(Lineage$C,Lineage$ytop,pch=16,col = "white",cex=1)
-points(Lineage$C,Lineage$ybottom,pch=16,col = "white",cex=1)
-text(Lineage$C,Lineage$ytop,Lineage$first,col ="white",cex=.7,pos=4)
-text(Lineage$C[-5],Lineage$ybottom[-5],Lineage$first[-1],col ="white",cex=.7,pos=4)
+# first lineage
+points(L1$C,L1$ytop,pch=16,col = gray(.3), cex=.8)
+points(L1$C,L1$ybottom,pch=16,col = gray(.3), cex=.8)
+text(L1$C,L1$ytop,L1$first,col = gray(.3), cex=.7,pos=4)
+text(L1$C[-5],L1$ybottom[-5],L1$first[-1], col = gray(.3),cex=.7,pos=4)
+for (i in 1:4){
+	vt <- L1$ytop[i] - L1$ybottom[i]
+	draw.arc(L1$C[i],L1$ybottom[i],L1$C[i],L1$ybottom[i]-vt,col=gray(.3),lwd=.5,lty="83",brel=.00015)
+}
+for (i in 1:4){
+	draw.arc(L1$C[i],L1$ybottom[i],L1$C[i+1],L1$ytop[i+1],col=gray(.3),lwd=.5,lty="83",brel=.00015)
+}
+
+
+# second lineage
+points(L2$C,L2$ytop,pch=16,col = "#21114C",cex=.8)
+points(L2$C,L2$ybottom,pch=16,col = "#21114C",cex=.8)
+text(L2$C,L2$ytop,L2$first,col ="#21114C",cex=.7,pos=4)
+text(L2$C,L2$ybottom,L2$first,col ="#21114C",cex=.7,pos=4)
+for (i in 1:5){
+	vt <- L2$ytop[i] - L2$ybottom[i]
+	draw.arc(L2$C[i],L2$ybottom[i],L2$C[i],L2$ybottom[i]-vt,col="#21114C",lwd=.5,lty="74",brel=-.00015)
+}
+for (i in 1:5){
+	draw.arc(L2$C[i],L2$ybottom[i],L2$C[i+1],L2$ytop[i+1],col="#21114C",lwd=.5,lty="74",brel=-.00015)
+}
+
 
 dev.off()
+
+
+
 
 
 

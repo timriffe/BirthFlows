@@ -28,7 +28,6 @@ SWEl      <- data.table(SWEl)
 SWEl$Age5 <- SWEl$Age - SWEl$Age %% 5
 SWEl5     <- SWEl[,list(B5 = sum(B)), by = list(Year, Age5)]
 SWEl5$Cohort <- SWEl5$Year - SWEl5$Age5 
-# experiment with arcs
 
 cohs      <- as.integer(colnames(PC))
 yrs       <- as.integer(rownames(PC))
@@ -437,3 +436,4 @@ par(mai = c(.1,.1,.1,.1))
 plot(NULL, type = "n", ann = FALSE, axes = FALSE, asp = 1, xlim = c(0,840),ylim=c(0,297))
 rect(x[-5],0,x[-1],h,lwd=2)
 dev.off()
+

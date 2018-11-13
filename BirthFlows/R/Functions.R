@@ -490,3 +490,65 @@ leftYear <- function(SWE){
 #	# minimize by changing the input 'par'
 #	3*(se - se_p)^2 + 7*(slp - slp_p)^2
 #}
+
+# crappy buggy functions for drawing arcs between points. See hackish application
+
+Arc <- function(a,b,nvert,rad1=0,rad2=pi){
+	pivec <- seq(from = rad1 , to = rad2, length.out=nvert)
+	x <- a * cos(pivec) + a
+	y <- b * sin(pivec)
+	out <- matrix(c(x,y),nrow=nvert,ncol=2)
+	return(out)
+}
+
+# how many radians does the standard arc need to be rotated, 
+radians <- function(p1,p2){
+	rise <- p2$y-p1$y
+	run <- p2$x-p1$x
+	add <- ifelse(p1$x<p2$x,0,pi)
+	add+atan(rise/run)
+}
+
+# distance formula, used to calculate a (major radius)
+pythag <- function(p1,p2){
+	((p2$y-p1$y)^2 + (p2$x-p1$x)^2)^.5
+}
+# we use matrx multiplication to perform the rotation, since it's more efficient in R
+rotationMatrix <- function(theta){
+	matrix(c(cos(theta),sin(theta),-sin(theta),cos(theta)),ncol=2,nrow=2)
+}
+
+rotatearc <- function(arc,Rmat){
+	rotatevec <- function(arc,Rmat){
+		Rmat%*%c(arc)
+	}
+	t(apply(arc,1,rotatevec,Rmat=Rmat))
+}
+
+arcpoints <- function(p1,p2,nvert=200,rad1,rad2,brel=.4){
+	a          <- pythag(p1,p2)*.5
+	b          <- a * brel
+	theta      <- radians(p1,p2)+pi
+	Rmat       <- rotationMatrix(theta)
+	arc0       <- Arc(a,b,nvert=nvert,rad1=rad1,rad2=rad2)
+	arc1       <- rotatearc(arc0,Rmat)
+	arc1[,1]   <- arc1[,1] - arc1[1,1] 
+	arc1[,2]   <- arc1[,2] - arc1[1,2] 
+	hyp2       <- pythag(
+			p1=list(x=arc1[1,1],y=arc1[1,2]),
+			p2=list(x=arc1[nvert,1],y=arc1[nvert,2]))
+	arcout     <- arc1 * (a * 2) / hyp2
+	arcout[,1] <- arcout[,1] + p1$x
+	arcout[,2] <- arcout[,2] + p1$y
+	return(arcout)
+}
+
+draw.arc <- function(x1,y1,x2,y2,brel=.5,nvert=100,rad=1/5,...){
+	p1   <- list(x=x1,y=y1)
+	p2   <- list(x=x2,y=y2)
+	sgn  <- sign(rad1)
+	rad2 <- sgn * (pi - abs(rad1))
+	xy   <- arcpoints(p1=p1,p2=p2,rad1=rad1,rad2=rad2,brel=brel,nvert=nvert)
+	lines(xy,...)
+}
+
