@@ -437,3 +437,8 @@ plot(NULL, type = "n", ann = FALSE, axes = FALSE, asp = 1, xlim = c(0,840),ylim=
 rect(x[-5],0,x[-1],h,lwd=2)
 dev.off()
 
+228.60/
+685.80
+
+297 840
+297/840

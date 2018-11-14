@@ -111,145 +111,25 @@ xticks20c <- as.character(xticks20)
 
 graphics.off()
 
-for (measure in c("IQR","CV","MAB","SD")){
-	for (rampi in c("mine",LETTERS[1:5],"blend")){
-		
-		# select ramp
-		if (rampi == "mine"){
-			this.ramp <- colsRamp
-		} else {
-			if (rampi == "blend"){
-				this.ramp <- viridisblend
-			} else {
-				this.ramp <- function(n,option = rampi){
-					viridis(n,option=option)
-				}
-			}
-		}
-		
-		if (measure == "IQR"){
-			valueP <- Per_IQR5; valueC <- Coh_IQR5
-		}
-		if (measure == "SD"){
-			valueP <- Per_SD5; valueC <- Coh_SD5
-		}
-		if (measure == "MAB"){
-			valueP <- Per_MAB5; valueC <- Coh_MAB5
-		}
-		if (measure == "SD"){
-			valueP <- Per_SD5; valueC <- Coh_SD5
-		}
-		
-		
-		breaks <- pretty(c(valueP,valueC),n=25)
-		
-		ColsC <- as.character(cut(valueP,breaks=breaks,labels=this.ramp(length(breaks)-1)))
-		ColsP <- as.character(cut(valueC,breaks=breaks,labels=this.ramp(length(breaks)-1)))
-		ColsP[is.na(ColsP)] <- gray(.8)
-		
-		
-		path <- file.path("Figures/ColorRamps",measure,paste0(rampi,".pdf"))
-		pdf(path, height = 8, width = 27)
-		par(mai = c(0,0,0,0),
-				xpd = TRUE,
-				xaxs = "i",
-				yaxs = "i")
-		plot(NULL, 
-				type = "n", 
-				xlim = c(1670,2020), 
-				ylim = c(-25e4,25e4), 
-				axes = FALSE, 
-				xlab = "", 
-				ylab = "")
-		
-# y-guides
-		segments(xticks20,
-				baseline[xticks20c]+15e4,
-				xticks20,
-				baseline[xticks20c]-15e4,
-				col=gray(.7))
-		
-# y axis reference lines
-		for (i in 1:length(yticks)){
-			lines(yrs_smooth, yticks[i] + baseline, col = gray(.8),lwd=.6)
-		}
-		push <- baseline[1]
-		segments(min(Cohs),
-				-15e4 + push, 
-				min(Cohs), 
-				15e4 + push)
-		
-		segments(min(Cohs), 
-				yticks + push, 
-				min(Cohs)+1, 
-				yticks + push)
-		
-		text(min(Cohs),c(-15e4,-10e4,-5e4,5e4,10e4,15e4)+ push,c(150,100,50,50,100,150),pos=2,cex=.8)
-		text(min(Cohs)+3,17e4+push,"Births in year (1000s)",pos=4,cex=.9)
-		text(min(Cohs)+3,-18e4+push,"Births from cohort",pos=4,cex=.9)
-		
-# polygons
-		for (i in 1:(nrow(PC5cs) - 1)){
-			polygon(c(Yrs, rev(Yrs)), c(PC5cs2[i, ], rev(PC5cs2[i + 1, ])), col = ColsP[i], border = "#FFFFFF", lwd = .2)
-		}
-		for (i in 1:(nrow(P5Ccs) - 1)){
-			polygon(c(Cohs, rev(Cohs)), -c(P5Ccs2[i, ], rev(P5Ccs2[i + 1, ])), col = ColsC[i], border = "#FFFFFF", lwd = .2)
-		}
-		
-		do.this <- FALSE
-		if (do.this){
-		# start experimental age bands
-		matplot(Yrs,t(APc[age_bands,]) + 
-						baseline[colnames(AP)],type='l',col="white",lwd=.2,lty=1,add=TRUE)
-		
-		lines(Yrs, apply(AP,2,function(Bx){
-									y <- cumsum(Bx)
-									x <- names2age(Bx)
-									MAB <- wmean(w=Bx,x=x)
-									splinefun(y~x, method = "monoH.FC")(MAB)
-								})+ 
-						baseline[colnames(AP)], col = "white")
-		
-		matplot(Cohs,t(-ACc[age_bands,]) + 
-						baseline[colnames(AC)],type='l',col="white",lwd=.2,lty=1,add=TRUE)
-		lines(Cohs, -apply(AC,2,function(Bx){
-									y <- cumsum(Bx)
-									x <- names2age(Bx)
-									MAB <- wmean(w=Bx,x=x)
-									splinefun(y~x, method = "monoH.FC")(MAB)
-								})+ 
-						baseline[colnames(AC)], col = "white")
-	}
-		# end experiemental age bands
-		lines(yrs_smooth, baseline, col = "white")
-		segments(xticks, baseline[xticksc] - 5000, xticks, baseline[xticksc] + 5000, col = "white")
-		text(xticks20, baseline[xticks20c] - 15e4, xticks20, pos = 1, cex = .7, xpd = TRUE)
-		
-		for (i in 1:length(yticks)){
-			lines(yrs_smooth, yticks[i] + baseline, col = "#FFFFFF50",lwd=.3)
-		}
-		
-		segments(1736,0,rightCoh(SWE),0,col="white",lwd=.5)
-		text(1820, 3000, "crude generation growth",col = "white",cex=.7)
-		text(1900, -3000, "crude generation contraction",col = "white",cex=.7)
-		
-		points(Lineage$C,Lineage$ytop,pch=16,col = "white",cex=1)
-		points(Lineage$C,Lineage$ybottom,pch=16,col = "white",cex=1)
-		text(Lineage$C,Lineage$ytop,Lineage$first,col ="white",cex=.7,pos=4)
-		text(Lineage$C[-5],Lineage$ybottom[-5],Lineage$first[-1],col ="white",cex=.7,pos=4)
-		
-		dev.off()
-		
-	}
-}
+# 4 a4 sheets = 840mm wide, 297mm tall.
+wnew <- 33.0709
+hnew <- 11.6929
+# curves calibrated to particular xlim, ylim, asp. Need to back them out...
+# device size = 9h, 27w
+mai   <- c(1.2,1.5,1.2,.5)
+xr    <- 2020 - 1680
+yr    <- 50e4
+dh    <- 9
+dw    <- 27
+plotw <- dw - mai[2] - mai[3]
+ploth <- dh - mai[1] - mai[4]
 
 
 
-# 64cm x 138cm is final dim
+#pdf("Figures/SwedenBirthFlowsR5.pdf", height = 9, width = 27)
 pdf("Figures/SwedenBirthFlowsR5.pdf", height = 9, width = 27)
-
 #dev.new(height = 9, width= 27)
-par(mai = c(1.2,1.5,1.2,.5),
+par(mai = mai,
 	xpd = TRUE,
 	xaxs = "i",
 	yaxs = "i")
@@ -319,41 +199,45 @@ for (i in 1:length(yticks)){
 }
 
 segments(1736,0,rightCoh(SWE),0,col="white",lwd=.5)
-text(1820, 10000, "crude generation growth",col = "white",cex=.7)
-text(1900, -10000, "crude generation contraction",col = "white",cex=.7)
+
 
 # first lineage
-points(L1$C,L1$ytop,pch=16,col = gray(.3), cex=.8)
-points(L1$C,L1$ybottom,pch=16,col = gray(.3), cex=.8)
-text(L1$C,L1$ytop,L1$first,col = gray(.3), cex=.7,pos=4)
-text(L1$C[-5],L1$ybottom[-5],L1$first[-1], col = gray(.3),cex=.7,pos=4)
-for (i in 1:4){
-	vt <- L1$ytop[i] - L1$ybottom[i]
-	draw.arc(L1$C[i],L1$ybottom[i],L1$C[i],L1$ybottom[i]-vt,col=gray(.3),lwd=.5,lty="83",brel=.00015)
-}
-for (i in 1:4){
-	draw.arc(L1$C[i],L1$ybottom[i],L1$C[i+1],L1$ytop[i+1],col=gray(.3),lwd=.5,lty="83",brel=.00015)
-}
+#points(L1$C,L1$ytop,pch=16,col = gray(.3), cex=.8)
+#points(L1$C,L1$ybottom,pch=16,col = gray(.3), cex=.8)
+#text(L1$C,L1$ytop,L1$first,col = gray(.3), cex=.7,pos=4)
+#text(L1$C[-5],L1$ybottom[-5],L1$first[-1], col = gray(.3),cex=.7,pos=4)
+#for (i in 1:4){
+#	vt <- L1$ytop[i] - L1$ybottom[i]
+#	draw.arc(L1$C[i],L1$ybottom[i],L1$C[i],L1$ybottom[i]-vt,col=gray(.3),lwd=.5,lty="83",brel=.00015)
+#}
+#for (i in 1:4){
+#	draw.arc(L1$C[i],L1$ybottom[i],L1$C[i+1],L1$ytop[i+1],col=gray(.3),lwd=.5,lty="83",brel=.00015)
+#}
 
 
 # second lineage
-points(L2$C,L2$ytop,pch=16,col = "#21114C",cex=.8)
-points(L2$C,L2$ybottom,pch=16,col = "#21114C",cex=.8)
-text(L2$C,L2$ytop,L2$first,col ="#21114C",cex=.7,pos=4)
-text(L2$C,L2$ybottom,L2$first,col ="#21114C",cex=.7,pos=4)
 for (i in 1:5){
 	vt <- L2$ytop[i] - L2$ybottom[i]
-	draw.arc(L2$C[i],L2$ybottom[i],L2$C[i],L2$ybottom[i]-vt,col="#21114C",lwd=.5,lty="74",brel=-.00015)
+	draw.arc(L2$C[i],L2$ybottom[i],L2$C[i],L2$ybottom[i]-vt,col="#7B6A93",lwd=.5,lty="74",brel=.00015)
 }
 for (i in 1:5){
-	draw.arc(L2$C[i],L2$ybottom[i],L2$C[i+1],L2$ytop[i+1],col="#21114C",lwd=.5,lty="74",brel=-.00015)
+	draw.arc(L2$C[i],L2$ybottom[i],L2$C[i+1],L2$ytop[i+1],col="#7B6A93",lwd=.5,lty="74",brel=.00015)
 }
+points(L2$C,L2$ytop,pch=16,col = "#21114C",cex=.8)
+points(L2$C[-6],L2$ybottom[-6],pch=c(rep(16,4),1),col = "#21114C",cex=.8)
+text(L2$C,L2$ytop,L2$first,col ="#21114C",cex=.7,pos=4)
+text(L2$C[-6],L2$ybottom[-6],L2$first[-1],col ="#21114C",cex=.7,pos=4)
+arctext("gave birth to", center = c(1820, 45000), middle = .2, radius= 13.3,
+		col = "#21114C",cex=.6)
+arctext("appeared in the birth series in 1856", 
+		center = c(1801, 430000), 
+		middle =-.33*pi, radius= 81.5,
+		col = "#21114C",cex=.6,clockwise=FALSE)
 
-
+# to make sure fonts on top
+text(1810, 6000, "crude generation growth",col = "white",cex=1)
+text(1904, -8000, "crude generation contraction",col = "white",cex=1)
 dev.off()
-
-
-
 
 
 
