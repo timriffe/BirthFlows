@@ -124,18 +124,28 @@ dw    <- 27
 plotw <- dw - mai[2] - mai[3]
 ploth <- dh - mai[1] - mai[4]
 
+# years per inch
+ypi   <- xr / plotw
+
+# height to add to margins:
+hadd  <- hnew - 9
+mainew <- mai + c(hadd/2,0,hadd/2,0)
+
+# years to add to x
+wadd <- wnew - 27
+yearsadd <- wadd * ypi
 
 
 #pdf("Figures/SwedenBirthFlowsR5.pdf", height = 9, width = 27)
-pdf("Figures/SwedenBirthFlowsR5.pdf", height = 9, width = 27)
+pdf("Figures/SwedenBirthFlowsR5.pdf", height = hnew, width = wnew)
 #dev.new(height = 9, width= 27)
-par(mai = mai,
+par(mai = mainew,
 	xpd = TRUE,
 	xaxs = "i",
 	yaxs = "i")
 plot(NULL, 
 	 type = "n", 
-	 xlim = c(1680,2020), 
+	 xlim = c(1660,2000+yearsadd), 
 	 ylim = c(-25e4,25e4), 
 	 axes = FALSE, 
 	 xlab = "", 
@@ -164,8 +174,8 @@ segments(min(Cohs),
 		 min(Cohs)+1, 
 		 yticks + push)
 text(min(Cohs),c(-15e4,-10e4,-5e4,5e4,10e4,15e4)+ push,c(150,100,50,50,100,150),pos=2,cex=.8)
-text(min(Cohs),18e4+push,"Births in year (1000s)",pos=2,cex=.9)
-text(min(Cohs),-18e4+push,"Births from cohort",pos=2,cex=.9)
+text(min(Cohs),18e4+push,"Births in year (1000s)",pos=4,cex=1.1,font=2)
+text(min(Cohs),-18e4+push,"The children they had",pos=4,cex=1.1,font=2)
 
 # right y axis
 push2 <- baseline[length(baseline)]
@@ -231,12 +241,14 @@ arctext("gave birth to", center = c(1820, 45000), middle = .2, radius= 13.3,
 		col = "#21114C",cex=.6)
 arctext("appeared in the birth series in 1856", 
 		center = c(1801, 430000), 
-		middle =-.33*pi, radius= 81.5,
+		middle =-.33*pi, radius= 81.7,
 		col = "#21114C",cex=.6,clockwise=FALSE)
 
 # to make sure fonts on top
 text(1810, 6000, "crude generation growth",col = "white",cex=1)
 text(1904, -8000, "crude generation contraction",col = "white",cex=1)
+
+
 dev.off()
 
 
