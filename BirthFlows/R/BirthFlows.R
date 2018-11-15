@@ -106,9 +106,9 @@ ColsP[is.na(ColsP)] <- gray(.8)
 
 #setwd("/home/triffe/Desktop")
 yticks    <- c(-15e4,-10e4,-5e4,5e4,10e4,15e4)
-xticks    <- seq(1680,2010,by=10)
+xticks    <- seq(1680,2010, by = 10)
 xticksc   <- as.character(xticks)
-xticks20  <- seq(1680,2000,by=20)
+xticks20  <- seq(1680, 2000, by = 20)
 xticks20c <- as.character(xticks20)
 
 graphics.off()
@@ -147,9 +147,9 @@ par(mai = c(2.54645, 1.5, 2.54645, 0.5),
 # as it will throw off curved text!!
 plot(NULL, 
 	 type = "n", 
-	 xlim = c(1660, 2084.94263374486), 
-	 ylim = c(-25e4, 25e4), 
-	 axes = FALSE, 
+	 xlim = c(1660, 2084.94263374486), # odd nr, due to recalculations
+	 ylim = c(-25e4, 25e4),            # that preserve aspect ratio after   
+	 axes = FALSE,                     # a device resize
 	 xlab = "", 
 	 ylab = "")
 
@@ -321,6 +321,7 @@ arctext("gave birth to",
 		radius = 13.3,
 		col = "#21114C",
 		cex = .6)
+
 arctext("appeared in the birth series in 1856", 
 		center = c(1801, 430000), 
 		middle = -.33 * pi, 
@@ -365,7 +366,7 @@ segments(min(Cohs),
 		min(Cohs) + 1, 
 		yticks + push)
 text(min(Cohs), 
-		c(-15e4,-10e4,-5e4,5e4,10e4,15e4) + push,
+		yticks + push,
 		c(150,100,50,50,100,150),
 		pos = 2,
 		cex = .8)
@@ -381,7 +382,7 @@ segments(max(Yrs),
 		max(Yrs) - 1, 
 		yticks + push2)
 text(max(Yrs), 
-	 c(-15e4,-10e4,-5e4,5e4,10e4,15e4) + push2, 
+	 yticks + push2, 
 	 c(150,100,50,50,100,150), 
 	 pos = 4, 
 	 cex = .8)
