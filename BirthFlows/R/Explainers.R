@@ -141,19 +141,20 @@ ngreens <- sum(yrs%%20==0)
 PC2     <- PC
 PC2[PC2==0] <- NA
 ytix    <- seq(-10000,10000,by=2000)
-
-pdf("Figures/FxFlowReflect.pdf",height=3.7,width=10)
+cohs      <- as.integer(colnames(PC))
+yrs       <- as.integer(rownames(PC))
+pdf("Figures/FxFlowReflect.pdf",height=4.3,width=12)
 # fresh plane
-par(mai=c(.5,1,.5,.6),xaxs="i",yaxs="i",xpd=TRUE)
-plot(NULL, xlim = range(1720,2017),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
+par(mai=c(.6,1,.6,.6),xaxs="i",yaxs="i",xpd=TRUE)
+plot(NULL, xlim = range(1680,2067),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
 
 # grid lines
-segments(seq(1720,2010,by=10),-10000,seq(1720,2010,by=10),10000,col = gray(.8))
-segments(1720,ytix,2017,ytix,col = gray(.8))
+segments(seq(1680,2060,by=10),-10000,seq(1680,2060,by=10),10000,col = gray(.8))
+segments(1680,ytix,2067,ytix,col = gray(.8))
 
 # axis labels
-text(seq(1720,2000,by=20),-10000,seq(1720,2000,by=20),pos=1)
-text(1720,ytix,abs(ytix),pos=2,cex=.8)
+text(seq(1680,2060,by=20),-10000,seq(1680,2060,by=20),pos=1)
+text(1680,ytix,abs(ytix),pos=2,cex=.8)
 #text(2015,ytix,abs(ytix),pos=4,cex=.8)
 
 # Fx lines
@@ -181,10 +182,15 @@ text(1899,10000,"a",font=2,cex=1.5,pos=4)
 
 # axis names
 text(1880,-12500,"Index Year",cex=1.5)
-text(1720,-12500,"Mothers' cohort",cex=1.3)
-text(1720,12500,"Ocurrence year",cex=1.3)
-arrows(c(1750,1750),c(-12500,12500),c(1765,1765),c(-12500,12500),length=.1)
-text(1700,0,"Count",cex=1.5,srt=90,pos=3)
+text(1680,-12500,"Mothers' cohort",cex=1.3)
+text(1680,12500,"Ocurrence year",cex=1.3)
+arrows(c(1715,1715),c(-12500,12500),c(1730,1730),c(-12500,12500),length=.1)
+text(1660,0,"Count",cex=1.5,srt=90,pos=3)
+
+# anticipated projection
+rect(1972,0,2016,-10000,col = "#55555550",border=NA)
+rect(2016,0,2066,10000,col = "#55555550",border=NA)
+text(2030,0,"Forthcoming Projection",srt=45)
 dev.off()
 
 
