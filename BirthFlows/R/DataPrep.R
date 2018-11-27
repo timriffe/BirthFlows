@@ -10,8 +10,10 @@ library(ungroup)
 library(reshape2)
 library(data.table)
 library(DemoTools)
-source("R/Functions.R")
+library(minpack.lm)
 
+source("R/Functions.R")
+source("R/Method13_deBeer1985and1989-swe.R")
 # -------------------------------------------------
 
 # Total births for single years 1736 to 1775
@@ -204,18 +206,133 @@ save(SWE, file = "Data/SWE.Rdata")
 
 # adjust mother cohort size based on first diffs in daughter cohort size
 cat("Adjusting graduated data...\n")
-(span  <- optimize(minspan, interval = c(.01,.5), SWE = SWE)) # 0.09068448
+(span  <- optimize(minspan, interval = c(.01,.8), SWE = SWE, maxit = 500)) # 0.09068448
+                                                                           # 0.5838217
 PCi    <- pertspan(SWE, span = span$minimum, maxit = 5000)
 
-Bt     <- rowSums(PCi) # same as previous
-Bc     <- colSums(PCi)
+# return to long format for purposes of joining:
+SWE <- melt(PCi, varnames = c("Year","Cohort"), value.name = "Total")
+SWE <- SWE[order(SWE$Year,SWE$Cohort),]
+
+# -------------------------------------------- #
+# insert forecast by CB                        #
+# -------------------------------------------- #
+
+# read in data objects as required.
+#data <- read.table("Data/forecast/asfrRR.txt",skip=2,as.is=T, header=TRUE)
+#data <- data[data$Code == "SWE", ]
+#data <- write.table(data,file="Data/forecast/SWEasfrRR.txt",row.names=FALSE)
+asfr          <- read.table("Data/forecast/SWEasfrRR.txt", 
+		            stringsAsFactors = FALSE, 
+					header = TRUE)
+			
+# recode age from HFR standard
+i12           <- asfr$Age == "12-"
+i55           <- asfr$Age == "55+"
+asfr$Age[i12] <- "12"
+asfr$Age[i55] <- "55"
+asfr$Age      <- as.integer(asfr$Age)
+
+# reshape to AP matrix
+ASFR          <- acast(asfr, Age~Year, value.var = "ASFR")
+
+swe_base_period_50_a <- Method13_deBeer1985and1989.R(ASFR,
+		joy = 2016, 
+		obs = 50,
+		age1 = 12, 
+		age2 = 55,
+		parameter = c(1,0,0,1,0,0),
+		len = 100,
+		pop="SWE")
+
+swe_obs_pred_ASFR_base_period_50_a  <- as.matrix(cbind(swe_base_period_50_a$obsASFR[,as.character(1891:2016)],swe_base_period_50_a$predASFR[,as.character(2017:2116)]))
+swe_obs_pred_CASFR_base_period_50_a <- asfr_period_to_cohort(as.matrix(swe_obs_pred_ASFR_base_period_50_a))
+
+# --------------------------------- #
+# read in SCB popualtion projection #
+# --------------------------------- #
+
+PProj           <- read.table("Data/forecast/scb-females-projected-swe.csv",
+		             skip = 0,
+					 as.is = TRUE, 
+					 header = TRUE)
+PProj           <- as.vector(PProj)[, 4:106]
+rownames(PProj) <- 0:105
+colnames(PProj) <- 2018:2120
+
+# get 2017 "observed" population from SCB:
+#P2017 <- read.table("Data/forecast/scb-females-observed-swe.csv",  
+#		skip = 0,
+#		as.is = TRUE, 
+#		header = TRUE)
+#head(data)
+#data$age
+#
+#P2017           <- as.vector(P2017)[,3:(length(1860:2017)+2)]
+#rownames(P2017) <- 0:100
+#colnames(P2017) <- 1860:2017
+#P2017           <- P2017[, ncol(P2017)]
+#
+#dput(P2017)
+P2017 <- c(56715L, 59444L, 58123L, 59233L, 58684L, 59279L, 58916L, 61077L, 
+		59410L, 58612L, 57936L, 57688L, 55943L, 55436L, 54893L, 53557L, 
+		51353L, 51508L, 51083L, 51275L, 52151L, 54920L, 58872L, 64263L, 
+		67178L, 70320L, 72030L, 73732L, 70759L, 69794L, 67193L, 66138L, 
+		64686L, 62531L, 61410L, 61495L, 61178L, 63145L, 61249L, 59582L, 
+		60163L, 60791L, 63208L, 65995L, 64867L, 65858L, 65698L, 64129L, 
+		62766L, 65367L, 67947L, 68266L, 68353L, 68215L, 62984L, 60368L, 
+		58228L, 57689L, 57304L, 57120L, 57803L, 57102L, 56556L, 55026L, 
+		55930L, 55289L, 54520L, 56251L, 58049L, 59699L, 59444L, 59301L, 
+		57810L, 55893L, 51746L, 46580L, 40689L, 38033L, 37459L, 35393L, 
+		32489L, 30728L, 27919L, 26285L, 24448L, 23638L, 22099L, 20605L, 
+		17953L, 16422L, 14240L, 12151L, 10369L, 8452L, 6580L, 4947L, 
+		4073L, 3039L, 1688L, 1043L, 1732L)
+names(P2017) <- 0:100
+
+# -----------------------------------
+# stick denoms together
+asel                <- as.character(12:55)
+DenomProj           <- cbind(P2017[asel], as.matrix(PProj[asel, ]))
+colnames(DenomProj) <- 2017:2120
+# derive birth counts
+
+yrsel         <- sort(intersect(
+				    colnames(DenomProj), 
+				    colnames(swe_obs_pred_ASFR_base_period_50_a)))
+Bproj         <- swe_obs_pred_ASFR_base_period_50_a[, yrsel] * DenomProj[, yrsel]
+
+# reshape to long format
+Bproj         <- melt(Bproj, varnames = c("Age", "Year"), value.name = "Births")
+
+# shift AP into VV
+Bproj         <- data.table(Bproj)
+Bproj         <- Bproj[,RR2VV(.SD), by = list(Year)]
+Bproj$Cohort  <- Bproj$Year - Bproj$Age
+colnames(Bproj)[colnames(Bproj) == "Births"] <- "Total"
+Bproj         <- Bproj[,c("Year","Cohort","Total")]
+
+# combine data objects
+SWE           <- rbind(SWE, Bproj)
+
+# throw away forecast beyonf 2016 cohort
+SWE           <- SWE[SWE$Cohort <= 2016, ]
+SWE$ARDY      <- SWE$Year - SWE$Cohort
+SWE           <- SWE[SWE$ARDY > 10 & SWE$ARDY < 60, ]
+# end forecast chunk
+# -------------------------------------------- #
+
+PC    <- acast(SWE, Year~Cohort, value.var = "Total", fill = 0)
+
+# -------------------------------------------- #
+
+Bt     <- rowSums(PC) # same as previous
+Bc     <- colSums(PC)
 
 #plot(1736:2016,Bt,type='l',xlim=c(1687,2016),ylim=c(-150000,150000))
 #lines(1687:2004,-Bc)
 
 
 cat("Creating figure data objects...\n")
-PC      <- PCi
 
 minYR   <- min(SWE$Year)
 minCoh  <- min(SWE$Cohort)
@@ -248,22 +365,12 @@ P5Ccs <- rbind(0,P5Ccs)
 # ---------------------
 # make a meander:
 # let's get a ratio (coh / period):
-
-# ---------------------------------
-# TODO:
-# 2) optimize so that Bc + Bt is centered on average.
-
-# NOTE: the object used in BirthFlows.R
-# is meander_smoothed,
-# and it is modified as so:
-# meander_smoothed <- meander_smoothed * 7e4
-# the value 7e4 can probably be optimized to achieve centering.
 # ---------------------------------
 
 BT      <- colSums(PC5)
 BC      <- colSums(P5C) 
 
-yrs     <- leftYear(SWE):rightCoh(SWE,45)
+yrs     <- leftYear(SWE):max(SWE$Cohort)
 yrsc    <- as.character(yrs)
 
 # ratio of offspring to original cohort size
@@ -277,8 +384,8 @@ start             <- mean(meander[1:10])
 end               <- mean(meander[(length(meander)-5):length(meander)])
 
 # how far left and right do we need to pad?
-Nstart            <- min(yrs) - min(Cohs) 
-Nend              <- max(Yrs) - max(yrs)
+Nstart            <- min(Yrs) - min(Cohs) 
+Nend              <- max(Yrs) - max(Cohs)
 
 # concatenate the raw meander
 meander_extended  <- c(rep(start,Nstart),meander,rep(end,Nend))
@@ -345,40 +452,40 @@ Lineage$ytop    <- NA
 Lineage$ybottom <- NA
 for (i in 1:5){
 	ybase <- baseline[as.character(Lineage$C[i])]
-	ind1 <- SWE$Year == Lineage$C[i]
-	B <- sum(SWE$Total[ind1])
-	Bx <- cumsum(SWE$Total[ind1])
-	ages <- SWE$ARDY[ind1]
-	By <- splinefun(Bx ~ I(ages))(Lineage$AM[i])
-	Lineage$ytop[i] <- ybase + B - By
-	
+	ind1  <- SWE$Year == Lineage$C[i]
+	B     <- sum(SWE$Total[ind1])
+	Bx    <- cumsum(SWE$Total[ind1])
+	ages  <- SWE$ARDY[ind1]
+	By    <- splinefun(Bx ~ I(ages))(Lineage$AM[i])
+	#Lineage$ytop[i] <- ybase + B - By
+	Lineage$ytop[i] <- ybase + By
 	# now bottm y coord
-	ind2 <- SWE$Cohort == Lineage$C[i]
-	Bx   <- cumsum(SWE$Total[ind2])
-	ages <- SWE$ARDY[ind2]
+	ind2  <- SWE$Cohort == Lineage$C[i]
+	Bx    <- cumsum(SWE$Total[ind2])
+	ages  <- SWE$ARDY[ind2]
 	
-	By <- splinefun(Bx ~ I(ages))(Lineage$AB[i])
+	By    <- splinefun(Bx ~ I(ages))(Lineage$AB[i])
 	Lineage$ybottom[i] <- ybase - By
 }
 
 L2 <- Lineage
 
 # coloring properties (SD)
-cohNA     <- Cohs<1720 | Cohs > rightCoh(SWE)
-Coh_MAB   <- apply(PC,2,wmean,x=Yrs+.5) - Cohs
+cohNA          <- Cohs < 1720 
+perNA          <- Yrs > 2030
+Coh_MAB        <- apply(PC, 2, wmean, x = Yrs + .5) - Cohs
 Coh_MAB[cohNA] <- NA
-Per_MAB   <- Yrs - apply(PC,1,wmean,x=Cohs+.5)
-Coh_SD    <- apply(PC,2,wsd,x=Yrs+.5)
-Coh_SD[cohNA] <- NA
-Per_SD    <- apply(PC,1,wsd,x=Cohs+.5)
+Per_MAB        <- Yrs - apply(PC, 1, wmean, x = Cohs + .5)
+Per_MAB[perNA] <- NA
+Coh_SD         <- apply(PC, 2, wsd, x = Yrs + .5)
+Coh_SD[cohNA]  <- NA
+Per_SD         <- apply(PC, 1, wsd, x = Cohs + .5)
+Per_SD[perNA]  <- NA
 
-Per_MAB5  <- groupN(Per_MAB,y=Yrs,n=5,fun=mean)
-Coh_MAB5  <- groupN(Coh_MAB,y=Cohs,n=5,fun=mean)
-Per_SD5   <- groupN(Per_SD,y=Yrs,n=5,fun=mean)
-Coh_SD5   <- groupN(Coh_SD,y=Cohs,n=5,fun=mean)
-
-
-
+Per_MAB5  <- groupN(Per_MAB, y = Yrs, n = 5, fun = mean)
+Coh_MAB5  <- groupN(Coh_MAB, y = Cohs, n = 5, fun = mean)
+Per_SD5   <- groupN(Per_SD, y = Yrs, n = 5, fun = mean)
+Coh_SD5   <- groupN(Coh_SD, y = Cohs, n = 5, fun = mean)
 
 
 cat("DataPrep.R all done!\n")

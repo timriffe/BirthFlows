@@ -1,0 +1,28 @@
+
+---------------------------------------------
+
+HFD data downloaded on November 15, 2018:
+
+asfrRR.txt
+exposRR.txt
+
+https://www.humanfertility.org/cgi-bin/zipfiles.php
+
+---------------------------------------------
+
+SCB data downloaded on November 15, 2018:
+
+scb-females-projected-swe.csv
+scb-births-projected-swe.csv
+
+http://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__BE__BE0401__BE0401A/BefolkprognRevN
+http://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__BE__BE0401__BE0401A/BefProgFoddaMedelN
+
+scb-females-observed-swe.csv
+scb-births-observed-swe.csv
+
+http://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__BE__BE0101__BE0101A/BefolkningR1860/
+http://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__BE__BE0101__BE0101H/FoddaK/
+
+---------------------------------------------
+

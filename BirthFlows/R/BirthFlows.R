@@ -1,16 +1,17 @@
 setwd("/home/tim/git/BirthFlows/BirthFlows")
-source("R/DataPrep.R")
+#source("R/DataPrep.R")
 #source("R/ColorRamp.R")
 
 
 # -------------------------------
-PeriodColors <- autumn2
-CohortColors <- autumn1
+#PeriodColors <- autumn2
+#CohortColors <- autumn1
 # -------------------------------
 # a simple flat-line undecomposed version of the graphic,
 # as a cleaner reference
 yp           <- as.integer(names(BT)) 
 yc           <- as.integer(names(BC))
+#length(intersect(yp,yc))
 # pdf("/home/tim/workspace/Other/IDEMVIZ/Figures/flatline.pdf",width=9,height=5)
 # plot(yp,BT, xlim=range(yrs_smooth),ylim=c(-15e4,15e4),type = 'n', 
 # 	 axes = FALSE, xlab = "", ylab = "")
@@ -85,6 +86,7 @@ breaks <- pretty(c(Per_SD5,Coh_SD5),35)
 ColsC <- as.character(cut(Per_SD5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
 ColsP <- as.character(cut(Coh_SD5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
 ColsP[is.na(ColsP)] <- gray(.8)
+ColsC[is.na(ColsC)] <- gray(.8)
 # -------------------------------
 # a slice through the 1900 birth cohort, showing
 # composition by birth cohort of mother.
@@ -106,9 +108,9 @@ ColsP[is.na(ColsP)] <- gray(.8)
 
 #setwd("/home/triffe/Desktop")
 yticks    <- c(-15e4,-10e4,-5e4,5e4,10e4,15e4)
-xticks    <- seq(1680,2010, by = 10)
+xticks    <- seq(1680,2070, by = 10)
 xticksc   <- as.character(xticks)
-xticks20  <- seq(1680, 2000, by = 20)
+xticks20  <- seq(1680, 2060, by = 20)
 xticks20c <- as.character(xticks20)
 
 graphics.off()
@@ -192,7 +194,7 @@ for (i in 1:(nrow(P5Ccs) - 1)){
 # hackish code
 # Year of ocurrence labels pertain to bottom polygons
 Y5 <- Yrs[Yrs%%5 == 0]
-for (i in seq(2, nrow(P5Ccs), by = 2)){
+for (i in seq(2, nrow(P5Ccs)-2, by = 2)){
 	if (Y5[i - 1] != 1750){
 	ind <- which(P5C[as.character(Y5[i]), ] > 1000)[1]
 	text(Cohs[ind], 
@@ -204,7 +206,7 @@ for (i in seq(2, nrow(P5Ccs), by = 2)){
 }
 # mother cohort labels pertain to top polygons
 C5 <- Cohs[Cohs%%5 == 0]
-for (i in seq(2,nrow(PC5cs),by=2)){
+for (i in seq(2,nrow(PC5cs)-2,by=2)){
 	if (C5[i] >= 1700 & C5[i-1] != 1720){
 	ind <- which(PC5[as.character(C5[i]),] > 500)[1]
 	text(Yrs[ind], 
@@ -250,7 +252,7 @@ for (i in 1:length(yticks)){
 # crude cohort replacement line
 segments(1736,
 		0,
-		rightCoh(SWE),
+		2016,
 		0,
 		col = "white",
 		lwd = .5)
@@ -316,16 +318,16 @@ text(L2$C[-6],
 # so repositioning takes trial and error. For this reason, only adjust when rendering to the
 # output pdf device, not in an interactive graphics device.
 arctext("gave birth to", 
-		center = c(1820, 45000), 
+		center = c(1822.3, 45000), 
 		middle = .2, 
-		radius = 13.3,
+		radius = 12,
 		col = "#21114C",
 		cex = .6)
 
 arctext("appeared in the birth series in 1856", 
-		center = c(1801, 430000), 
-		middle = -.33 * pi, 
-		radius = 81.7,
+		center = c(1803, 425000), 
+		middle = -.335 * pi, 
+		radius = 81,
 		col = "#21114C",
 		cex = .6,
 		clockwise = FALSE)
@@ -405,4 +407,4 @@ text(min(Cohs),
 dev.off()
 
 
-
+sum(SWE$Total[SWE$Cohort == 1971 & SWE$Year <= 2016]) / sum(SWE$Total[SWE$Cohort == 1971])

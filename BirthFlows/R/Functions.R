@@ -5,6 +5,7 @@ library(HMDHFDplus)
 library(ungroup)
 library(reshape2)
 library(data.table)
+library(plotrix)
 
 wmean <- function(x,w){
 	sum(x*w) / sum(w)
@@ -266,8 +267,8 @@ pertspan <- function(SWE, span = .05, maxit = 100){
 # TODO: decide how to weight sd vs slope in lm()
 # optimize best span given slope and sd of relative first differences
 # in period vs offspring series pre and post adjustment break.
-minspan <- function(SWE, span = .05, maxAge = 45){
-	PCpert    <- pertspan(SWE, span = span)
+minspan <- function(SWE, span = .05, maxAge = 45, maxit = 100){
+	PCpert    <- pertspan(SWE, span = span, maxit = maxit)
 	
 	Bc        <- colSums(PCpert)
 	Bt        <- rowSums(PCpert)
@@ -546,9 +547,9 @@ arcpoints <- function(p1,p2,nvert=200,rad1,rad2,brel=.4){
 draw.arc <- function(x1,y1,x2,y2,brel=.5,nvert=100,rad=1/5,...){
 	p1   <- list(x=x1,y=y1)
 	p2   <- list(x=x2,y=y2)
-	sgn  <- sign(rad1)
-	rad2 <- sgn * (pi - abs(rad1))
-	xy   <- arcpoints(p1=p1,p2=p2,rad1=rad1,rad2=rad2,brel=brel,nvert=nvert)
+	sgn  <- sign(rad)
+	rad2 <- sgn * (pi - abs(rad))
+	xy   <- arcpoints(p1=p1,p2=p2,rad1=rad,rad2=rad2,brel=brel,nvert=nvert)
 	lines(xy,...)
 }
 
