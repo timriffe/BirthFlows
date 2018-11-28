@@ -11,110 +11,31 @@ setwd("/home/tim/git/BirthFlows/BirthFlows")
 # as a cleaner reference
 yp           <- as.integer(names(BT)) 
 yc           <- as.integer(names(BC))
-#length(intersect(yp,yc))
-# pdf("/home/tim/workspace/Other/IDEMVIZ/Figures/flatline.pdf",width=9,height=5)
-# plot(yp,BT, xlim=range(yrs_smooth),ylim=c(-15e4,15e4),type = 'n', 
-# 	 axes = FALSE, xlab = "", ylab = "")
-# polygon(c(yp,rev(yp)),
-# 		c(BT,rep(0,length(yp))),
-# 		col = "#88CD7F",
-# 		border=NA)
-# polygon(c(yc,rev(yc)),
-# 		c(-BC,rep(0,length(yc))),
-# 		col = "#58BCC1",
-# 		border=NA)
-# abline(h=seq(-150000,150000,by=50000),col="white",lwd=.5)
-# abline(v=seq(1720,2000,by=20),col="white",lwd=.5)
-# axis(2,seq(-150000,150000,by=50000),c(150,100,50,"",50,100,150),las=2)
-# axis(1,seq(1780,1960,by=20))
-# dev.off()
-
-# ------------
-
-# color based on area in bar
-# PeriodColors <- colorRampPalette(brewer.pal(9,"YlGn"),space="Lab")(14)
-# CohortColors <- colorRampPalette(brewer.pal(9,"YlGnBu"),space="Lab")(14)
-
-#show.pal(vangoghwheat)
-
-# length(rownames(PC5cs))
-# length(ColsC)
-# length(totals)
-#totals <- rowSums(PC5)
-#qts    <- quantile(totals[totals > 3e5], seq(0,1,length=(length(PeriodColors) + 1)))
-#ColsC  <- c(rep(gray(.8),6),as.character(
-#	cut(totals[-c(1:6,(length(totals)-5):length(totals))], 
-#		breaks = qts,
-#		labels = PeriodColors, include.lowest = TRUE)),rep(gray(.8),5))
-#
-#
-#totalsC <- rowSums(P5C)/5
-#qts2    <- quantile(totalsC, seq(0,1,length=(length(CohortColors) + 1)))
-#ColsP   <- as.character(
-#	cut(rowSums(P5C)/rep(5,nrow(P5C)), 
-#		breaks = qts2,
-#		labels = CohortColors, include.lowest = TRUE))
-
-## Colors based on CV
-#breaks <- seq(.16,.23,by=.005)
-#ColsC <- as.character(cut(Per_CV5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-#ColsP <- as.character(cut(Coh_CV5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-#ColsP[is.na(ColsP)] <- gray(.8)
-#
-## Colors based on SD
-#breaks <- seq(4.5,7,by=.1)
-#ColsC <- as.character(cut(Per_SD5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-#ColsP <- as.character(cut(Coh_SD5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-#ColsP[is.na(ColsP)] <- gray(.8)
-#
-## Colors based on IQR
-#breaks <- seq(6,11,by=.1)
-#ColsC <- as.character(cut(Per_IQR5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-#ColsP <- as.character(cut(Coh_IQR5,breaks=breaks,labels=colsRamp(length(breaks)-1)))
-#ColsP[is.na(ColsP)] <- gray(.8)
-#
-## try our viridis on IQR
-#breaks <- seq(6,11,by=.1)
-#ColsC <- as.character(cut(Per_IQR5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
-#ColsP <- as.character(cut(Coh_IQR5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
-#ColsP[is.na(ColsP)] <- gray(.8)
 
 # try our viridis on SD
 
+# determine colors
 # TODO: can add color 1 polygon earlier to ColsP. Later ones too after projection.
-breaks <- pretty(c(Per_SD5,Coh_SD5),35)
-ColsC <- as.character(cut(Per_SD5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
-ColsP <- as.character(cut(Coh_SD5,breaks=breaks,labels=viridis(length(breaks)-1, option = "A")))
+breaks     <- pretty(c(Per_SD5,Coh_SD5),35)
+fillcolors <- viridis(length(breaks) - 1, option = "A")
+
+ColsC               <- as.character(cut(Per_SD5, breaks = breaks, labels = fillcolors))
+ColsP               <- as.character(cut(Coh_SD5, breaks = breaks, labels = fillcolors))
 ColsP[is.na(ColsP)] <- gray(.8)
 ColsC[is.na(ColsC)] <- gray(.8)
-# -------------------------------
-# a slice through the 1900 birth cohort, showing
-# composition by birth cohort of mother.
-#bt    <- PC5[as.character(seq(1845, 1885, by = 5)), "1900"]
-#btcol <- ColsC[as.character(seq(1845, 1885, by = 5)), "1900"]
 
-# pdf("/home/tim/workspace/Other/IDEMVIZ/Figures/CrossSection.pdf")
-# plot(NULL, type = "n", axes = FALSE, xlim = c(1845,1890), ylim = c(0,max(bt)), xlab = "", ylab = "")
-# rect(seq(1845,1885,by=5),0,seq(1850,1890,by=5),bt,col = ColsC[PC5[,"1900"]>0])
-# text(seq(1845,1890,by=5),0,seq(1845,1890,by=5),pos=1 )
-# axis(2,seq(0,35000,by=5000),seq(0,35,by=5),las=1)
-# dev.off()
-
-# start making the descendant bar chart (blues) corresponding to the above
-#bd        <- P5C[,"1900"]
-#btcol     <- ColsC[as.character(seq(1845,1885,by=5)),"1900"]
-# -------------------------------
-
-
-#setwd("/home/triffe/Desktop")
+# some plotting indices
 yticks    <- c(-15e4,-10e4,-5e4,5e4,10e4,15e4)
 xticks    <- seq(1680,2070, by = 10)
 xticksc   <- as.character(xticks)
 xticks20  <- seq(1680, 2060, by = 20)
 xticks20c <- as.character(xticks20)
 
+# clear devices
 graphics.off()
 
+# ----------------------------------------
+# save code used to recalibrate size and aspect ratio
 # 4 a4 sheets = 840mm wide, 297mm tall.
 #wnew <- 33.0709
 #hnew <- 11.6929
@@ -138,6 +59,7 @@ graphics.off()
 ## years to add to x
 #wadd     <- wnew - 27
 #yearsadd <- wadd * ypi
+# ----------------------------------------
 
 pdf("Figures/SwedenBirthFlowsR5.pdf", height = 11.6929, width = 33.0709)
 #dev.new(height = 9, width= 27)
@@ -154,6 +76,47 @@ plot(NULL,
 	 axes = FALSE,                     # a device resize
 	 xlab = "", 
 	 ylab = "")
+
+# ------------------------------------------------------------------------
+# famine
+segments(1773,baseline["1773"]-150e3,1773,3e5,lwd=.5,col="#9fdaf9")
+
+# famine or war
+segments(1790,baseline["1790"]-150e3,1790,3e5,lwd=.5,col="#9fdaf9")
+
+# famine or war (make this one bend in...)
+segments(1800.1,baseline["1800"]-150e3,1800.1,3e5,lwd=.5,col="#9fdaf9")
+
+
+# conflict and upheaval
+segments(1809,baseline["1809"]-150e3,1809,3e5,lwd=.5,col="#9fdaf9")
+
+# pandemic
+#rect(1831,baseline["1831"]-150e3,1833,3e5,col="#9fdaf9",border=NA)
+segments(1831,baseline["1831"]-150e3,1831,3e5,lwd=.5,col="#9fdaf9")
+segments(1833,baseline["1833"]-150e3,1833,3e5,lwd=.5,col="#9fdaf9")
+
+# pandemic
+#rect(1847,baseline["1848"]-150e3,1848,3e5,col="#9fdaf9",border=NA)
+segments(1847,baseline["1847"]-150e3,1847,3e5,lwd=.5,col="#9fdaf9")
+segments(1848,baseline["1848"]-150e3,1848,3e5,lwd=.5,col="#9fdaf9")
+text(1847.5,3e5,"pandemic",pos=3,cex=.8)
+
+# famine
+#rect(1867,baseline["1867"]-150e3,1869,3e5,col="#9fdaf9",border=NA)
+segments(1867,baseline["1867"]-150e3,1867,3e5,lwd=.5,col="#9fdaf9")
+segments(1869,baseline["1869"]-150e3,1869,3e5,lwd=.5,col="#9fdaf9")
+text(1868,3e5,"famine",pos=3,cex=.8)
+
+# Russian pandemic
+segments(1889,baseline["1889"]-150e3,1889,3e5,lwd=.5,col="#9fdaf9")
+text(1889,3e5,"Russian pandemic",pos=3,cex=.8)
+
+# Spanish flu
+segments(1918,baseline["1918"]-150e3,1918,3e5,lwd=.5,col="#9fdaf9")
+segments(1919,baseline["1919"]-150e3,1919,3e5,lwd=.5,col="#9fdaf9")
+text(1919,3e5,"Spanish influenza",pos=3,cex=.8)
+# -------- end annotations ----------- #
 
 # y-guides
 segments(xticks20,
@@ -391,20 +354,48 @@ text(max(Yrs),
 
 # large axis labels
 text(min(Cohs), 
-		18e4 + push, 
+		20e4 + push, 
 		"Births in year (1000s)", 
 		pos = 4, 
-		cex = 1.1, 
+		cex = 2, 
 		font = 2)
 text(min(Cohs), 
-		-18e4 + push, 
+		-20e4 + push, 
 		"The children they had", 
 		pos = 4, 
-		cex = 1.1, 
+		cex = 2, 
 		font = 2)
-# ------------------------------------------------------------------------
+
+# caption about here box
+bottom <- -40e4
+top    <- -25e4
+rect(1660,top, 1740,bottom)
+text( 1675,top, "Caption about here",pos=1)
+# color strip legend
+
+xl <- 1745
+w  <- 5
+h <- top - bottom
+n <- length(breaks)
+#ind <- 1:n %% 2 == 0
+#yt <- seq(bottom,top,length=sum(ind))
+#nn <- length(yt)
+#rect(xl, yt[-nn],xl+w,yt[-1],border="white",col=fillcolors[ind],lwd=.4)
+#text(xl+w,yt,breaks[ind],pos=4)
+
+yt <- seq(bottom,top,length=n)
+nn <- length(yt)
+rect(xl, yt[-nn],xl+w,yt[-1],border="white",col=fillcolors,lwd=.4)
+
+ind <- abs(breaks %% .25) < 1e-6
+text(xl+w,yt[ind],sprintf("%.2f",breaks[ind]),pos=4,cex=.8)
+segments(xl+w,yt[ind],xl+w+1,yt[ind])
+# title legend
+text(xl-w,top+2e4,"standard deviation of\nage at childbearing (years)",pos=4)
+
 # end
 dev.off()
 
 
-sum(SWE$Total[SWE$Cohort == 1971 & SWE$Year <= 2016]) / sum(SWE$Total[SWE$Cohort == 1971])
+
+

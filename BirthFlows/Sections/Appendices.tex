@@ -91,6 +91,7 @@ Births by single year of mothers' age are then rescaled to sum to the annual tot
 		At this stage of processing all birth counts for years 1736 until 1890 are in single age-period (AP) bins, and datasets covering the three periods are merged into a common dataset. Two further adjustments are performed, the first to move AP-bins into period-cohort (PC) bins. The second adjustment compensates for the smoothness of graduation methods so as to preserve the expected relationship between a cohort's size its total offspring size.
 
 \subsubsection{Adjustment to PC bins}
+\label{sec:split}
 Counts were shifted from AP Lexis bins into PC bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}. At this point data are in a common format with the HFD data for the years 1891-2016, and these are merged into a single dataset.
 
 \begin{figure}[ht!]
@@ -141,11 +142,23 @@ This adjustment works by extracting the fluctuation pattern from \textbf{A} and 
 
 We adjusted in this way for the sake of a more nuanced time series of total offspring, but this approach may be used to good effect in graduating age-structured counts (births, deaths, populations) whenever time series are long enough to permit information on birth cohort size to propagate through the Lexis surface. These aspects are visible to some degree in the shaded polygons of Fig.~\ref{fig:foldout} in years $<$ 1891.
 
+\FloatBarrier
 \subsection{Projected birth counts}
 \label{sec:proj}
 \todo{Christina should check this}
-Offspring counts by year of occurrence, $B(c,t)$ are only fully observed for years $\le$ 1961. To complete the offspring reflection, we have opted to project birth counts for cohorts whose fertility careers are incomplete. This is done by combining a projection of cohort fertility rates using the method proposed by \citet{de1985time} with Sweden's official projection of population denominators. The method used is parsimonious, and it performed very well in a comprehensive assessment of fertility forecast methods \citep{bohk2018forecast}. Light documentation to follow here, as well as an update of Fig.~\ref{fig:better}.
+Offspring counts by year of occurrence, $B(c,t)$ are only fully observed for years $\le$ 1961. To complete the offspring reflection through the final reference year 2016, we have opted to project birth counts for cohorts whose fertility careers are incomplete (1962-2016). This is done by combining a projection of cohort fertility rates using the method proposed by \citet{de1985time} with Sweden's official projection of population denominators to derive the implied birth counts by single year of age and time. The method used is parsimonious, and it performed very well in a comprehensive assessment of fertility forecast methods \citep{bohk2018forecast}. 
 
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[scale=.65]{Figures/ProjectionDiagram.pdf}
+\caption{Diagram of the age and year-range of fertility rates used for model fitting and projection. We fit to 50 years of data (1966 until 2016), and project until the 2016 cohort (right bound of 2017) reaches age 55 in the year 2071 (right bound of 2072). The diagonal line delimits the data range after splitting to period-cohort bins.}
+\label{fig:projdiag}
+\end{center}
+\end{figure}
+
+Projected rates are then multiplied with SCB projected female population counts to derive implied births by age of mother. The projected birth counts are in single year age-period bins. These are then split to vertical parallelograms using the simple method described in Appendix~\ref{sec:split}. The upward-slanting diagonal line in Fig.~\ref{fig:projdiag} marks the edge of the 2016 cohort fertility.
+
+\FloatBarrier
 \subsection{Meandering baseline}
 \label{sec:baseline}
 A peculiar feature of Fig.~\ref{fig:foldout} is the meandering baseline, which replaces the standard straight-line $x$-axis. The baseline is derived from the crude cohort replacement rate $\mathbb{R}(c)$, defined as $\mathbb{R}(c) = \mathbb{B}(c=r) / B(t=r)$. This measure is not a replacement for the classic measure of net reproduction $R_0$, which differs in a few key ways: i) crude replacement is not sex-specific (our birth series is composed of boy and girl births combined), whereas $R_0$ is typically defined for females only. ii) while births arise from fertility rates over the life course, the number of potential mothers over the life course is not a mere function of mortality, but of migration as well, and the Swedish birth series will have been affected by heavy out-migration from 1850 until the Second World War, and some in-migration in more recent decades. Cohort $R_0$ is purged of population structure such as this (except to the extent that subgroups have differential vital rates), whereas $\mathbb{R}(c)$ is not, and for this reason we call it \emph{crude}.
