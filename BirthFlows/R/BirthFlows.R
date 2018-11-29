@@ -85,16 +85,29 @@ segments(1773,baseline["1773"]-150e3,1773,3e5,lwd=.5,col="#9fdaf9")
 segments(1790,baseline["1790"]-150e3,1790,3e5,lwd=.5,col="#9fdaf9")
 
 # famine or war (make this one bend in...)
-segments(1800.1,baseline["1800"]-150e3,1800.1,3e5,lwd=.5,col="#9fdaf9")
-
+bot <- baseline["1800"]+Bt["1800"]+10000
+vt <- 250000 - bot
+draw.arc(1800.1,
+		bot[i],
+		1800.1,
+		bot[i]-vt,
+		col = "#9fdaf9",
+		lwd = .5,
+		lty = 1,
+		brel = .0001) # use to adjust 'curviness'
+segments(1800.1,baseline["1800"]-150e3,1800.1,bot,lwd=.5,col="#9fdaf9")
+segments(1800.1,3e5,1800.1,250000,lwd=.5,col="#9fdaf9")
+text(1800,3e5,"armed conflict",pos=3,cex=.8)
 
 # conflict and upheaval
 segments(1809,baseline["1809"]-150e3,1809,3e5,lwd=.5,col="#9fdaf9")
+text(1809,3e5,"armed conflict",pos=3,cex=.8)
 
 # pandemic
 #rect(1831,baseline["1831"]-150e3,1833,3e5,col="#9fdaf9",border=NA)
 segments(1831,baseline["1831"]-150e3,1831,3e5,lwd=.5,col="#9fdaf9")
 segments(1833,baseline["1833"]-150e3,1833,3e5,lwd=.5,col="#9fdaf9")
+text(1832,3e5,"pandemic",pos=3,cex=.8)
 
 # pandemic
 #rect(1847,baseline["1848"]-150e3,1848,3e5,col="#9fdaf9",border=NA)
