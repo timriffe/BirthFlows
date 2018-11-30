@@ -80,29 +80,32 @@ plot(NULL,
 # ------------------------------------------------------------------------
 # famine
 segments(1773,baseline["1773"]-150e3,1773,3e5,lwd=.5,col="#9fdaf9")
-
+text(1773,3e5,"famine",pos=3,cex=.8)
 # famine or war
 segments(1790,baseline["1790"]-150e3,1790,3e5,lwd=.5,col="#9fdaf9")
-
+text(1790,3e5,"armed conflict",pos=3,cex=.8)
 # famine or war (make this one bend in...)
-bot <- baseline["1800"]+Bt["1800"]+10000
-vt <- 250000 - bot
+bot <- baseline["1800"]+Bt["1800"]+70000
+vt <- 210000 - bot
 draw.arc(1800.1,
-		bot[i],
+		bot,
 		1800.1,
-		bot[i]-vt,
+		bot-vt,
 		col = "#9fdaf9",
 		lwd = .5,
 		lty = 1,
-		brel = .0001) # use to adjust 'curviness'
+		brel = .00015) # use to adjust 'curviness'
 segments(1800.1,baseline["1800"]-150e3,1800.1,bot,lwd=.5,col="#9fdaf9")
-segments(1800.1,3e5,1800.1,250000,lwd=.5,col="#9fdaf9")
-text(1800,3e5,"armed conflict",pos=3,cex=.8)
+segments(1800.1,3.2e5,1800.1,210000,lwd=.5,col="#9fdaf9")
+text(1800,3.2e5,"armed conflict",pos=3,cex=.8)
 
 # conflict and upheaval
 segments(1809,baseline["1809"]-150e3,1809,3e5,lwd=.5,col="#9fdaf9")
 text(1809,3e5,"armed conflict",pos=3,cex=.8)
 
+# the year without summer
+segments(1816,baseline["1816"]-150e3,1816,3.2e5,lwd=.5,col="#9fdaf9")
+text(1816,3.2e5,"'the year\nwithout summer'",pos=3,cex=.8)
 # pandemic
 #rect(1831,baseline["1831"]-150e3,1833,3e5,col="#9fdaf9",border=NA)
 segments(1831,baseline["1831"]-150e3,1831,3e5,lwd=.5,col="#9fdaf9")
@@ -126,9 +129,9 @@ segments(1889,baseline["1889"]-150e3,1889,3e5,lwd=.5,col="#9fdaf9")
 text(1889,3e5,"Russian pandemic",pos=3,cex=.8)
 
 # Spanish flu
-segments(1918,baseline["1918"]-150e3,1918,3e5,lwd=.5,col="#9fdaf9")
 segments(1919,baseline["1919"]-150e3,1919,3e5,lwd=.5,col="#9fdaf9")
-text(1919,3e5,"Spanish influenza",pos=3,cex=.8)
+segments(1920,baseline["1920"]-150e3,1920,3e5,lwd=.5,col="#9fdaf9")
+text(1919,3e5,"Spanish influenza\nand recovery",pos=3,cex=.8)
 # -------- end annotations ----------- #
 
 # y-guides

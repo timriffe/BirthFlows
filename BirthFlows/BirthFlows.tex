@@ -89,7 +89,7 @@ move, but not far or fast. And between these bounds, at least within acceptably 
 
 We aim to represent a historical view of Sweden's historical birth series in a single multilayered visualization. The birth series is rendered as a flow, in such a way as to be suggestive of novel analytic perspectives, and to invite newcomers and curious minds deeper into the discipline of demography. This image entails investment from the viewer, and this manuscript serves as a protracted legend and caption. Intellectual payoffs include a simultaneous sense of long term patterns of generational mixing and generational replacement, medium term baby booms and echos, and the short term shocks of population momentum. We challenge more experienced demographers to relate this image to the Lexis diagram, to imagine how the picture would change if fertility were indexed to fathers' age, or to reimagine this image of aggregates as an immense set of lineages.
 
- This series is augmented by a projection of the completed fertility of cohorts through 2016, bringing the lastest year of birth to 2071. The temporal spread from the earliest mother cohort in our final data set (1687) to the latest offspring cohort (2071) is 385 years. We describe our input data and adjustments to it briefly in Sec.~\ref{sec:data}, and in a detailed appendix, which serves as an annotation to the open code repository.
+Our Lexis time series of birth counts stretches from 1735 until 2016, and it is augmented by a projection of the completed fertility of cohorts through 2016, bringing the lastest year of birth to 2071. The temporal spread from the earliest mother cohort in our final data set (1687) to the latest offspring cohort (2071) is 385 years. We describe our input data and adjustments to it briefly in Sec.~\ref{sec:data}, and in a detailed appendix, which serves as an annotation to the open code repository.
 
 \section{Data and methods}
 \label{sec:data}
@@ -198,10 +198,12 @@ To aid the viewer with interpretation, we overlay a lineage of five female gener
 \todo{To be continued...This section and the following analytic perspectives section are only temporary. We probably won't want to introduce new}
 Several macro features come to the fore in this visualization. These are either known features of the Swedish birth series, or else merit further study. Echoes, booms, why is boom periodicity a recent phenomenon? Is there a dose-response to vertical reverberation in first derivative (can this be referred to as first or second order?) features.
 
-\subsection{Limitations}
-Our measure $\mathbb{R}(c)$ seems to be identical to the BRR \citep{ortega2007birth}.
-Migration \citep{hyrenius1951reproduction,ediev2014new}
-ORR is the cohort size divided by the average cohort size of mothers \citep{wilson2013migration}
+\paragraph{Reproductivity}
+Our Fig.~\ref{fig:foldout} is broadly suggestive of the concept of population reproductivity. But the meandering baseline is proportional to the log of the ratio of offspring to mothers' ``initial'' cohort size, and for this reason it is not a sensitive measure of reproductivity: Death and migration stifle direct interpretation as such. There are other measures of reproductivity that take into account mortality \citep{kuczynski1932fertility}, or both mortality and migration \citep[][inter alia]{hyrenius1951reproduction,ortega2007birth,preston2007intrinsic,wilson2013migration,ediev2014new}, and which could therefore offer alternative meandering baselines. To take such indices at face value, the composite bins on the top and bottom axes would also change. Our visualization is nothing less or more than the Swedish birth flow. Indeed, the extended birth series we include as supplementary material could be used in part to calculate such sensitive indices. 
+
+\paragraph{Echoes}
+The birth series of Fig.~\ref{fig:foldout} highlights the matched deviations in the size of cohorts and offspring. Neither these nor the larger scale varieties of cyclicity, such as those that appear through the \nth{20} Century in Sweden are described at length herein.
+
 
 \subsection{Sebastian comments}
 One is that period effects seem to act differently in the three “generations”. If 1900 would have been a crisis year, especially younger “grandmothers” might have postponed births to a later year. Whether or not 1900 was a crisis year should be less relevant for when and in which quantity “daughters” of the 1900 cohort are born. Thus, my hunch would be that period effects most strongly affect the middle “generation” as it can only be born in one year. In addition, the effects of crisis conditions when the mother generation is born are likely to be more systematic for the “grandmother” compared to the “daughter” generation.
