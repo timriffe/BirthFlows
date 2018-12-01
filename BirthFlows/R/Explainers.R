@@ -146,7 +146,7 @@ yrs       <- as.integer(rownames(PC))
 pdf("Figures/FxFlowReflect.pdf",height=4.3,width=12)
 # fresh plane
 par(mai=c(.6,1,.6,.6),xaxs="i",yaxs="i",xpd=TRUE)
-plot(NULL, xlim = range(1680,2067),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
+plot(NULL, xlim = range(1680,2071),ylim=c(-10000,10000), axes = FALSE, xlab = "", ylab = "")
 
 # grid lines
 segments(seq(1680,2060,by=10),-10000,seq(1680,2060,by=10),10000,col = gray(.8))
@@ -187,10 +187,6 @@ text(1680,12500,"Ocurrence year",cex=1.3)
 arrows(c(1715,1715),c(-12500,12500),c(1730,1730),c(-12500,12500),length=.1)
 text(1660,0,"Count",cex=1.5,srt=90,pos=3)
 
-# anticipated projection
-rect(1972,0,2016,-10000,col = "#55555550",border=NA)
-rect(2016,0,2066,10000,col = "#55555550",border=NA)
-text(2030,0,"Forthcoming Projection",srt=45)
 dev.off()
 
 
