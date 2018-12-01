@@ -59,6 +59,12 @@ graphics.off()
 ## years to add to x
 #wadd     <- wnew - 27
 #yearsadd <- wadd * ypi
+draw.fork <- function(x1,x2,x3,y1,y2,y3,y4,...){
+	segments(x1,y1,x1,y2,...)
+	segments(x2,y2,x3,y2,...)
+	segments(x2,y2,x2,y3,...)
+	segments(x3,y2,x3,y4,...)
+}
 # ----------------------------------------
 
 pdf("Figures/SwedenBirthFlowsR5.pdf", height = 11.6929, width = 33.0709)
@@ -78,60 +84,54 @@ plot(NULL,
 	 ylab = "")
 
 # ------------------------------------------------------------------------
-# famine
-segments(1773,baseline["1773"]-150e3,1773,3e5,lwd=.5,col="#9fdaf9")
-text(1773,3e5,"famine",pos=3,cex=.8)
+segments(1743,baseline["1743"],1743,3e5,lwd=.8,col="#2a70e0",lty="12")
+text(1743,3e5,"armed conflict",pos=3,cex=.7,col="#2a70e0")
+# famine "#9fdaf9"
+segments(1773,baseline["1773"],1773,3e5,lwd=.8,col="#2a70e0",lty="12")
+text(1773,3e5,"famine",pos=3,cex=.7,col="#2a70e0")
 # famine or war
-segments(1790,baseline["1790"]-150e3,1790,3e5,lwd=.5,col="#9fdaf9")
-text(1790,3e5,"armed conflict",pos=3,cex=.8)
+segments(1790,baseline["1790"],1790,3e5,lwd=.8,col="#2a70e0",lty="12")
+text(1790,3e5,"armed conflict",pos=3,cex=.7,col="#2a70e0")
 # famine or war (make this one bend in...)
-bot <- baseline["1800"]+Bt["1800"]+70000
-vt <- 210000 - bot
-draw.arc(1800.1,
-		bot,
-		1800.1,
-		bot-vt,
-		col = "#9fdaf9",
-		lwd = .5,
-		lty = 1,
-		brel = .00015) # use to adjust 'curviness'
-segments(1800.1,baseline["1800"]-150e3,1800.1,bot,lwd=.5,col="#9fdaf9")
-segments(1800.1,3.2e5,1800.1,210000,lwd=.5,col="#9fdaf9")
-text(1800,3.2e5,"armed conflict",pos=3,cex=.8)
+segments(1800.2,3.2e5,1800.2,baseline["1800"],lwd=.8,col="#2a70e0",lty="12")
+text(1800,3.2e5,"armed conflict",pos=3,cex=.7,col="#2a70e0")
 
 # conflict and upheaval
-segments(1809,baseline["1809"]-150e3,1809,3e5,lwd=.5,col="#9fdaf9")
-text(1809,3e5,"armed conflict",pos=3,cex=.8)
+segments(1809,baseline["1809"],1809,3e5,lwd=.8,col="#2a70e0",lty="12")
+text(1809,3e5,"armed conflict",pos=3,cex=.7,col="#2a70e0")
 
 # the year without summer
-segments(1816,baseline["1816"]-150e3,1816,3.2e5,lwd=.5,col="#9fdaf9")
-text(1816,3.2e5,"'the year\nwithout summer'",pos=3,cex=.8)
+#segments(1816,baseline["1816"]-150e3,1816,3.2e5,lwd=.8,col="#2a70e0",lty="12")
+#text(1816,3.2e5,"'the year\nwithout summer'",pos=3,cex=.7,col="#2a70e0")
 # pandemic
-#rect(1831,baseline["1831"]-150e3,1833,3e5,col="#9fdaf9",border=NA)
-segments(1831,baseline["1831"]-150e3,1831,3e5,lwd=.5,col="#9fdaf9")
-segments(1833,baseline["1833"]-150e3,1833,3e5,lwd=.5,col="#9fdaf9")
-text(1832,3e5,"pandemic",pos=3,cex=.8)
+draw.fork(1832,1831,1833,
+		y1=3e5,y2=1.4e5,baseline["1831"]+Bt["1831"],baseline["1833"]+Bt["1833"]
+		,lwd=.8,col="#2a70e0",lty="12") 
+text(1832,3e5,"pandemic",pos=3,cex=.7,col="#2a70e0")
 
 # pandemic
-#rect(1847,baseline["1848"]-150e3,1848,3e5,col="#9fdaf9",border=NA)
-segments(1847,baseline["1847"]-150e3,1847,3e5,lwd=.5,col="#9fdaf9")
-segments(1848,baseline["1848"]-150e3,1848,3e5,lwd=.5,col="#9fdaf9")
-text(1847.5,3e5,"pandemic",pos=3,cex=.8)
+
+draw.fork(1847.5,1847,1848,
+		y1=3e5,y2=1.4e5,baseline["1847"]+Bt["1847"],baseline["1848"]+Bt["1848"]
+		,lwd=.8,col="#2a70e0",lty="12") 
+text(1847.5,3e5,"pandemic",pos=3,cex=.7,col="#2a70e0")
 
 # famine
-#rect(1867,baseline["1867"]-150e3,1869,3e5,col="#9fdaf9",border=NA)
-segments(1867,baseline["1867"]-150e3,1867,3e5,lwd=.5,col="#9fdaf9")
-segments(1869,baseline["1869"]-150e3,1869,3e5,lwd=.5,col="#9fdaf9")
-text(1868,3e5,"famine",pos=3,cex=.8)
+draw.fork(1868,1867,1869,
+		y1=3e5,y2=1.4e5,baseline["1867"]+Bt["1867"],baseline["1869"]+Bt["1869"]
+		,lwd=.8,col="#2a70e0",lty="12") 
+text(1868,3e5,"famine",pos=3,cex=.7,col="#2a70e0")
 
 # Russian pandemic
-segments(1889,baseline["1889"]-150e3,1889,3e5,lwd=.5,col="#9fdaf9")
-text(1889,3e5,"Russian pandemic",pos=3,cex=.8)
+segments(1889,baseline["1889"],1889,3e5,lwd=.8,col="#2a70e0",lty="12")
+text(1889,3e5,"Russian pandemic",pos=3,cex=.7,col="#2a70e0")
 
 # Spanish flu
-segments(1919,baseline["1919"]-150e3,1919,3e5,lwd=.5,col="#9fdaf9")
-segments(1920,baseline["1920"]-150e3,1920,3e5,lwd=.5,col="#9fdaf9")
-text(1919,3e5,"Spanish influenza\nand recovery",pos=3,cex=.8)
+draw.fork(1919.5,1919,1920.5,
+		y1=3e5,y2=1.45e5,baseline["1919"]+Bt["1919"],baseline["1920"]+Bt["1920"]
+		,lwd=.8,col="#2a70e0",lty="12") 
+#segments(1918.5,1.19e5,1918.5,3e5,lwd=.8,col="#2a70e0",lty="12")
+text(1919,3e5,"Spanish influenza\nand recovery",pos=3,cex=.7,col="#2a70e0")
 # -------- end annotations ----------- #
 
 # y-guides
@@ -189,7 +189,7 @@ for (i in seq(2,nrow(PC5cs)-2,by=2)){
 	if (C5[i] >= 1700 & C5[i-1] != 1720){
 	ind <- which(PC5[as.character(C5[i]),] > 500)[1]
 	text(Yrs[ind], 
-			PC5cs2[i, ind],
+			PC5cs2[i, ind]+3e3,
 			C5[i - 1], 
 			cex = .5, 
 			col = ifelse(C5[i] < 1910,"#33333380","#FFFFFF80"))
