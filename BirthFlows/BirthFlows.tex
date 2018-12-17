@@ -54,7 +54,7 @@
 \newcommand\todo[1]{\textcolor{red}{[TODO: #1]}}
 \newcommand\high[1]{\colorbox{yellow}{#1}}
 \begin{document}
-
+\doublespacing
 %  Research note, up to 3,500 words.
 % presently ca 2400 not including appendix.
 \title{Boom, echo, pulse, flow\\ \small (Open version)}
@@ -66,6 +66,7 @@
 \affil[2]{Federal Institute for Population Research}
 \maketitle
 
+\pagebreak
 \begin{abstract}
 Human population renewal starts with births. Since births can happen at any
 time in the year and over a wide range of ages, demographers typically imagine
@@ -81,7 +82,7 @@ regularity of a pulse.
 {\bf Keywords:} Fertility, Population structure, Population momentum, Population renewal, Data visualization
 \end{abstract}
 
-\onehalfspacing
+
 \section{Introduction}
 Usually demographers think of fertility as an age-regulated process. In any case it is
 bounded by menarche and menopause, both of which are anchored to age. These anchors may
@@ -240,14 +241,15 @@ Demographers are used to analytic graphs focused on a single diagnostic or patte
 %\todo{KB suggests highlighting changes in the distribution of maternal age.} This is an interesting take: indeed the outer profiles would end up being the same, but the filled polygons would look different. If we did both at once then it'd make a plaid feel. Worth thought. Age could map to some other color property within polygons? Note: the younger-older gradient isn't reflected over $x$, as chronology is enforced. That is, earlier years of birth of offspring mean young (outside on bottom), but earlier years of birth of mother means old (outside on top). So earlier on the outside moves to later on the inside of the flow, but the younger-older gradient rather follows a down-up pattern within both the top and bottom. So adding age to the picture would require further care. But that's not to say there couldn't be an entirely separate plot of the same data indexed to age. Of the plaid remix of APC, with `younger-to-older' or `older-to-younger' from the baseline outward. 
 
 
+\subsection*{Acknowledgements} We wish to thank Tom\'a\v{s} Sobotka and the members of the 2018 EAPS Outreach prize selection committee for highlighting and encouraging the development of this work.
+
 \FloatBarrier
 
-\singlespacing
-\bibliographystyle{plainnat}
-  \bibliography{references} 
-  
 \pagebreak
 \begin{appendix}
 \input{Sections/Appendices.tex}
 \end{appendix}
+
+\bibliographystyle{plainnat}
+  \bibliography{references} 
 \end{document}
