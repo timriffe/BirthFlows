@@ -67,3 +67,11 @@ plot(as.ts(detrend_Bt,start=1775),main=i)
 locator(1)
 }
 # Give rates and exposures these shocks are decomposable, also into mort, mig, etc.
+
+
+# compare time series of SD
+compare <- intersect(names(Coh_SD),names(Per_SD))
+plot(Per_SD[compare],Coh_SD[compare], type = 'o',asp=1)
+points(Per_SD[compare],Coh_SD[compare])
+
+plot(1736:2016,Per_SD[compare]/Coh_SD[compare], type = 'l')

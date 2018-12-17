@@ -67,7 +67,7 @@ draw.fork <- function(x1,x2,x3,y1,y2,y3,y4,...){
 }
 # ----------------------------------------
 
-pdf("Figures/SwedenBirthFlowsR5.pdf", height = 11.6929, width = 33.0709)
+pdf("Figures/BirthFlowsFoldout.pdf", height = 11.6929, width = 33.0709)
 #dev.new(height = 9, width= 27)
 par(mai = c(2.54645, 1.5, 2.54645, 0.5),
 	xpd = TRUE,
