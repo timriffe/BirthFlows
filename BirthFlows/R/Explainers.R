@@ -71,18 +71,20 @@ text(seq(1915,1950,by=5),0,seq(1915,1950,by=5),pos=1,xpd=TRUE)
 dev.off()
 
 
-pdf("Figures/Fig31900juxt.pdf",width=14)
+pdf("Figures/Fig31900juxt.pdf",width=10,height=5)
 plot(c(BornIn$Cohort,BabiesHad$Year), c(BornIn$B,BabiesHad$B), type = 'n',xlab = "Calendar time", ylab = "Count",axes=FALSE,ylim=c(0,7000))
 segments(1887,0,1914,0)
 segments(seq(1890,1910,by=5),0,seq(1890,1910,by=5),100)
 draw_block_poly_grid(BabiesHad$Year, BabiesHad$B, border = NA, col = gray(.8))
 draw_block_poly_grid(BornIn$Cohort, BornIn$B, border = NA, col = gray(.8))
 axis(2,las=1)
-text(seq(1850,1950,by=5),0,seq(1850,1950,by=5),pos=1,xpd=TRUE)
+text(seq(1850,1950,by=5),0,seq(1850,1950,by=5),pos=1,xpd=TRUE,cex=.8)
 segments(1900,0,1900,4000,lwd=2)
 text(1900,4100,"Reference year\n1900",pos=3,cex=1.5)
 text(1877,BornIn$B[BornIn$Cohort==1876],"Year 1900 births\nby mothers' birth cohort",pos=4,cex=1)
 text(1927,BabiesHad$B[BabiesHad$Year==1926],"Offspring over time of\nmothers born in 1900",pos=4,cex=1)
+text(1877,BornIn$B[BornIn$Cohort==1876]+800,"A",pos=4,cex=1.2,font=2)
+text(1927,BabiesHad$B[BabiesHad$Year==1926]+800,"B",pos=4,cex=1.2,font=2)
 dev.off()
 
 # BornIn5

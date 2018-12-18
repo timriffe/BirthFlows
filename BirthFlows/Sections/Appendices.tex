@@ -145,8 +145,7 @@ We adjusted in this way for the sake of a more nuanced time series of total offs
 \FloatBarrier
 \subsection{Projected birth counts}
 \label{sec:proj}
-\todo{Christina should check this}
-Offspring counts by year of occurrence, $B(c,t)$ are only fully observed for years $\le$ 1961. To complete the offspring reflection through the final reference year 2016, we have opted to project birth counts for cohorts whose fertility careers are incomplete (1962-2016). This is done by combining a projection of cohort fertility rates using the method proposed by \citet{de1985time} with Sweden's official projection of population denominators to derive the implied birth counts by single year of age and time. The method used is parsimonious, and it performed very well in a comprehensive assessment of fertility forecast methods \citep{bohk2018forecast}. 
+Offspring counts by year of occurrence, $B(c,t)$ are only fully observed for years $\le$ 1961. To complete the offspring reflection through the final reference year 2016, we have opted to project birth counts for cohorts whose fertility careers are incomplete (1962-2016). This is done by combining a projection of cohort fertility rates using the method proposed by \citet{de1985time} with Sweden's official projection of population denominators \citep{SCBpop, SCBproj} to derive the implied birth counts by single year of age and time. The method used is parsimonious, and it performed very well in a comprehensive assessment of fertility forecast methods \citep{bohk2018forecast}. This outstanding forecast performance can partly be explained with the model’s ability to capture changing levels of fertility across ages and cohorts with two integrated ARIMA time series processes. In our application for Swedish birth counts the model of de Beer is fitted to observed fertility rates at ages 12 through 55 in calendar years 1967 to 2016 in order to complete the fertility for cohorts 1962 through 2004 and fully forecast the fertility of cohorts born 2005 through 2016.
 
 \begin{figure}[ht!]
 \begin{center}
@@ -157,6 +156,8 @@ Offspring counts by year of occurrence, $B(c,t)$ are only fully observed for yea
 \end{figure}
 
 Projected rates are then multiplied with SCB projected female population counts to derive implied births by age of mother. The projected birth counts are in single year age-period bins. These are then split to vertical parallelograms using the simple method described in Appendix~\ref{sec:split}. The upward-slanting diagonal line in Fig.~\ref{fig:projdiag} marks the edge of the 2016 cohort fertility.
+
+%Light documentation to follow here, as well as an update of Fig.~\ref{fig:better}.
 
 \FloatBarrier
 \subsection{Meandering baseline}

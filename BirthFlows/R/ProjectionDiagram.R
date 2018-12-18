@@ -28,7 +28,7 @@ for (i in 1:length(projyrs)){
 	rect(projyrs[i], bottoms[i]:55, projyrs[i] + 1, (bottoms[i] + 1):56,
 			lwd = .5, border = "royalblue")
 }
-segments(2017, 0, 2017, 60, lwd = 2)
+segments(2017, 0, 2017, 63, lwd = 2)
 # x axis
 segments(1966, 0, 2072, 0)
 segments(c(1966, 2017, 2072), 0, c(1966, 2017, 2072), -1, xpd = TRUE)
@@ -42,6 +42,9 @@ text(1965, c(0, 12, 56), c(0, 12, 56), pos = 2, xpd = TRUE)
 # labels
 text(2016,-10,"Year",cex=1.2,font=2,xpd=TRUE)
 text(1956,35,"Age",cex=1.2,font=2,xpd=TRUE)
-text(1990,60,"Training rates (HFD)",cex=1.2,font=2,xpd=TRUE)
+text(1990,60,"Observed rates (HFD)",cex=1.2,font=2,xpd=TRUE)
 text(2040,60,"Projected rates",cex=1.2,font=2,xpd=TRUE)
+text(2016,65,"Jump-off year",cex=1.2,font=2,xpd=TRUE)
+text(1990, -1, "Base period",cex=1.2,font=2,xpd=TRUE,pos=1)
+text(2040, -1, "Projection period",cex=1.2,font=2,xpd=TRUE,pos=1)
 dev.off()
