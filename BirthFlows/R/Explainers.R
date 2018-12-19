@@ -85,6 +85,9 @@ text(1877,BornIn$B[BornIn$Cohort==1876],"Year 1900 births\nby mothers' birth coh
 text(1927,BabiesHad$B[BabiesHad$Year==1926],"Offspring over time of\nmothers born in 1900",pos=4,cex=1)
 text(1877,BornIn$B[BornIn$Cohort==1876]+800,"A",pos=4,cex=1.2,font=2)
 text(1927,BabiesHad$B[BabiesHad$Year==1926]+800,"B",pos=4,cex=1.2,font=2)
+
+# young & old labels
+text(c(1855,1885,1920,1940),3000,c("older","younger","younger","older"),cex=2,font=2,col="#11111180")
 dev.off()
 
 # BornIn5
@@ -126,6 +129,8 @@ text(0,160000,"Births\nin 1900",pos=2,cex=1.2)
 text(1,160000,"Mother's\ncohort",pos=4,cex=1.2)
 text(0,-132000,"Children of\n1900 cohort",pos=2,cex=1.2)
 text(1,-132000,"Ocurrence\nyear",pos=4,cex=1.2)
+text(.5,-110000,"B,b",cex=1.4,font=2)
+text(.5,148000,"A,a",cex=1.4,font=2)
 dev.off()
 
 # for percentages cited in text
@@ -296,6 +301,52 @@ text(1860,-240000,"Reference year", xpd = TRUE,cex=1.5)
 text(1640,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
 text(1640,-200000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)
 dev.off()
+
+# -----------------------------
+# gray bins joined:
+pdf("Figures/JoinBins.pdf",height=5,width=10)
+plot(NULL, xlim = range(1680,2071),ylim=c(-170000,170000), axes = FALSE, xlab = "", ylab = "")
+par(mai = c(1,1,.4,0))
+for (i in 1:(nrow(PC5cs) - 1)){
+	polygon(c(Yrs, rev(Yrs)), 
+			c(PC5cs[i, ], rev(PC5cs[i + 1, ])), 
+			col = gray(.8), 
+			border = "white", 
+			lwd = 1)
+}
+# bottom
+for (i in 1:(nrow(P5Ccs) - 1)){
+	polygon(c(Cohs, rev(Cohs)), 
+			-c(P5Ccs[i, ], rev(P5Ccs[i + 1, ])), 
+			col = gray(.8), 
+			border = "white", 
+			lwd = 1)
+	
+}
+axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000), 
+		labels=c("150000","100000","50000","0","50000","100000","150000"))
+axis(1,at=seq(1700,2050,by=50))
+text(1630,200000,"Births in Year", cex = 1.5,xpd=TRUE,pos=4)
+text(1630,-210000,"Offspring", cex = 1.5,xpd=TRUE,pos=4)
+text(1860,-250000,"Reference year", xpd = TRUE,cex=1.5)
+dev.off()
+
+# ---------------------------
+# color key:
+
+plot(NULL, xlim = c(1700,2030), ylim = c(4,7), ann = FALSE, axes=FALSE)
+lines(Cohs, Coh_SD, col = "red")
+lines(yrs, Per_SD, col = "blue")
+axis(1)
+axis(2)
+range(Per_SD,na.rm=TRUE)
+range(Coh_SD,na.rm=TRUE)
+which.max(Per_SD)
+which.min(Per_SD)
+
+which.max(Coh_SD)
+which.min(Coh_SD)
+
 
 # ---------------------------
 #compareplot <- function(PCin, PCi, year = 1800){
