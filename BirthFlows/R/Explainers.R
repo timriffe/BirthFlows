@@ -3,7 +3,7 @@
 ###############################################################################
 
 setwd("/home/tim/git/BirthFlows/BirthFlows")
-source("R/DataPrep.R")
+#source("R/DataPrep.R")
 
 draw_block_poly <- function(x,y,...){
 	x  <- c(x,max(x)+1)
@@ -94,15 +94,15 @@ dev.off()
 BornIn$C5 <-BornIn$Cohort - BornIn$Cohort%%5
 BabiesHad$Y5 <- BabiesHad$Year - BabiesHad$Year%%5
 
-BI5 <- BornIn[,list(B5 = sum(B)),by=list(C5)]
-BH5 <- BabiesHad[,list(B5 = sum(B)),by=list(Y5)]
-gap <- 3000
-Top  <- as.matrix(BI5$B5)
-Bot  <- as.matrix(BH5$B5)
-Topc <- cumsum(c(0,Top))
-Botc <- cumsum(c(0,-Bot))-gap
+BI5   <- BornIn[,list(B5 = sum(B)),by=list(C5)]
+BH5   <- BabiesHad[,list(B5 = sum(B)),by=list(Y5)]
+gap   <- 3000
+Top   <- as.matrix(BI5$B5)
+Bot   <- as.matrix(BH5$B5)
+Topc  <- cumsum(c(0,Top))
+Botc  <- cumsum(c(0,-Bot))-gap
 
-ytix <- seq(0,125000,by=25000)
+ytix  <- seq(0,125000,by=25000)
 ylabs <- c("0","50,000","100,000")
 
 pdf("Figures/FigReflection.pdf",width=5,height=9)
@@ -334,18 +334,18 @@ dev.off()
 # ---------------------------
 # color key:
 
-plot(NULL, xlim = c(1700,2030), ylim = c(4,7), ann = FALSE, axes=FALSE)
-lines(Cohs, Coh_SD, col = "red")
-lines(yrs, Per_SD, col = "blue")
-axis(1)
-axis(2)
-range(Per_SD,na.rm=TRUE)
-range(Coh_SD,na.rm=TRUE)
-which.max(Per_SD)
-which.min(Per_SD)
-
-which.max(Coh_SD)
-which.min(Coh_SD)
+#plot(NULL, xlim = c(1700,2030), ylim = c(4,7), ann = FALSE, axes=FALSE)
+#lines(Cohs, Coh_SD, col = "red")
+#lines(yrs, Per_SD, col = "blue")
+#axis(1)
+#axis(2)
+#range(Per_SD,na.rm=TRUE)
+#range(Coh_SD,na.rm=TRUE)
+#which.max(Per_SD)
+#which.min(Per_SD)
+#
+#which.max(Coh_SD)
+#which.min(Coh_SD)
 
 
 # ---------------------------
@@ -482,18 +482,101 @@ which.min(Coh_SD)
 #
 
 # for email to Pop Studies, 24-Aug-2018
-w <- 210
-h <- 297
-x <- seq(0,w * 4,length=5)
-getwd()
-png("Figures/a4demonstration.png",width=840,height=297)
-par(mai = c(.1,.1,.1,.1))
-plot(NULL, type = "n", ann = FALSE, axes = FALSE, asp = 1, xlim = c(0,840),ylim=c(0,297))
-rect(x[-5],0,x[-1],h,lwd=2)
-dev.off()
+#w <- 210
+#h <- 297
+#x <- seq(0,w * 4,length=5)
+#getwd()
+#png("Figures/a4demonstration.png",width=840,height=297)
+#par(mai = c(.1,.1,.1,.1))
+#plot(NULL, type = "n", ann = FALSE, axes = FALSE, asp = 1, xlim = c(0,840),ylim=c(0,297))
+#rect(x[-5],0,x[-1],h,lwd=2)
+#dev.off()
+#
+#228.60/
+#685.80
+#
+#297 840
+#297/840
 
-228.60/
-685.80
 
-297 840
-297/840
+plot(Yrs,PC[,"1920"],xlim=c(1935,1965))
+LexisUtils::PC2AP(PC)[,as.character(1945:1949)]
+1945-1919
+dim(PC)
+sum(PC["1920",]) # mother cohort contrib to1920 cohort
+sum(PC[,"1920"]) # offspring of 1920 cohort
+
+yi <- as.character(1910:1930)
+plot(Yrs, PC[,"1920"] / rowSums(PC), xlim=c(1935,1960), typ = "l")
+matplot(Yrs, PC[,yi] / rowSums(PC), type = 'l',lty=1,col = gray(seq(0,.8,length=length(yi))),add=TRUE)
+lines(Yrs, PC[,"1919"] / rowSums(PC), col = "blue")
+lines(Yrs, PC[,"1921"] / rowSums(PC), col = "red")
+lines(Yrs, PC[,"1920"] / rowSums(PC), col = "magenta",lwd=2)
+lines(Yrs, adj * PC[,"1920"] / rowSums(PC), col = "magenta",lwd=2, lty=2)
+
+
+yii <- as.character(Cohs)
+rle(Cohs[apply(PC / rowSums(PC),1,which.max)])$values[(rle(Cohs[apply(PC / rowSums(PC),1,which.max)])$lengths)>7]
+
+# counterfactual 1920 cohort size
+C1920_counterfactual <- (Bt["1919"] + Bt["1921"]) / 2
+adj <- C1920_counterfactual / Bt["1920"] 
+
+Bc1920_counterfactual <- (Bc["1919"] + Bc["1921"]) / 2
+adj2 <- Bc1920_counterfactual / Bc["1920"] 
+
+PC2 <- PC
+PC2[,"1920"] <- adj * PC2[,"1920"]
+PC3 <- PC
+PC3[,"1920"] <- adj2 * PC3[,"1920"]
+plot(Yrs, PC[,"1920"] / rowSums(PC), xlim=c(1935,1960), typ = "l")
+matplot(Yrs, PC / rowSums(PC), type = 'l',lty=1,col = gray(seq(0,.8,length=length(Cohs))),add=TRUE)
+lines(Yrs, PC[,"1919"] / rowSums(PC), col = "blue")
+lines(Yrs, PC[,"1921"] / rowSums(PC), col = "red")
+lines(Yrs, PC[,"1920"] / rowSums(PC), col = "magenta",lwd=2)
+lines(Yrs, PC2[,"1920"] / rowSums(PC2), col = "magenta",lwd=2, lty=2)
+lines(Yrs, PC3[,"1920"] / rowSums(PC3), col = "magenta",lwd="2", lty="82")
+
+Bt / rowSums(PC2) 
+
+Bc1920_counterfactual <- (Bc["1919"] + Bc["1921"]) / 2
+adj2 <- Bc1920_counterfactual / Bc["1920"] 
+(1-adj2) * Bc["1920"] 
+
+plot(Yrs,Bt,xlim=c(1920,1965))
+abline(v=c(1939,1951))
+
+
+# and how much excess in boom, bounded by 1940-1951
+x1 <- 1940
+x2 <- 1951
+y1 <- Bt["1940"]
+y2 <- Bt["1951"]
+m  <- (y2 - y1) / (x2 - x1)
+yt <- 1:10
+y1 + yt * m
+# and of the 'excess' that is the baby boom?
+Bt2  <- Bt
+w1 <- as.character(1941:1950)
+Bt2[w1] <- y1 + yt * m
+
+plot(Yrs,Bt,xlim=c(1920,1965))
+abline(v=c(1939,1951))
+lines(Yrs,Bt2)
+
+Bt - Bt2
+
+# excess 1920 births
+((Bt - rowSums(PC2)) / 
+		# excess baby boomers
+		(Bt - Bt2))[w1]
+
+# 1% of 1st wavers
+sum(Bt[w1])/
+sum(rowSums(PC2)[w1])
+# similar
+sum(Bt[w1])/
+		sum(rowSums(PC3)[w1])
+# 4-5 % of excess boomers
+sum((Bt - rowSums(PC2))[w1]) / 
+		sum((Bt - Bt2)[w1])

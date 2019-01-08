@@ -33,7 +33,8 @@ xticks20c <- as.character(xticks20)
 
 # clear devices
 graphics.off()
-
+range(Per_SD5,na.rm=TRUE)
+range(Coh_SD5,na.rm=TRUE)
 # ----------------------------------------
 # save code used to recalibrate size and aspect ratio
 # 4 a4 sheets = 840mm wide, 297mm tall.
