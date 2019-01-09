@@ -514,13 +514,22 @@ lines(Yrs, PC[,"1921"] / rowSums(PC), col = "red")
 lines(Yrs, PC[,"1920"] / rowSums(PC), col = "magenta",lwd=2)
 lines(Yrs, adj * PC[,"1920"] / rowSums(PC), col = "magenta",lwd=2, lty=2)
 
-
+max_contrib <- Cohs[apply(PC / rowSums(PC),1,which.max)]
 yii <- as.character(Cohs)
-rle(Cohs[apply(PC / rowSums(PC),1,which.max)])$values[(rle(Cohs[apply(PC / rowSums(PC),1,which.max)])$lengths)>7]
 
+# which cohorts are dominant
+rle(max_contrib)$values[(rle(max_contrib)$lengths)>5]
+
+names(max_contrib) <- Yrs
+max_contrib[max_contrib == 1792]
+max_contrib[max_contrib == 1811]
+max_contrib[max_contrib == 1849]
 # counterfactual 1920 cohort size
 C1920_counterfactual <- (Bt["1919"] + Bt["1921"]) / 2
 adj <- C1920_counterfactual / Bt["1920"] 
+
+C1920_counterfactual_test <- (Bt["1917"] + Bt["1921"]) / 2
+adj_test <- C1920_counterfactual_test / Bt["1920"] 
 
 Bc1920_counterfactual <- (Bc["1919"] + Bc["1921"]) / 2
 adj2 <- Bc1920_counterfactual / Bc["1920"] 
@@ -529,6 +538,10 @@ PC2 <- PC
 PC2[,"1920"] <- adj * PC2[,"1920"]
 PC3 <- PC
 PC3[,"1920"] <- adj2 * PC3[,"1920"]
+
+PC4 <- PC
+PC4[,"1920"] <- adj_test * PC4[,"1920"]
+
 plot(Yrs, PC[,"1920"] / rowSums(PC), xlim=c(1935,1960), typ = "l")
 matplot(Yrs, PC / rowSums(PC), type = 'l',lty=1,col = gray(seq(0,.8,length=length(Cohs))),add=TRUE)
 lines(Yrs, PC[,"1919"] / rowSums(PC), col = "blue")
@@ -536,6 +549,7 @@ lines(Yrs, PC[,"1921"] / rowSums(PC), col = "red")
 lines(Yrs, PC[,"1920"] / rowSums(PC), col = "magenta",lwd=2)
 lines(Yrs, PC2[,"1920"] / rowSums(PC2), col = "magenta",lwd=2, lty=2)
 lines(Yrs, PC3[,"1920"] / rowSums(PC3), col = "magenta",lwd="2", lty="82")
+lines(Yrs, PC4[,"1920"] / rowSums(PC4), col = "magenta",lwd="2", lty="82")
 
 Bt / rowSums(PC2) 
 
@@ -580,3 +594,6 @@ sum(Bt[w1])/
 # 4-5 % of excess boomers
 sum((Bt - rowSums(PC2))[w1]) / 
 		sum((Bt - Bt2)[w1])
+
+
+Bt

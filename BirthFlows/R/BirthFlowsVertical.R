@@ -1,7 +1,21 @@
+
+# Author: tim
+###############################################################################
+
 setwd("/home/tim/git/BirthFlows/BirthFlows")
 #source("R/DataPrep.R")
 #source("R/ColorRamp.R")
 
+#PC5cs <- apply(PC5,2,cumsum) # single years in columns
+PCcs  <- apply(PC,1,cumsum)
+CPcs  <- apply(PC,2,cumsum)
+#P5Ccs <- apply(P5C,2,cumsum) # single cohorts in columns
+PCcs <- rbind(0,PCcs)
+CPcs <- rbind(0,CPcs)
+
+# shift flow
+PCcs2 <- t(t(PCcs) + baseline[colnames(PCcs)])
+CPcs2 <- t(t(CPcs) - baseline[colnames(CPcs)])
 
 # -------------------------------
 #PeriodColors <- autumn2
@@ -16,13 +30,13 @@ yc           <- as.integer(names(BC))
 
 # determine colors
 # TODO: can add color 1 polygon earlier to ColsP. Later ones too after projection.
-breaks     <- pretty(c(Per_SD5,Coh_SD5),35)
+breaks     <- pretty(c(Per_SD,Coh_SD),35)
 fillcolors <- viridis(length(breaks) - 1, option = "A")
 
-ColsC5               <- as.character(cut(Per_SD5, breaks = breaks, labels = fillcolors))
-ColsP5               <- as.character(cut(Coh_SD5, breaks = breaks, labels = fillcolors))
-ColsP5[is.na(ColsP5)] <- gray(.8)
-ColsC5[is.na(ColsC5)] <- gray(.8)
+ColsC               <- as.character(cut(Per_SD, breaks = breaks, labels = fillcolors))
+ColsP               <- as.character(cut(Coh_SD, breaks = breaks, labels = fillcolors))
+ColsP[is.na(ColsP)] <- gray(.8)
+ColsC[is.na(ColsC)] <- gray(.8)
 
 # some plotting indices
 yticks    <- c(-15e4,-10e4,-5e4,5e4,10e4,15e4)
@@ -33,8 +47,8 @@ xticks20c <- as.character(xticks20)
 
 # clear devices
 graphics.off()
-range(Per_SD5,na.rm=TRUE)
-range(Coh_SD5,na.rm=TRUE)
+range(Per_SD,na.rm=TRUE)
+range(Coh_SD,na.rm=TRUE)
 # ----------------------------------------
 # save code used to recalibrate size and aspect ratio
 # 4 a4 sheets = 840mm wide, 297mm tall.
@@ -68,21 +82,21 @@ draw.fork <- function(x1,x2,x3,y1,y2,y3,y4,...){
 }
 # ----------------------------------------
 
-pdf("Figures/BirthFlowsFoldout.pdf", height = 11.6929, width = 33.0709)
+pdf("Figures/BirthFlowsSingleVertColorFoldout.pdf", height = 11.6929, width = 33.0709)
 #dev.new(height = 9, width= 27)
 par(mai = c(2.54645, 1.5, 2.54645, 0.5),
-	xpd = TRUE,
-	xaxs = "i",
-	yaxs = "i")
+		xpd = TRUE,
+		xaxs = "i",
+		yaxs = "i")
 # empty device, pre-specified ranges. Very careful adjusting, 
 # as it will throw off curved text!!
 plot(NULL, 
-	 type = "n", 
-	 xlim = c(1660, 2084.94263374486), # odd nr, due to recalculations
-	 ylim = c(-25e4, 25e4),            # that preserve aspect ratio after   
-	 axes = FALSE,                     # a device resize
-	 xlab = "", 
-	 ylab = "")
+		type = "n", 
+		xlim = c(1660, 2084.94263374486), # odd nr, due to recalculations
+		ylim = c(-25e4, 25e4),            # that preserve aspect ratio after   
+		axes = FALSE,                     # a device resize
+		xlab = "", 
+		ylab = "")
 
 # ------------------------------------------------------------------------
 segments(1743,baseline["1743"],1743,3e5,lwd=.8,col="#2a70e0",lty="12")
@@ -138,9 +152,9 @@ text(1919,3e5,"Spanish influenza\nand recovery",pos=3,cex=.7,col="#2a70e0")
 # y-guides
 segments(xticks20,
 		baseline[xticks20c] + 15e4,
-		 xticks20,
-		 baseline[xticks20c] - 15e4,
-		 col = gray(.7))
+		xticks20,
+		baseline[xticks20c] - 15e4,
+		col = gray(.7))
 
 # y axis reference lines
 for (i in 1:length(yticks)){
@@ -153,48 +167,97 @@ for (i in 1:length(yticks)){
 
 # shaded polygons
 # top
+#for (i in 1:(nrow(PCcs) - 1)){
+#	polygon(c(Yrs, rev(Yrs)), 
+#			c(PCcs2[i, ], rev(PCcs2[i + 1, ])), 
+#			col = ColsP[i], 
+#			border = ColsP[i], 
+#			lwd = .1)
+#}
+## bottom
+#for (i in 1:(nrow(CPcs) - 1)){
+#	polygon(c(Cohs, rev(Cohs)), 
+#			-c(CPcs2[i, ], rev(CPcs2[i + 1, ])), 
+#			col = ColsC[i], 
+#			border = ColsC[i], 
+#			lwd = .1)
+#	
+#}
+
+# period bars
+
+rect(yp,baseline[names(BT)],yp+1,baseline[names(BT)]+BT, col = ColsC,border=NA)
+rect(yc,baseline[names(BC)],yc+1,baseline[names(BC)]-BC, col = ColsP,border=NA)
+
+# top
+#fillcolors5 <- viridis(length(breaks) - 1, option = "A",alpha=.5)
+#ColsC5               <- as.character(cut(Per_SD5, breaks = breaks, labels = fillcolors5))
+#ColsP5               <- as.character(cut(Coh_SD5, breaks = breaks, labels = fillcolors5))
+#ColsP5[is.na(ColsP5)] <- paste0(gray(.8),"80")
+#ColsC5[is.na(ColsC5)] <- paste0(gray(.8),"80")
+#
+#for (i in 1:(nrow(PC5cs) - 1)){
+#	polygon(c(Yrs, rev(Yrs)), 
+#			c(PC5cs2[i, ], rev(PC5cs2[i + 1, ])), 
+#			col = ColsP5[i], 
+#			border = "#FFFFFF80", 
+#			lwd = .2)
+#}
+## bottom
+#for (i in 1:(nrow(P5Ccs) - 1)){
+#	polygon(c(Cohs, rev(Cohs)), 
+#			-c(P5Ccs2[i, ], rev(P5Ccs2[i + 1, ])), 
+#			col = ColsC5[i], 
+#			border = "#FFFFFF80", 
+#			lwd = .2)
+#	
+#}
+
+
+
+
+# 5-year borders
 for (i in 1:(nrow(PC5cs) - 1)){
 	polygon(c(Yrs, rev(Yrs)), 
 			c(PC5cs2[i, ], rev(PC5cs2[i + 1, ])), 
-			col = ColsP5[i], 
-			border = "#FFFFFF80", 
+			col = NA, 
+			border = "#FFFFFF", 
 			lwd = .2)
 }
 # bottom
 for (i in 1:(nrow(P5Ccs) - 1)){
 	polygon(c(Cohs, rev(Cohs)), 
 			-c(P5Ccs2[i, ], rev(P5Ccs2[i + 1, ])), 
-			col = ColsC5[i], 
-			border = "#FFFFFF80", 
+			col = NA, 
+			border = "#FFFFFF", 
 			lwd = .2)
-
+	
 }
-
 # labelling every second polygon (every 10 years)
 # hackish code
 # Year of ocurrence labels pertain to bottom polygons
 Y5 <- Yrs[Yrs%%5 == 0]
 for (i in seq(2, nrow(P5Ccs)-2, by = 2)){
 	if (Y5[i - 1] != 1750){
-	ind <- which(P5C[as.character(Y5[i]), ] > 1000)[1]
-	text(Cohs[ind], 
-			-P5Ccs2[i, ind], 
-			Y5[i - 1], 
-			cex = .5, 
-			col = ifelse(Y5[i] < 1960,"#33333380","#FFFFFF80"))
-}
+		ind <- which(P5C[as.character(Y5[i]), ] > 1000)[1]
+		text(Cohs[ind], 
+				-P5Ccs2[i, ind], 
+				Y5[i - 1], 
+				cex = .5, 
+				col = ifelse(Y5[i] < 1960,"#33333380","#FFFFFF80"))
+	}
 }
 # mother cohort labels pertain to top polygons
 C5 <- Cohs[Cohs%%5 == 0]
 for (i in seq(2,nrow(PC5cs)-2,by=2)){
 	if (C5[i] >= 1700 & C5[i-1] != 1720){
-	ind <- which(PC5[as.character(C5[i]),] > 500)[1]
-	text(Yrs[ind], 
-			PC5cs2[i, ind]+3e3,
-			C5[i - 1], 
-			cex = .5, 
-			col = ifelse(C5[i] < 1910,"#33333380","#FFFFFF80"))
-}
+		ind <- which(PC5[as.character(C5[i]),] > 500)[1]
+		text(Yrs[ind], 
+				PC5cs2[i, ind]+3e3,
+				C5[i - 1], 
+				cex = .5, 
+				col = ifelse(C5[i] < 1910,"#33333380","#FFFFFF80"))
+	}
 }
 
 # centerline
@@ -337,7 +400,7 @@ text(1904, -8000, "crude generation contraction", col = "#FFFFFFA0",cex=1)
 # custom axes
 # left y axis
 push <- baseline[1] # everything needs to get 
-                    # shifted to deal w meandering baseline
+# shifted to deal w meandering baseline
 segments(min(Cohs),
 		-15e4 + push, 
 		min(Cohs), 
@@ -364,10 +427,10 @@ segments(max(Yrs),
 		max(Yrs) - 1, 
 		yticks + push2)
 text(max(Yrs), 
-	 yticks + push2, 
-	 c(150,100,50,50,100,150), 
-	 pos = 4, 
-	 cex = .8)
+		yticks + push2, 
+		c(150,100,50,50,100,150), 
+		pos = 4, 
+		cex = .8)
 
 # large axis labels
 text(min(Cohs), 
@@ -412,6 +475,8 @@ text(xl-w,top+2e4,"standard deviation of\nage at childbearing (years)",pos=4)
 
 # end
 dev.off()
+
+
 
 
 

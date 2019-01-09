@@ -1,7 +1,17 @@
 setwd("/home/tim/git/BirthFlows/BirthFlows")
 #source("R/DataPrep.R")
 #source("R/ColorRamp.R")
+ 
+#PC5cs <- apply(PC5,2,cumsum) # single years in columns
+PCcs  <- apply(PC,1,cumsum)
+CPcs  <- apply(PC,2,cumsum)
+#P5Ccs <- apply(P5C,2,cumsum) # single cohorts in columns
+PCcs <- rbind(0,PCcs)
+CPcs <- rbind(0,CPcs)
 
+# shift flow
+PCcs2 <- t(t(PCcs) + baseline[colnames(PCcs)])
+CPcs2 <- t(t(CPcs) - baseline[colnames(CPcs)])
 
 # -------------------------------
 #PeriodColors <- autumn2
@@ -16,13 +26,13 @@ yc           <- as.integer(names(BC))
 
 # determine colors
 # TODO: can add color 1 polygon earlier to ColsP. Later ones too after projection.
-breaks     <- pretty(c(Per_SD5,Coh_SD5),35)
+breaks     <- pretty(c(Per_SD,Coh_SD),35)
 fillcolors <- viridis(length(breaks) - 1, option = "A")
 
-ColsC5               <- as.character(cut(Per_SD5, breaks = breaks, labels = fillcolors))
-ColsP5               <- as.character(cut(Coh_SD5, breaks = breaks, labels = fillcolors))
-ColsP5[is.na(ColsP5)] <- gray(.8)
-ColsC5[is.na(ColsC5)] <- gray(.8)
+ColsC               <- as.character(cut(Per_SD, breaks = breaks, labels = fillcolors))
+ColsP               <- as.character(cut(Coh_SD, breaks = breaks, labels = fillcolors))
+ColsP[is.na(ColsP)] <- gray(.8)
+ColsC[is.na(ColsC)] <- gray(.8)
 
 # some plotting indices
 yticks    <- c(-15e4,-10e4,-5e4,5e4,10e4,15e4)
@@ -33,8 +43,8 @@ xticks20c <- as.character(xticks20)
 
 # clear devices
 graphics.off()
-range(Per_SD5,na.rm=TRUE)
-range(Coh_SD5,na.rm=TRUE)
+range(Per_SD,na.rm=TRUE)
+range(Coh_SD,na.rm=TRUE)
 # ----------------------------------------
 # save code used to recalibrate size and aspect ratio
 # 4 a4 sheets = 840mm wide, 297mm tall.
@@ -68,7 +78,7 @@ draw.fork <- function(x1,x2,x3,y1,y2,y3,y4,...){
 }
 # ----------------------------------------
 
-pdf("Figures/BirthFlowsFoldout.pdf", height = 11.6929, width = 33.0709)
+pdf("Figures/BirthFlowsSingleFoldout.pdf", height = 11.6929, width = 33.0709)
 #dev.new(height = 9, width= 27)
 par(mai = c(2.54645, 1.5, 2.54645, 0.5),
 	xpd = TRUE,
@@ -153,23 +163,40 @@ for (i in 1:length(yticks)){
 
 # shaded polygons
 # top
+for (i in 1:(nrow(PCcs) - 1)){
+	polygon(c(Yrs, rev(Yrs)), 
+			c(PCcs2[i, ], rev(PCcs2[i + 1, ])), 
+			col = ColsP[i], 
+			border = ColsP[i], 
+			lwd = .1)
+}
+# bottom
+for (i in 1:(nrow(CPcs) - 1)){
+	polygon(c(Cohs, rev(Cohs)), 
+			-c(CPcs2[i, ], rev(CPcs2[i + 1, ])), 
+			col = ColsC[i], 
+			border = ColsC[i], 
+			lwd = .1)
+
+}
+
+# 5-year borders
 for (i in 1:(nrow(PC5cs) - 1)){
 	polygon(c(Yrs, rev(Yrs)), 
 			c(PC5cs2[i, ], rev(PC5cs2[i + 1, ])), 
-			col = ColsP5[i], 
-			border = "#FFFFFF80", 
+			col = NA, 
+			border = "#FFFFFF", 
 			lwd = .2)
 }
 # bottom
 for (i in 1:(nrow(P5Ccs) - 1)){
 	polygon(c(Cohs, rev(Cohs)), 
 			-c(P5Ccs2[i, ], rev(P5Ccs2[i + 1, ])), 
-			col = ColsC5[i], 
-			border = "#FFFFFF80", 
+			col = NA, 
+			border = "#FFFFFF", 
 			lwd = .2)
-
+	
 }
-
 # labelling every second polygon (every 10 years)
 # hackish code
 # Year of ocurrence labels pertain to bottom polygons
