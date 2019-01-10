@@ -524,24 +524,26 @@ names(max_contrib) <- Yrs
 max_contrib[max_contrib == 1792]
 max_contrib[max_contrib == 1811]
 max_contrib[max_contrib == 1849]
-# counterfactual 1920 cohort size
+
+# counterfactual 1920 cohort size, 3 simple versions
+# 1) mean size of 1919 and 1921
 C1920_counterfactual <- (Bt["1919"] + Bt["1921"]) / 2
-adj <- C1920_counterfactual / Bt["1920"] 
-
-C1920_counterfactual_test <- (Bt["1917"] + Bt["1921"]) / 2
-adj_test <- C1920_counterfactual_test / Bt["1920"] 
-
+adj1 <- C1920_counterfactual / Bt["1920"] 
+# 2) mean size of 1917 and 1921
+C1920_2_counterfactual <- (Bt["1917"] + Bt["1921"]) / 2
+adj2 <- C1920_2_counterfactual / Bt["1920"] 
+# 3) mean offspring of 1919 and 1921
 Bc1920_counterfactual <- (Bc["1919"] + Bc["1921"]) / 2
-adj2 <- Bc1920_counterfactual / Bc["1920"] 
+adj3 <- Bc1920_counterfactual / Bc["1920"] 
 
-PC2 <- PC
-PC2[,"1920"] <- adj * PC2[,"1920"]
-PC3 <- PC
+# adjust cohort offspring accordingly
+PC4 <- PC3 <- PC2 <- PC
+PC2[,"1920"] <- adj1 * PC2[,"1920"]
 PC3[,"1920"] <- adj2 * PC3[,"1920"]
+PC4[,"1920"] <- adj3 * PC4[,"1920"]
 
-PC4 <- PC
-PC4[,"1920"] <- adj_test * PC4[,"1920"]
-
+# counterfactuals all of similar range and scale,
+# shows dominance of observed 1920
 plot(Yrs, PC[,"1920"] / rowSums(PC), xlim=c(1935,1960), typ = "l")
 matplot(Yrs, PC / rowSums(PC), type = 'l',lty=1,col = gray(seq(0,.8,length=length(Cohs))),add=TRUE)
 lines(Yrs, PC[,"1919"] / rowSums(PC), col = "blue")
@@ -551,32 +553,28 @@ lines(Yrs, PC2[,"1920"] / rowSums(PC2), col = "magenta",lwd=2, lty=2)
 lines(Yrs, PC3[,"1920"] / rowSums(PC3), col = "magenta",lwd="2", lty="82")
 lines(Yrs, PC4[,"1920"] / rowSums(PC4), col = "magenta",lwd="2", lty="82")
 
-Bt / rowSums(PC2) 
 
-Bc1920_counterfactual <- (Bc["1919"] + Bc["1921"]) / 2
-adj2 <- Bc1920_counterfactual / Bc["1920"] 
-(1-adj2) * Bc["1920"] 
-
-plot(Yrs,Bt,xlim=c(1920,1965))
-abline(v=c(1939,1951))
+#plot(Yrs,Bt,xlim=c(1920,1965))
+#abline(v=c(1939,1951))
 
 
 # and how much excess in boom, bounded by 1940-1951
-x1 <- 1940
-x2 <- 1951
-y1 <- Bt["1940"]
-y2 <- Bt["1951"]
-m  <- (y2 - y1) / (x2 - x1)
-yt <- 1:10
-y1 + yt * m
+# take linear trend from 1940 to 1951
+x1      <- 1940
+x2      <- 1951
+y1      <- Bt["1940"]
+y2      <- Bt["1951"]
+m       <- (y2 - y1) / (x2 - x1)
+yt      <- 1:10
 # and of the 'excess' that is the baby boom?
-Bt2  <- Bt
-w1 <- as.character(1941:1950)
+Bt2     <- Bt
+w1      <- as.character(1941:1950)
 Bt2[w1] <- y1 + yt * m
 
-plot(Yrs,Bt,xlim=c(1920,1965))
-abline(v=c(1939,1951))
-lines(Yrs,Bt2)
+## spot check
+#plot(Yrs,Bt,xlim=c(1920,1965))
+#abline(v=c(1939,1951))
+#lines(Yrs,Bt2)
 
 Bt - Bt2
 
@@ -591,9 +589,15 @@ sum(rowSums(PC2)[w1])
 # similar
 sum(Bt[w1])/
 		sum(rowSums(PC3)[w1])
+sum(Bt[w1])/
+		sum(rowSums(PC4)[w1])
+
 # 4-5 % of excess boomers
 sum((Bt - rowSums(PC2))[w1]) / 
 		sum((Bt - Bt2)[w1])
 
+sum((Bt - rowSums(PC3))[w1]) / 
+		sum((Bt - Bt2)[w1])
 
-Bt
+sum((Bt - rowSums(PC4))[w1]) / 
+		sum((Bt - Bt2)[w1])
