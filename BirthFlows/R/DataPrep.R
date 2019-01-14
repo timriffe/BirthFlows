@@ -14,6 +14,7 @@ library(minpack.lm)
 
 source("R/Functions.R")
 source("R/Method13_deBeer1985and1989-swe.R")
+set.seed(1)
 # -------------------------------------------------
 
 # Total births for single years 1736 to 1775
@@ -202,7 +203,7 @@ SWE     <- rbind(SWEh1, SWE)
 
 # save intermediate data object. This one hasn't
 # received the perturbation yet
-save(SWE, file = "Data/SWE.Rdata")
+save(SWE, file = "Data/SWE_sm.Rdata")
 
 # adjust mother cohort size based on first diffs in daughter cohort size
 cat("Adjusting graduated data...\n")
@@ -321,7 +322,12 @@ SWE           <- SWE[SWE$ARDY > 10 & SWE$ARDY < 60, ]
 # end forecast chunk
 # -------------------------------------------- #
 
-PC    <- acast(SWE, Year~Cohort, value.var = "Total", fill = 0)
+PC         <- acast(SWE, Year~Cohort, value.var = "Total", fill = 0)
+
+# save out in long format:
+SWE        <- melt(LexisUtils::PC2AP(PC,agemin=10,agemax=55,Lexis=2),varnames=c("ARDY","Year"),value.name = "Total")
+SWE$Cohort <- SWE$Year - SWE$ARDY - 1
+save(SWE, file = "Data/SWE_final.Rdata")
 
 # -------------------------------------------- #
 

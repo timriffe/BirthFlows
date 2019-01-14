@@ -9,29 +9,26 @@ source("R/DataPrep.R")
 # PC has final,
 
 # smoothed sweden
-SWE <- local(get(load("/home/tim/git/BirthFlows/BirthFlows/Data/SWE.Rdata")))
-		
-# compare w uniform
+SWE_sm    <- local(get(load("/home/tim/git/BirthFlows/BirthFlows/Data/SWE_sm.Rdata")))
+SWE_final <- local(get(load("/home/tim/git/BirthFlows/BirthFlows/Data/SWE_final.Rdata")))
 
-plot(1687:2016, PC[ "1863",],type='l',xlim=c(1810,1850))
 
-head(SWE[SWE$Year == 1863,])
+ind <- SWE_sm$Year == 1863
 
-ind <- SWE$Year == 1863
-wsd(SWE$ARDY[ind],SWE$Total[ind])
-wsd(SWE$Cohort[ind],SWE$Total[ind])
+wsd(SWE_sm$ARDY[ind],SWE_sm$Total[ind])
+wsd(SWE_sm$Cohort[ind],SWE_sm$Total[ind])
 
-wsd(1687:2016, PC[ "1863",])
+ind2 <- SWE_final$Year == 1863
+wsd(SWE_final$ARDY[ind2],SWE_final$Total[ind2])
+wsd(SWE_final$Cohort[ind2],SWE_final$Total[ind2])
 
-sum(PC[ "1863",])
-sum(SWE$Total[ind])
-unif <- splitUniform(groupAges(SWE$Total[ind],SWE$ARDY[ind]),OAG=FALSE,OAvalue=5)
-wsd(10:54,splitUniform(groupAges(SWE$Total[ind],SWE$ARDY[ind]),OAG=FALSE,OAvalue=5))
+unif <- splitUniform(groupAges(SWE_sm$Total[ind],SWE_sm$ARDY[ind]),OAG=FALSE,OAvalue=5)
+wsd(names2age(unif),unif)
 
 png("Figures/sd_sens.png")
-plot(10:54,unif,type="s",ylim=c(0,7500))
-lines(SWE$ARDY[ind],SWE$Total[ind],col="blue")
-lines(1863-1687:2016, PC[ "1863",], col = "red")
+plot(names2age(unif),unif,type="s",ylim=c(0,7500))
+lines(SWE_sm$ARDY[ind],SWE_sm$Total[ind],col="blue")
+lines(SWE_final$ARDY[ind2],SWE_final$Total[ind2], col = "red")
 legend("bottom",lty=1,col=c("black","blue","red"),legend=c("Orig (uniform) sd = 6.704",
 				"graduated smooth sd = 6.4064", "final adjusted sd = 6.3928"),bty="n")
 dev.off()
