@@ -479,17 +479,12 @@ L2 <- Lineage
 # coloring properties (SD)
 cohNA          <- Cohs < 1720 
 perNA          <- Yrs > 2030
-Coh_MAB        <- apply(PC, 2, wmean, x = Yrs + .5) - Cohs
-Coh_MAB[cohNA] <- NA
-Per_MAB        <- Yrs - apply(PC, 1, wmean, x = Cohs + .5)
-Per_MAB[perNA] <- NA
+
 Coh_SD         <- apply(PC, 2, wsd, x = Yrs + .5)
 Coh_SD[cohNA]  <- NA
 Per_SD         <- apply(PC, 1, wsd, x = Cohs + .5)
 Per_SD[perNA]  <- NA
 
-Per_MAB5  <- groupN(Per_MAB, y = Yrs, n = 5, fun = mean)
-Coh_MAB5  <- groupN(Coh_MAB, y = Cohs, n = 5, fun = mean)
 Per_SD5   <- groupN(Per_SD, y = Yrs, n = 5, fun = mean)
 Coh_SD5   <- groupN(Coh_SD, y = Cohs, n = 5, fun = mean)
 
