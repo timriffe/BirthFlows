@@ -325,8 +325,8 @@ SWE           <- SWE[SWE$ARDY > 10 & SWE$ARDY < 60, ]
 PC         <- acast(SWE, Year~Cohort, value.var = "Total", fill = 0)
 
 # save out in long format:
-SWE        <- melt(LexisUtils::PC2AP(PC,agemin=10,agemax=55,Lexis=2),varnames=c("ARDY","Year"),value.name = "Total")
-SWE$Cohort <- SWE$Year - SWE$ARDY - 1
+SWE        <- melt(PC,varnames=c("Year","Cohort"),value.name="Total")
+SWE$ARDY <- SWE$Year - SWE$Cohort 
 save(SWE, file = "Data/SWE_final.Rdata")
 
 # -------------------------------------------- #
