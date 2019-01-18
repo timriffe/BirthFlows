@@ -23,9 +23,12 @@ IQR <- function(x,w){
 	}
 	diff(pts)
 }
-
-
-
+draw.fork <- function(x1,x2,x3,y1,y2,y3,y4,...){
+	segments(x1,y1,x1,y2,...)
+	segments(x2,y2,x3,y2,...)
+	segments(x2,y2,x2,y3,...)
+	segments(x3,y2,x3,y4,...)
+}
 
 
 

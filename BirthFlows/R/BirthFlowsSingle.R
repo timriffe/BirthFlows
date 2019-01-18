@@ -1,7 +1,7 @@
 setwd("/home/tim/git/BirthFlows/BirthFlows")
 #source("R/DataPrep.R")
 #source("R/ColorRamp.R")
- 
+ source("R/AnnotationPoints.R")
 #PC5cs <- apply(PC5,2,cumsum) # single years in columns
 PCcs  <- apply(PC,1,cumsum)
 CPcs  <- apply(PC,2,cumsum)
@@ -70,12 +70,7 @@ range(Coh_SD,na.rm=TRUE)
 ## years to add to x
 #wadd     <- wnew - 27
 #yearsadd <- wadd * ypi
-draw.fork <- function(x1,x2,x3,y1,y2,y3,y4,...){
-	segments(x1,y1,x1,y2,...)
-	segments(x2,y2,x3,y2,...)
-	segments(x2,y2,x2,y3,...)
-	segments(x3,y2,x3,y4,...)
-}
+
 # ----------------------------------------
 
 pdf("Figures/BirthFlowsSingleFoldout.pdf", height = 11.6929, width = 33.0709)
@@ -95,55 +90,7 @@ plot(NULL,
 	 ylab = "")
 
 # ------------------------------------------------------------------------
-segments(1743,baseline["1743"],1743,3e5,lwd=.8,col="#2a70e0",lty="12")
-text(1743,3e5,"armed conflict",pos=3,cex=.7,col="#2a70e0")
-# famine "#9fdaf9"
-segments(1773,baseline["1773"],1773,3e5,lwd=.8,col="#2a70e0",lty="12")
-text(1773,3e5,"famine",pos=3,cex=.7,col="#2a70e0")
-# famine or war
-segments(1790,baseline["1790"],1790,3e5,lwd=.8,col="#2a70e0",lty="12")
-text(1790,3e5,"armed conflict",pos=3,cex=.7,col="#2a70e0")
-# famine or war (make this one bend in...)
-segments(1800.2,3.2e5,1800.2,baseline["1800"],lwd=.8,col="#2a70e0",lty="12")
-text(1800,3.2e5,"armed conflict",pos=3,cex=.7,col="#2a70e0")
 
-# conflict and upheaval
-segments(1809,baseline["1809"],1809,3e5,lwd=.8,col="#2a70e0",lty="12")
-text(1809,3e5,"armed conflict",pos=3,cex=.7,col="#2a70e0")
-
-# the year without summer
-#segments(1816,baseline["1816"]-150e3,1816,3.2e5,lwd=.8,col="#2a70e0",lty="12")
-#text(1816,3.2e5,"'the year\nwithout summer'",pos=3,cex=.7,col="#2a70e0")
-# pandemic
-draw.fork(1832,1831,1833,
-		y1=3e5,y2=1.4e5,baseline["1831"]+Bt["1831"],baseline["1833"]+Bt["1833"]
-		,lwd=.8,col="#2a70e0",lty="12") 
-text(1832,3e5,"pandemic",pos=3,cex=.7,col="#2a70e0")
-
-# pandemic
-
-draw.fork(1847.5,1847,1848,
-		y1=3e5,y2=1.4e5,baseline["1847"]+Bt["1847"],baseline["1848"]+Bt["1848"]
-		,lwd=.8,col="#2a70e0",lty="12") 
-text(1847.5,3e5,"pandemic",pos=3,cex=.7,col="#2a70e0")
-
-# famine
-draw.fork(1868,1867,1869,
-		y1=3e5,y2=1.4e5,baseline["1867"]+Bt["1867"],baseline["1869"]+Bt["1869"]
-		,lwd=.8,col="#2a70e0",lty="12") 
-text(1868,3e5,"famine",pos=3,cex=.7,col="#2a70e0")
-
-# Russian pandemic
-segments(1889,baseline["1889"],1889,3e5,lwd=.8,col="#2a70e0",lty="12")
-text(1889,3e5,"Russian pandemic",pos=3,cex=.7,col="#2a70e0")
-
-# Spanish flu
-draw.fork(1919.5,1919,1920.5,
-		y1=3e5,y2=1.45e5,baseline["1919"]+Bt["1919"],baseline["1920"]+Bt["1920"]
-		,lwd=.8,col="#2a70e0",lty="12") 
-#segments(1918.5,1.19e5,1918.5,3e5,lwd=.8,col="#2a70e0",lty="12")
-text(1919,3e5,"Spanish influenza\nand recovery",pos=3,cex=.7,col="#2a70e0")
-# -------- end annotations ----------- #
 
 # y-guides
 segments(xticks20,
@@ -223,6 +170,50 @@ for (i in seq(2,nrow(PC5cs)-2,by=2)){
 			col = ifelse(C5[i] < 1910,"#33333380","#FFFFFF80"))
 }
 }
+
+
+
+# other annotation points added, so be 
+
+# simple timeline pointers
+lapply(notes1, function(X, baseline, Bt){
+			x <- X$r
+			xc <- as.character(x)
+			y1 <- baseline[xc] + Bt[xc]
+			y2 <- 3e5
+			
+			if ("adj" %in% names(X)){
+				x <- x + X$adj$x
+				y2 <- y2 + X$adj$y
+			}
+			
+			segments(x,y1,x,y2, lwd=.5,col = "#9AD0D8")
+			text(x,y2,X$m,pos=3,cex=.7,col = "#74A2A9")
+		}, baseline = baseline, Bt = Bt)
+# fork timeline pointers:
+lapply(notes_fork, function(X, baseline, Bt){
+			x2 <- X$xl
+			x3 <- X$xr
+			x2c <- as.character(x2)
+			x3c <- as.character(x3)
+			x1 <- (x2+x3)/2
+			y1 <- 3e5
+			y3 <- baseline[x2c] + Bt[x2c]
+			y4 <- baseline[x3c] + Bt[x3c]
+			y2 <- max(c(y3,y4)) + 20000
+			draw.fork(x1,x2,x3,y1,y2,y3,y4,lwd=.5,col="#9AD0D8") 
+			text(x1, y1, X$m, cex=.7,col="#74A2A9"  ,pos=3)
+		}, baseline = baseline, Bt = Bt)
+
+lapply(notes, function(X, baseline, Bt, Bc){
+			x <- X$r
+			xc <- as.character(x)
+			y1 <- baseline[xc] + X$d * ifelse(X$d == 1, Bt[xc],Bc[xc])
+			y2 <- y1 + X$d * 1.1e5
+			segments(x,y1,x,y2, lwd=.5,col = gray(.3))
+			text(x,y2,X$m,pos=ifelse(X$d == 1,3,1),cex=.7,col = gray(.3))
+		}, baseline = baseline, Bt = Bt, Bc = Bc)
+
 
 # centerline
 lines(yrs_smooth, baseline, col = "white")
@@ -397,18 +388,22 @@ text(max(Yrs),
 	 cex = .8)
 
 # large axis labels
-text(min(Cohs), 
+text(min(Cohs)-15, 
 		20e4 + push, 
 		"Births in year (1000s)", 
 		pos = 4, 
 		cex = 2, 
 		font = 2)
-text(min(Cohs), 
+text(min(Cohs)-15, 
 		-20e4 + push, 
 		"The children they had", 
 		pos = 4, 
 		cex = 2, 
 		font = 2)
+
+
+
+
 
 # caption about here box
 bottom <- -40e4
