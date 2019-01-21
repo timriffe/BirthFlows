@@ -3,7 +3,6 @@
 
 setwd("/home/tim/git/BirthFlows/BirthFlows")
 # download birthsVV (period-cohort Lexis shape for birth counts) from HFD. 
-library(RColorBrewer)
 library(viridis)
 library(HMDHFDplus)
 library(ungroup)

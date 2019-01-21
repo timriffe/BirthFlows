@@ -155,5 +155,6 @@ notes_fork[[3]] <- list(xl=1867,xr=1869,m="famine")
 ##segments(1918.5,1.19e5,1918.5,3e5,lwd=.8,col="#2a70e0",lty="12")
 #text(1919,3e5,"Spanish influenza\nand recovery",pos=3,cex=.7,col="#2a70e0")
 notes_fork[[4]] <- list(xl=1919,xr=1921,m="Spanish influenza\nand recovery") 
+notes_fork[[5]] <- list(xl=1942,xr=1950,m="Baby boom 'first wave'") 
 # -------- end annotations ----------- #
 

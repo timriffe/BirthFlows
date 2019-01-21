@@ -126,7 +126,11 @@ for (i in 1:(nrow(CPcs) - 1)){
 			lwd = .1)
 
 }
-
+projLine <- -CPcs2["2016",]
+projLine[Cohs < 1962 | Cohs > 2004] <- NA
+lines(Cohs,projLine,col="white",lty="84",lwd=.4)
+text(1985,projLine["1985"],"2017",col="white",srt=53,cex=.6,pos=4)
+segments(2016,baseline["2016"],2016,Bt["2016"]+baseline["2016"],col="white",lty="84",lwd=.4)
 # 5-year borders
 for (i in 1:(nrow(PC5cs) - 1)){
 	polygon(c(Yrs, rev(Yrs)), 
@@ -144,6 +148,7 @@ for (i in 1:(nrow(P5Ccs) - 1)){
 			lwd = .2)
 	
 }
+
 # labelling every second polygon (every 10 years)
 # hackish code
 # Year of ocurrence labels pertain to bottom polygons
