@@ -478,7 +478,6 @@ L2 <- Lineage
 # coloring properties (SD)
 cohNA          <- Cohs < 1720 
 perNA          <- Yrs > 2030
-
 Coh_SD         <- apply(PC, 2, wsd, x = Yrs + .5)
 Coh_SD[cohNA]  <- NA
 Per_SD         <- apply(PC, 1, wsd, x = Cohs + .5)

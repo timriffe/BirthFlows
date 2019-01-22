@@ -500,9 +500,7 @@ dev.off()
 
 
 plot(Yrs,PC[,"1920"],xlim=c(1935,1965))
-LexisUtils::PC2AP(PC)[,as.character(1945:1949)]
-1945-1919
-dim(PC)
+
 sum(PC["1920",]) # mother cohort contrib to1920 cohort
 sum(PC[,"1920"]) # offspring of 1920 cohort
 
@@ -601,3 +599,20 @@ sum((Bt - rowSums(PC3))[w1]) /
 
 sum((Bt - rowSums(PC4))[w1]) / 
 		sum((Bt - Bt2)[w1])
+
+# -----------------------
+#lmeander <- log(meander)
+#lmeander[which.min(lmeander)]
+#lmeander[which.max(lmeander)]
+#
+#Coh_MAB        <- apply(PC, 2, wmean, x = Yrs + .5) - Cohs
+#Coh_MAB[cohNA] <- NA
+#Per_MAB        <- Yrs - apply(PC, 1, wmean, x = Cohs + .5)
+#Per_MAB[perNA] <- NA
+#
+#par(mfrow=c(5,1))
+#plot(names2age(lmeander),lmeander,xlim=c(1750,2020))
+#plot(names2age(Coh_SD),Coh_SD,xlim=c(1750,2020))
+#plot(names2age(Per_SD),Per_SD,xlim=c(1750,2020))
+#plot(names2age(Coh_MAB),Coh_MAB,xlim=c(1750,2020))
+#plot(names2age(Per_MAB),Per_MAB,xlim=c(1750,2020))
