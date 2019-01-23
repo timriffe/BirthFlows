@@ -1,7 +1,7 @@
 
 \section{Data sources and adjustments}
 \label{sec:dataprep}
-Data presented here are from several different data sources, covering different time periods. These data originate in different APC bins, and some are derived using indirect methods or projection methods. The full list of sources is outlined in Tab.~\ref{app:sources}. Fig.~\ref{fig:histbins} depicts the discrete Lexis bins of input data for the historical period before 1891. This appendix describes all steps taken to bring data into a standard format suitable for this study, and sections follow the order of the data processing steps undertaken. The data format required to build the figures in this manuscript consists in birth counts tabulated by single year of ocurrence and mother cohort, the PC Lexis shape (also denoted as `VV' in HFD documents). Input data cover the years 1736 until 2016, with an oldest mother cohort of 1687. We complete the fertility of incomplete cohorts through 2016 up to age 55, bringing the latest year of occurence to 2071.
+Data presented here are from several different data sources, covering different time periods. These data originate in different age-period-cohort (APC) bins, and some are derived using indirect methods or projection methods. The full list of sources is outlined in Tab.~\ref{app:sources}. Fig.~\ref{fig:histbins} depicts the discrete Lexis bins of input data for the historical period before 1891. This appendix describes all steps taken to bring data into a standard format suitable for this study, and sections follow the order of the data processing steps undertaken. The data format required to build the figures in this manuscript consists in birth counts tabulated by single year of ocurrence and mother cohort, the period-cohort (PC) Lexis shape (also denoted as `VV' in HFD documents). Input data cover the years 1736 until 2016, with an oldest mother cohort of 1687. We complete the fertility of incomplete cohorts through 2016 up to age 55, bringing the latest year of occurence to 2071.
 
 \begin{table}[ht]
 \begin{tabular}{lllllc}
@@ -42,14 +42,14 @@ P(x,1751-n) = P(x+n,1751) * \frac{\ell(x)}{\ell(x+n)} \tc
 \end{equation}
 where $\ell(x)$ is the standard survival function described.
 
-The next step is to derive a standard ASFR curve, $F(x)$. ASFR for the years 1751-1775 is given by the \citet{HFC} in single ages and 5-year bins. If we rescale $F(x)$ in each 5-year period to sum to 1, one sees that there was very little shifting or shape changes in the period 1751-1774: each unity-scaled $F(x)$ curve is for practical purposes equivalent. We therefore take the standard fertility rate curve, $F^\star(x)$ to be their age-specific arithmetic mean, and we assume that it is valid for the year-range 1736 until 1750.
+The next step is to derive a standard age-specific fertility rate (ASFR) curve, $F(x)$. ASFR for the years 1751-1775 is given by the \citet{HFC} in single ages and 5-year bins. If we rescale $F(x)$ in each 5-year period to sum to 1, one sees that there was very little shifting or shape changes in the period 1751-1774: each unity-scaled $F(x)$ curve is for practical purposes equivalent. We therefore take the standard fertility rate curve, $F^\star(x)$ to be their age-specific arithmetic mean, and we assume that it is valid for the year-range 1736 until 1750.
 
 A first pass of unscaled birth counts at age $x$, $t$ years before 1751 is taken as the product of estimated exposure and $F^\star(x)$.
 \begin{equation}
 \widehat{B}^\star(x,1751-n) = P(x,1751-n) \cdot F^\star(x)
 \end{equation}
 
-The first pass of birth estimates implies a TFR of 1 in each year. Total births in each of these years $B(1751-n)$ is known \citep[][Tab.~27 \& Tab.~28]{sweden1969historisk}, so we derive our final estimate of age specific births, $\widehat{B}(x,1751-n)$ as:
+The first pass of birth estimates implies a total fertility rate of 1 in each year. Total births in each of these years $B(1751-n)$ is known \citep[][Tab.~27 \& Tab.~28]{sweden1969historisk}, so we derive our final estimate of age specific births, $\widehat{B}(x,1751-n)$ as:
 		
 		\begin{equation}
 \widehat{B}(x,1751-n) = \widehat{B}^\star(x,1751-n) \cdot \frac{B(1751-n)}{\sum _{x=12}^{50}\widehat{B}^\star(x,1751-n) }
@@ -88,11 +88,11 @@ Births by single year of mothers' age are then rescaled to sum to the annual tot
 		
 		\subsection{Years 1736 - 1890}
 		\label{sec:histadj}
-		At this stage of processing all birth counts for years 1736 until 1890 are in single age-period (AP) bins, and datasets covering the three periods are merged into a common dataset. Two further adjustments are performed, the first to move AP-bins into period-cohort (PC) bins. The second adjustment compensates for the smoothness of graduation methods so as to preserve the expected relationship between a cohort's size its total offspring size.
+		At this stage of processing all birth counts for years 1736 until 1890 are in single age-period (AP) bins, and datasets covering the three periods are merged into a common dataset. Two further adjustments are performed, the first to move AP into PC bins. The second adjustment compensates for the smoothness of graduation methods so as to preserve the expected relationship between a cohort's size its total offspring size.
 
 \subsubsection{Adjustment to PC bins}
 \label{sec:split}
-Counts were shifted from AP Lexis bins into PC bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}. At this point data are in a common format with the HFD data for the years 1891-2016, and these are merged into a single dataset.
+Counts were shifted from AP Lexis bins into PC bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}. This simple assumption could be made more sentivie, but it would have no noticeable impact on our visualization. At this point data are in a common format with the HFD data for the years 1891-2016, and these are merged into a single dataset.
 
 \begin{figure}[ht!]
 \centering
@@ -114,7 +114,7 @@ Counts were shifted from AP Lexis bins into PC bins assuming that half of the bi
 \caption{Regroup to PC bins}
 \label{fig:app3}
 \end{subfigure}
-\caption{The count regrouping procedure for years 1736 to 1890. Data are graduated to single ages (Fig.~\ref{fig:app1}), then split in half (Fig.~\ref{fig:app2}) and regrouped to period cohort (PC) bins (Fig.~\ref{fig:app3}).}
+\caption{The count regrouping procedure for years 1736 to 1890. Data are graduated to single ages (Fig.~\ref{fig:app1}), then split in half (Fig.~\ref{fig:app2}) and regrouped to period-cohort (PC) bins (Fig.~\ref{fig:app3}).}
 \label{fig:AP2PC}
 \end{figure}
 
