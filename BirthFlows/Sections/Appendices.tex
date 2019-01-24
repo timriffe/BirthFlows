@@ -1,7 +1,7 @@
 
 \section{Data sources and adjustments}
 \label{sec:dataprep}
-Data presented here are from several different data sources, covering different time periods. These data originate in different age-period-cohort (APC) bins, and some are derived using indirect methods or projection methods. The full list of sources is outlined in Tab.~\ref{app:sources}. Fig.~\ref{fig:histbins} depicts the discrete Lexis bins of input data for the historical period before 1891. This appendix describes all steps taken to bring data into a standard format suitable for this study, and sections follow the order of the data processing steps undertaken. The data format required to build the figures in this manuscript consists in birth counts tabulated by single year of ocurrence and mother cohort, the period-cohort (PC) Lexis shape (also denoted as `VV' in HFD documents). Input data cover the years 1736 until 2016, with an oldest mother cohort of 1687. We complete the fertility of incomplete cohorts through 2016 up to age 55, bringing the latest year of occurence to 2071.
+Data presented here are from several different data sources, covering different time periods. These data originate in different age-period-cohort (APC) bins, and some are derived using indirect methods or projection methods. The full list of sources is outlined in Tab.~\ref{app:sources}. Fig.~\ref{fig:histbins} depicts the discrete Lexis bins of input data for the historical period before 1891. This appendix describes all steps taken to bring data into a standard format suitable for this study, and sections follow the order of the data processing steps undertaken. The data format required to build the figures in this manuscript consists in birth counts tabulated by single year of occurrence and mother cohort, the period-cohort (PC) Lexis shape (also denoted as `VV' in HFD documents). Input data cover the years 1736 until 2016, with an oldest mother cohort of 1687. We complete the fertility of incomplete cohorts through 2016 up to age 55, bringing the latest year of occurrence to 2071.
 
 \begin{table}[ht]
 \begin{tabular}{lllllc}
@@ -92,7 +92,7 @@ Births by single year of mothers' age are then rescaled to sum to the annual tot
 
 \subsubsection{Adjustment to PC bins}
 \label{sec:split}
-Counts were shifted from AP Lexis bins into PC bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}. This simple assumption could be made more sentivie, but it would have no noticeable impact on our visualization. At this point data are in a common format with the HFD data for the years 1891-2016, and these are merged into a single dataset.
+Counts were shifted from AP Lexis bins into PC bins assuming that half of the births in each single age $x$ bin go to the lower triangle of age $x+1$ and half to the upper triangle of the age-reached-during-the-year (PC) parallelogram at age $x$, as diagrammed in Fig.~\ref{fig:AP2PC}. This simple assumption could be made more sensitive, but it would have no noticeable impact on our visualization. At this point data are in a common format with the HFD data for the years 1891-2016, and these are merged into a single dataset.
 
 \begin{figure}[ht!]
 \centering
