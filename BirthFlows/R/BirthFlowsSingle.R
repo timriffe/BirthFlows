@@ -210,6 +210,7 @@ lapply(notes_fork, function(X, baseline, Bt){
 			text(x1, y1, X$m, cex=.7,col="#74A2A9"  ,pos=3)
 		}, baseline = baseline, Bt = Bt)
 
+# these ones also need referse labels... do in inkscape
 lapply(notes, function(X, baseline, Bt, Bc){
 			x <- X$r
 			xc <- as.character(x)
@@ -218,6 +219,7 @@ lapply(notes, function(X, baseline, Bt, Bc){
 			segments(x,y1,x,y2, lwd=.5,col = gray(.3))
 			text(x,y2,X$m,pos=ifelse(X$d == 1,3,1),cex=.7,col = gray(.3))
 		}, baseline = baseline, Bt = Bt, Bc = Bc)
+
 
 
 # centerline
