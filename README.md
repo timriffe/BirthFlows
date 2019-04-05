@@ -1,2 +1,5 @@
-# BirthFlows: Boom, echo, pulse, flow
-Trying to explain a complicated birth flow data visualization, joint work with Kieron Barclay, Christina Bohk-Ewald and Sebastian Klüsener.
+# BirthFlows
+contains data and code for manuscript in progress:
+
+# Boom, echo, pulse, flow: 385 years of Swedish births
+Tim Riffe, Kieron Barclay, Sebastian Klüsener, and Christina Bohk-Ewald.
