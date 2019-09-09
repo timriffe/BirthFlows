@@ -1,0 +1,86 @@
+
+Reviews 2019-1828 Boom, Echo, Pulse, Flow: 385 Years of Swedish Births
+
+Reviewer 1
+The paper offers a very non-standard and provocative demographic data visualization. I agree with the authors that such a challenge to digest the immensely difficult figure can be justified and may be rewarding for the reader. I like the way the paper guides the reader and prepares them to actually digest the figure. The figure itself is a rare case in demography when direct observations of generation replacement can be inferred from bare birth counts. I think it can and should be published in Population Studies, and the idea of a fold-out sounds brilliant. Actually, reviewing the paper I found it most convincing to occupy the whole screen of my computer with the Fig 7 and read the text on a tablet. 
+
+I propose several comments: some asking for minor clarifications in the text and one suggesting a change to the main figure. I’ll start with the latter. [I have to say that I’m not 100% sure whether the proposed visual change would definitely improve the figure. To my intuition, it should improve the readability compromising a bit on the prettiness. Anyways, it’s more of an invitation for the authors to try rather than a knowledge-based demand to fix something]. The current version of the plot is very beautiful and smooth, it resembles a leaf. Though, as explained in Fig 5, the back-bone of the plot are numerous distributions represented as stacked bars. I think it would improve readability to preserve the rectangular shape of the bars so that instead of smooth lines delimitating the polygons for cohorts we would see step-lines (based on my experience visualizing cumulative distributions I can say that step-lines work much better than simple smooth lines). This change would “pixelize” the beautiful image, but I’m sure it would also help decoding the correct data distributions. One existing example that may give an impression how this is going to work is a fancy type of population pyramids developed by John MacInnes, Tim Riffe, and Jeroen Spijker (presented at EPC 2014, https://epc2014.princeton.edu/papers/140671, never published). The current difficulty with the data representation is that it’s very difficult (at least for me) to get the correct idea about the distribution of births in the cohorts from the varying width of the polygons (and it’s not even just simple width that really matters but the yearly vertical cross-sections trough the polygons). 
+
+Some crucial tips on how to interpret the image are slipped in too fleetingly and can be stressed a bit. 
+The paper does well in describing what is represented in the figure. It even touched upon the issue of what the figure is not about, e.g. the hidden effects of migration and mortality. One easy fallacy for a demographer is to expect the coordinate space being a standard Lexis surface, especially since the eyes keep following cohorts diagonally (in fact, I guess the space is a weird Lexis surface distorted on the vertical axis to adjust each cell’s height by the number of births, and also mirrored below the 0 line). I know, the explanations all there, even in the axis labels, but maybe this warning is worth being put forward explicitly. 
+
+It’s very important to stress more the visual analysis of the steepness of cohort lines and its interpretation as a transition to more condensed reproductive careers in the latest cohorts. I feel that coloring distracts from grasping this effect (see Fig 6). Instead of the variance of the distributions color may represent the absolute number of births happening in a single cell.
+
+The very left part of the plot, reference years before 1736 and the lower distributions, looks suspicious. Data censorship distorts the otherwise meaningful steepness of the cohort lines. One expects to see a matching grey area below the 0 line (I understand there is no data to plot it). I’m not sure how this may be fixed. 
+
+To conclude, I find the paper extremely engaging and wish that the readers of Population Studies get their opportunity to experience “the joys and frustrations of demographic thought”. I invite the authors to consider my comments as possibilities rather than criticism.
+
+
+Reviewer 2
+The paper proposes an innovative approach to displaying long-term birth/fertility series. In the authors' words, "A long birth series allows [the reader] to juxtapose the children born in a particular year with the children that they in turn had over the course of their lives, yielding a crude notion of cohort replacement. Macro patterns in generational growth define the meandering path of the flow, while temporal booms and busts echo through the flow with the regularity of a pulse."
+
+While the general aim is desirable, it is not clear the current approach achieves the overall aim of providing a insightful new way of displaying and studying long-term fertility trends.
+
+Some specific comments:
+
+* Paper is written in ways that sometimes feels "odd" to demographers, and I suspect, many readers of Population Studies. Significant effort is spent on aspects that are fairly obvious, like the mirror relationship of Figures 1a and 1b (one of many examples), and at other times, fairly straight forward aspects of formal demography are presented in unusally convoluted ways (e.g., "Since births can happen at any time throughout the year and throughout the fertile age range, and since demography usually deals in large numbers, it is common to imagine births at the population level as a continuous stream or flow.")
+
+* While it makes sense for this paper to build up towards the complex graph in Figure 7, it would seem that a lot of this material can be presented much more concisely and transparently, especially as aspects of the paper cover fairly basic formal demography.
+
+* The distributions of births in a calendar year (top panel of Figures 4 and 7) are the combination of age-patterns of fertility rate and population age structures. It remains unclear which particular insights are gained from a focus on this contribution that is a mixture of two (in my opinion) more relevant aspects: age pattern of fertility rates (reflecting behavior) and age-structure of the population (reflecting past fertility, mortality and migrations). In part this raises the question of why the birth-weighted
+standard deviation of maternal age at birth in the final figure is of interest; it is not clear to me it is.
+
+* The authors state that displaying the speed and rhythm of generational mixing has changed over time in Sweden is a primary message of this visualization in Fig 7. Even after reading the respective paragraph on page 12 multiple times, it is unclear to how the "speed and rhythm of generational mixing" is intuitively displayed in Fig 7.
+
+* Some aspects of visualization can be powerful, as we all know from Minard’s graphic of Napoleon in Russia. The current paper aspires to do something similar: compressing a large amount of information into a single graph. And while the paper "mechanically" achieves this aim in Figure 7, which is incredibly dense in terms of the information it provides, it is not clear this figure is particularly insightful in terms of providing insights about long-term fertility patterns and population dynamics ("boom, echo, pulse"). It seems a series of interrelated "focused graphs" that emphasize one particular aspect of fertility dynamics might be better in achieving the aim to which this paper/approach aspires. 
+
+
+Editors’ comments
+The authors propose a new way of displaying long-term birth series. The visualization should produce insights about long-term fertility by combining multiple perspectives: period, cohort and intergenerational (mother-child / generational mixing).   The two reviewers are split on the potential value of the paper.  Although a lot of work needs to be done to make it publishable in Population Studies, we would entertain a revised version, but can offer no assurances about the eventual outcome.  Below we offer some more detailed comments on the paper which build on the reviewer comments.
+
+A problem with the paper is that it is difficult to read because it is written in ways that feel "odd" to demographers and readers of Population Studies (see also Reviewer 2). It is not clear why the authors use such language since that language does not serve any purpose. 
+Examples of odd language: 
+
+1. Abstract: reference to birth series as a flow (and continuous stream) is not helpful. The notion of cohort replacement and echo effects of temporal booms and busts are important and help the interpretation of the visualization. 
+
+2. “Since births can happen at any time in the year and over a wide range of ages, demographers typically imagine the birth series as a continuous flow.” The authors probably mean that births occur in continuous time (although data may be made available for a discrete time intervals only) 
+
+3. ‘single-year bins by year of occurrence and mother cohort’ 
+
+4. ‘In the period perspective, a picture of the births is for demographers most instinctively 
+broken down by the age of mothers who gave birth in that year or by the year of birth of 
+mothers’ 
+
+5. Section 3 can be shorter and related better to common knowledge and practices in 
+demography. The section has nothing new, but it leads up to the ‘practical challenge of a single visualization’ (p. 6). A brief introduction of presentation of events by age, period and cohort, and in introduction to the notion of reference year (before it is used in Figure 3) would help. 
+
+6. p. 4: ‘chronological time is enforced in x’. Not clear what “enforced in x” means. In addition, x is not defined. Formulations such as “mother cohort x position on the calendar” on p. 10 are not sufficiently clear. 
+
+7. Figures 1 and 2 are related. Figure 1 represents births in a single period ( calendar year 1900), by age of the mother (a) and year of birth of the mother (b). Figure 2 shows births by women born in 1900. The formulation ‘x-indexing by age (Fig. 2a) or year (Fig. 2b)’ is not clear (After repeated reading, it becomes clear that x refers to abscis). In Appendix A, and in demography in general, x represents age. Why this confusing language? 
+
+8. Fig 2. ID is not defined and confusing. In Fig 2a, x-axis shows age of mother at birth, while in fig 2b, x-axis shows cohort (year of birth of mother). 
+
+9. ‘The x coordinate of the left distribution A is indexed to mothers’ birth cohort (old to young), whereas the x coordinate of the right distribution B is indexed to child cohort, occurrence year (young to old).’ Why not the more simple language “the left distribution gives the year of birth of mothers and the right distribution the year of births of children (of children born in 1900)”? 
+
+10. The distributions in Figure 4 do not show the reference year. The reference year is shown for one set of two distributions only (1900). The absence of information on reference year complicates the interpretation of the figure. The authors state that ‘the points constituting cross-sections a and b are heavily overlapped.’, but I do not see the points on the graph. 
+
+11. ‘mother cohort, indexed to the calendar years in which the births occurred.’ Why this formulation instead of ‘year of birth of mothers’? 
+
+12. How does figure 7 merge the visualization by age, period or cohort? How can I detect Figure 3 in Figure 7? Please explain. 
+
+13. ‘First order differences in the top series appear to cascade into the lower series— This highlights a small constituent of population momentum Keyfitz 1971’ That is not correct. The momentum is the growth of population (births in this case) following a sudden decrease of fertility to replacement level. Hence the sentence “larger cohorts tend to have more offspring than smaller neighboring cohorts and vice versa, sudden fertility rate changes notwithstanding.” is not correct. Reference to momentum should be deleted. 
+
+14. ‘The composition of A in the bottom series is implied by the cross-section a of the top series’. Why not simply: each distribution in the bottom series is associated with a reference year and depends on the number of births in that year. 
+
+15. ‘cohort size of a’ is the number of births in reference year a. 
+
+16. ‘stacked polygons representing the quinquennial mother cohort birth distributions indexed 
+to period( (Figure 6). The concept of mother births cohort distribution is vague. The concepts of cohort birth distribution and period birth distribution are uncommon in demography and they are not introduced in the text. Please define or (better) replace by a formulation that is generally accepted in demography and that helps distinguishing year of birth of mothers and year of birth of children. 
+
+17. Meandering baseline. Could you tell the reader, in plain language, what the meandering baseline represents. “y shift” and “y transformation” are not clear and they are not really defined in the text. In Appendix 6, B(c = r) is not defined. This makes reading a challenge. By smoothing B(t), information is lost, but it is not clear what information is lost (which depends on the method of smoothing used( (spline)). The smoothing is to enhance the ability to see long-term patterns, but on p. 10, the authors state that they consider the short and medium term fluctuations to be of greater interest in this visualization. See also related comments by Reviewer 1 on preservation of rectangular shape. 
+
+Why do you retreat from rates and present birth counts? On p. 13, the authors give a hint, but the hint is weak and not really convincing. 
+
+The structure of the paper can be improved. It is recommended to separate (i) the presentation and discussion of the data, (ii) the interpretation of the visualization, and (iii) suggestions for research (e.g. ‘visualization may serve as stimulus for multiple demographic models of a general nature (p. 4)). 
+
+
