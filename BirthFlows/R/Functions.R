@@ -45,14 +45,30 @@ b_unk <- function(Chunk){
 	if (! "UNK" %in% Chunk$Age){
 		return(Chunk)
 	}
-	UNK          <- Chunk$Births[Chunk$Age == "UNK"]
+  UNK          <- Chunk$Births[Chunk$Age == "UNK"][1]
 	Chunk        <- Chunk[Chunk$Age != "UNK", ]
 	w            <- Chunk$Births / sum(Chunk$Births)
 	Chunk$Births <- Chunk$Births + w * UNK
 	Chunk
 }
-
-# use early version of pclm algorithm to graduate
+# b_unk <- function(Chunk){
+#   if (! "UNK" %in% Chunk$Age){
+#     return(Chunk)
+#   }
+#   UNK <- 
+#     Chunk %>% 
+#     filter(Age == "UNK") %>% 
+#     pull(Births)
+#   
+#   Chunk <- 
+#     Chunk %>% 
+#     filter(Age != "UNK") %>% 
+#     mutate(w = Births / sum(Births),
+#            Births = Births + w * UNK,
+#            Age = as.integer(Age)) 
+#   return(Chunk)
+# }
+# # use early version of pclm algorithm to graduate
 # re write to use ungroup package
 #graduatechunk <- function(chunk){
 #	if (length(unique(chunk$Vital))>1){
@@ -96,11 +112,11 @@ bin2age <- function(binchar = "[15,16)"){
 }
 # adjustment step 2
 # now uses most recent ungroup package
-graduatechunk <- function(chunk){
+graduate_chunk <- function(chunk){
 	if (length(unique(chunk$Vital))>1){
 		chunk <- chunk[chunk$Vital == min(chunk$Vital),]
 	}
-	cat(chunk$Year[1],"\n")
+	#message(chunk$Year[1])
 	# some years have lower age cat <= 19, but we want to extend
 	# lower bound to 15-19. Assume sorted age (they are)
 	
@@ -112,6 +128,7 @@ graduatechunk <- function(chunk){
 	# how far should we distribute the open age group. This
 	# will turn out to be 5 ages every time (50-54)
 	nlast   <- 55 - max(x)
+	stopifnot(nlast >= 0)
 	if (nlast < 1){
 		nlast <- 1
 	}
@@ -122,14 +139,12 @@ graduatechunk <- function(chunk){
 	Age     <- sapply(names(bout),bin2age)
 	# then shift ages back up
 	
-	N 		<- length(Age)
+	N 		  <- length(Age)
 	out     <- data.frame(
-			PopName = rep("SWE", N),
-			Year = rep(unique(chunk$Year), N),
+			#Year = rep(chunk$Year[1], N), # not needed in dplyr
 			Age = Age,
-			AgeInt = rep(1, length(Age)),
-			Lexis = rep("RR", N),
-			Births = bout)
+			Births = bout,
+			Lexis = rep("RR", N))
 	
 	out
 }
@@ -556,3 +571,16 @@ draw.arc <- function(x1,y1,x2,y2,brel=.5,nvert=100,rad=1/5,...){
 	lines(xy,...)
 }
 
+draw_block_poly <- function(x,y,...){
+  x  <- c(x,max(x)+1)
+  xx <- rep(x,each=2)
+  yy <- c(0,rep(y,each=2),0)
+  polygon(xx,yy,...)
+}
+
+draw_block_poly_grid <- function(x,y,N=5,...){
+  draw_block_poly(x = x, y = y, ...)
+  xNi <- x %% N == 0
+  segments(x[xNi],0,x[xNi],y[xNi],col = "white")
+  draw_block_poly(x = x, y = y)
+}

@@ -139,15 +139,13 @@ dev.off()
 #sum(BH5$B5)/sum(BI5$B5)
 
 
-
-
-blues   <- colorRampPalette(RColorBrewer::brewer.pal(9,"Blues")[-c(1:3)],space="Lab")
-greens  <- colorRampPalette(RColorBrewer::brewer.pal(9,"Greens")[-c(1:3)],space="Lab")
-nblues  <- sum(cohs%%20==0)
-ngreens <- sum(yrs%%20==0)
-PC2     <- PC
+blues     <- colorRampPalette(RColorBrewer::brewer.pal(9,"Blues")[-c(1:3)],space="Lab")
+greens    <- colorRampPalette(RColorBrewer::brewer.pal(9,"Greens")[-c(1:3)],space="Lab")
+nblues    <- sum(cohs%%20==0)
+ngreens   <- sum(yrs%%20==0)
+PC2       <- PC
 PC2[PC2==0] <- NA
-ytix    <- seq(-10000,10000,by=2000)
+ytix      <- seq(-10000,10000,by=2000)
 cohs      <- as.integer(colnames(PC))
 yrs       <- as.integer(rownames(PC))
 pdf("Figures/FxFlowReflect.pdf",height=4.3,width=12)

@@ -1,0 +1,417 @@
+---
+title: " "
+author: ""
+date: "4-Sept-2019. ADEH, Porto, Portugal"
+output: 
+  ioslides_presentation:
+    css: styles.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, echo = FALSE, include = FALSE, cache = TRUE,results = 'hide', message = FALSE, warning = FALSE}
+library(here)
+source(here("BirthFlows","R","Functions.R"))
+source(here("BirthFlows","R","Method13_deBeer1985and1989-swe.R"))
+source(here("BirthFlows","R","DataPrep_old.R"))
+```
+
+## The Swedish birth series
+
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center'}
+Bt2  <- Bt[Yrs <= 2017]
+Yrs2 <- 1736:2017
+Yrs3 <- 2017:2032
+Bt3  <- Bt[Yrs %in% Yrs3]
+
+par(xaxs="i",yaxs="i",mai=c(0,1,0,.2))
+plot(Cohs, Bc, ylim = c(-250000,250000), xlim= c(1687,2090),type = 'n',
+     axes=FALSE,ann=FALSE)
+#polygon(c(min(Cohs),Cohs,max(Cohs)), c(0,Bc,0),col="#000000DF")
+polygon(c(min(Yrs2),Yrs2,max(Yrs2)), c(0,Bt2,0),col="#000000")
+abline(v=c(1800,1900,2000), col = "#FFFFFF80")
+abline(h=c(50000,100000,150000),lwd=1,col="#FFFFFF80")
+axis(2, las = 1, 
+     at =c(150000,100000,50000,0),
+     labels = c("150k","100k","50k",""))
+axis(1, at= c(1736,1800,1900,2000), pos = 0)
+```
+
+## The Swedish birth series
+
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center'}
+par(xaxs="i",yaxs="i",mai=c(0,1,0,.2))
+plot(Cohs, Bc, ylim = c(-250000,250000), xlim= c(1687,2090),type = 'n',
+     axes=FALSE,ann=FALSE)
+#polygon(c(min(Cohs),Cohs,max(Cohs)), c(0,Bc,0),col="#000000DF")
+polygon(c(min(Yrs3),Yrs3,max(Yrs3)), c(0,Bt3,0),col="#000000BB")
+polygon(c(min(Yrs2),Yrs2,max(Yrs2)), c(0,Bt2,0),col="#000000")
+abline(h=c(50000,100000,150000),lwd=1,col="#FFFFFF80")
+abline(v=c(1800,1900,2000), col = "#FFFFFF80")
+axis(1, at= c(1736,1800,1900,2000, 2032), pos = 0)
+axis(2, las = 1, 
+     at =c(150000,100000,50000,0),
+     labels = c("150k","100k","50k",""))
+```
+
+## The Swedish birth series
+
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center'}
+Cohs2 <- (1736-15):2016
+Bc2   <- Bc[Cohs %in% Cohs2]
+par(xaxs="i",yaxs="i",mai=c(0,1,0,.2))
+plot(Cohs, Bc, ylim = c(-250000,250000), xlim= c(1687,2090),type = 'n',
+     axes=FALSE,ann=FALSE)
+polygon(c(min(Cohs2),Cohs2,max(Cohs2)), c(0,-Bc2,0),col="#000000AA")
+polygon(c(min(Yrs3),Yrs3,max(Yrs3)), c(0,Bt3,0),col="#000000BB")
+polygon(c(min(Yrs2),Yrs2,max(Yrs2)), c(0,Bt2,0),col="#000000")
+abline(h=c(-50000,-100000,-150000,0,50000,100000,150000),lwd=1,col="#FFFFFF80")
+abline(v=c(1736,1800,1900,2000), col = "#FFFFFF80")
+axis(1, at= c(1721,1736,1800,1900,2000,2032), 
+     labels = FALSE,
+     pos = -160000)
+text(c(1711,1736,1800,1900,2000,2032),-160000, c(1721,1736,1800,1900,2000,2032),pos=1, offset = 1.3)
+axis(2, las = 1, 
+     at =c(-150000,-100000,-50000,150000,100000,50000,0),
+     labels = c("150k","100k","50k","150k","100k","50k",""))
+```
+
+## The Swedish birth series
+
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center'}
+Cohs2 <- (1736-15):2016
+Bc2   <- Bc[Cohs %in% Cohs2]
+par(xaxs="i",yaxs="i",mai=c(0,1,0,.2))
+plot(Cohs, Bc, ylim = c(-250000,250000), xlim= c(1687,2090),type = 'n',
+     axes=FALSE,ann=FALSE)
+polygon(c(min(Cohs2),Cohs2,max(Cohs2)), c(0,-Bc2,0),col="#000000AA")
+polygon(c(min(Yrs3),Yrs3,max(Yrs3)), c(0,Bt3,0),col="#000000BB")
+polygon(c(min(Yrs2),Yrs2,max(Yrs2)), c(0,Bt2,0),col="#000000")
+abline(h=c(-50000,-100000,-150000,0,50000,100000,150000),lwd=1,col="#FFFFFF80")
+abline(v=c(1736,1800,1900,2000), col = "#FFFFFF80")
+axis(1, at= c(1721,1736,1800,1900,2000,2032), 
+     labels = FALSE,
+     pos = -160000)
+text(c(1711,1736,1800,1900,2000,2032),-160000, c(1721,1736,1800,1900,2000,2032),pos=1, offset = 1.3)
+axis(2, las = 1, 
+     at =c(-150000,-100000,-50000,150000,100000,50000,0),
+     labels = c("150k","100k","50k","150k","100k","50k",""))
+text(1900, 50000, "Births / year", cex = 2, col = "#FFFFFF")
+text(1900, -50000, "The children they had", cex = 2, col = "#FFFFFF")
+```
+
+## We're 3/4 through the title! {.build}
+
+- Boom  
+- Echo
+- Pulse
+- <p style="color:red;">Flow</p>
+
+## Structure reveals flow
+
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center', message = FALSE, warning=FALSE}
+library(tidyverse)
+refyr     <- 1900
+SWE       <- filter(SWE, ARDY >= 15 & ARDY <= 54)
+BornIn    <- filter(SWE,Year == refyr)
+BabiesHad <- filter(SWE,Cohort == refyr)
+par(xaxs="i",yaxs = "i", mai = c(.5,1,.5,0))
+plot(BornIn$ARDY, BornIn$Total, type = 'n',xlab = "Mother's age", ylab = "Count",axes=FALSE,ylim=c(0,7000), xlim = c(15,120))
+draw_block_poly_grid(BornIn$ARDY, BornIn$Total, border = NA, col = gray(.3))
+axis(2,las=1)
+text(seq(15,50,by=5),0,seq(15,50,by=5),pos=1,xpd=TRUE)
+```
+
+## Structure reveals flow
+
+```{r,fig.width=9,fig.height=4,fig.align='center', message = FALSE, warning=FALSE}
+par(xaxs="i",yaxs = "i", mai = c(.5,1,.5,0))
+plot(BornIn$Cohort, BornIn$Total, type = 'n',xlab = "Mother's Year of birth", ylab = "Count",axes=FALSE,ylim=c(0,7000), xlim = c(1850,1955))
+draw_block_poly_grid(BornIn$Cohort, BornIn$Total, border = NA, col = gray(.3))
+axis(2,las=1)
+text(seq(1850,1885,by=10),0,seq(1850,1885,by=10),pos=1,xpd=TRUE)
+```
+
+## Structure reveals flow
+
+```{r,fig.width=9,fig.height=4,fig.align='left', message = FALSE, warning=FALSE}
+par(xaxs="i",yaxs = "i", mai = c(.5,1,.5,0))
+plot(BornIn$Cohort, BornIn$Total, type = 'n',xlab = "Mother's Year of birth", ylab = "Count",axes=FALSE,ylim=c(0,7000), xlim = c(1850,1955))
+draw_block_poly_grid(BornIn$Cohort, BornIn$Total, border = NA, col = gray(.3))
+axis(2,las=1)
+text(seq(1850,1940,by=10),0,seq(1850,1940,by=10),pos=1,xpd=TRUE)
+draw_block_poly_grid(BabiesHad$Year, BabiesHad$Total, border = NA, col = gray(.3))
+axis(2,las=1)
+segments(seq(1890,1915,by=5),0,seq(1890,1915,by=5),100)
+```
+
+
+## Structure reveals flow
+
+```{r,fig.width=9,fig.height=4,fig.align='left', message = FALSE, warning=FALSE}
+par(xaxs="i",yaxs = "i", mai = c(.5,1,.5,0))
+plot(BornIn$Cohort, BornIn$Total, type = 'n',xlab = "Mother's Year of birth", ylab = "Count",axes=FALSE,ylim=c(0,7000), xlim = c(1850,1955))
+draw_block_poly_grid(BornIn$Cohort, BornIn$Total, border = NA, col = gray(.3))
+axis(2,las=1)
+text(seq(1850,1940,by=10),0,seq(1850,1940,by=10),pos=1,xpd=TRUE)
+draw_block_poly_grid(BabiesHad$Year, BabiesHad$Total, border = NA, col = gray(.3))
+axis(2,las=1)
+segments(seq(1890,1915,by=5),0,seq(1890,1915,by=5),100)
+segments(1900,0,1900,5000,col="red")
+text(1900,5500,"1900 cohort link",cex=2)
+```
+
+## Structure reveals flow
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center',message = FALSE, warning=FALSE}
+library(here)
+library(reshape2)
+library(viridis)
+SWE <- readRDS(here("BirthFlows","Data","SWE_final_old.rds"))
+
+PC <- acast(SWE, Year ~ Cohort, value.var = "Total")
+PC[is.na(PC)] <- 0
+PC5 <- apply(PC,1,function(x, Cohs){
+	groupN(x, Cohs, 5)
+}, Cohs = Cohs)
+
+# single cohort bin, 5-year calendar bins
+P5C <- apply(PC,2,function(x, Yrs){
+	groupN(x, Yrs, 5)
+}, Yrs = Yrs)
+
+PC5cs <- apply(PC5,2,cumsum)
+P5Ccs <- apply(P5C,2,cumsum)
+PC5cs <- rbind(0,PC5cs)
+P5Ccs <- rbind(0,P5Ccs)
+
+cohNA          <- Cohs < 1720 
+perNA          <- Yrs > 2032
+Coh_SD         <- apply(PC, 2, wsd, x = Yrs + .5)
+Coh_SD[cohNA]  <- NA
+Per_SD         <- apply(PC, 1, wsd, x = Cohs + .5)
+Per_SD[perNA]  <- NA
+Per_SD5   <- groupN(Per_SD, y = Yrs, n = 5, fun = mean)
+Coh_SD5   <- groupN(Coh_SD, y = Cohs, n = 5, fun = mean)
+
+breaks     <- pretty(c(Per_SD5,Coh_SD5),35)
+fillcolors <- viridis(length(breaks) - 1, option = "A")
+
+ColsC5               <- as.character(cut(Per_SD5, breaks = breaks, labels = fillcolors))
+ColsP5               <- as.character(cut(Coh_SD5, breaks = breaks, labels = fillcolors))
+ColsP5[is.na(ColsP5)] <- gray(.8)
+ColsC5[is.na(ColsC5)] <- gray(.8)
+Yrs5 <- unique(Yrs - Yrs %% 5)
+Cohs5 <- unique(Cohs - Cohs %% 5)
+
+par(xaxs="i",yaxs="i",mai=c(0,1,0,.2))
+plot(Cohs, Bc, ylim = c(-250000,250000), xlim= c(1687,2090),type = 'n',
+     axes=FALSE,ann=FALSE)
+polygon(c(min(Cohs),Cohs,max(Cohs)), c(0,-Bc,0),col="#000000AA")
+polygon(c(min(Yrs),Yrs,max(Yrs)), c(0,Bt,0),col="#000000")
+#  for (i in 1:(nrow(PC5cs) - 1)){
+#  	polygon(c(Yrs, rev(Yrs)), 
+#  			c(PC5cs[i, ], rev(PC5cs[i + 1, ])), 
+#  			col = ColsC5[i], 
+#  			border = "#FFFFFF80", 
+#  			lwd = .5)
+#  }
+# # # bottom
+#  for (i in 1:(nrow(P5Ccs) - 1)){
+#  	polygon(c(Cohs, rev(Cohs)), 
+#  			-c(P5Ccs[i, ], rev(P5Ccs[i + 1, ])), 
+#  			col = ColsP5[i], 
+#  			border = "#FFFFFF80", 
+#  			lwd = .5)
+#  	
+#  }
+axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000), 
+		labels=c("150k","100k","50k","","50k","100k","150k"))
+axis(1,at=seq(1700,2050,by=50),pos=-160000)
+
+polygon(c(1900:1905, 1905:1900),c(Bt[Yrs%in%c(1900:1905)],rep(0,6)),
+        col = ColsC5[Yrs5==1895])
+polygon(c(1900:1905, 1905:1900),-c(Bc[Cohs%in%c(1900:1905)],rep(0,6)),
+        col = ColsP5[Cohs5==1900])
+
+# highlight 1900
+Yrs5 <- unique(Yrs - Yrs %% 5)
+Cohs5 <- unique(Cohs - Cohs %% 5)
+# polygon(c(Yrs, rev(Yrs)), 
+# 			c(PC5cs["1900", ], rev(PC5cs["1905", ])), 
+# 			col = ColsP5[Yrs5==1900], 
+# 			border = "#000000DD", 
+# 			lwd = .5)
+# polygon(c(Cohs, rev(Cohs)), 
+# 			-c(P5Ccs["1900", ], rev(P5Ccs["1905", ])), 
+# 			col = ColsC5[Cohs5==1900], 
+# 			border = "#000000DD", 
+# 			lwd = .5)
+		
+```
+
+## Structure reveals flow
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center',message = FALSE, warning=FALSE}
+
+par(xaxs="i",yaxs="i",mai=c(0,1,0,.2))
+plot(Cohs, Bc, ylim = c(-250000,250000), xlim= c(1687,2090),type = 'n',
+     axes=FALSE,ann=FALSE)
+polygon(c(min(Cohs),Cohs,max(Cohs)), c(0,-Bc,0),col="#000000AA")
+polygon(c(min(Yrs),Yrs,max(Yrs)), c(0,Bt,0),col="#000000")
+  for (i in 1:(nrow(PC5cs) - 1)){
+  	polygon(c(Yrs, rev(Yrs)), 
+  			c(PC5cs[i, ], rev(PC5cs[i + 1, ])), 
+  			col = NA, 
+  			border = "#FFFFFF80", 
+  			lwd = .5)
+  }
+ # # bottom
+  for (i in 1:(nrow(P5Ccs) - 1)){
+  	polygon(c(Cohs, rev(Cohs)), 
+  			-c(P5Ccs[i, ], rev(P5Ccs[i + 1, ])), 
+  			col = NA, 
+  			border = "#FFFFFF80", 
+  			lwd = .5)
+  	
+  }
+axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000), 
+		labels=c("150k","100k","50k","","50k","100k","150k"))
+axis(1,at=seq(1700,2050,by=50),pos=-160000)
+
+polygon(c(1900:1905, 1905:1900),c(Bt[Yrs%in%c(1900:1905)],rep(0,6)),
+        col = ColsC5[Yrs5==1895])
+polygon(c(1900:1905, 1905:1900),-c(Bc[Cohs%in%c(1900:1905)],rep(0,6)),
+        col = ColsP5[Cohs5==1900])
+# highlight 1900
+Yrs5 <- unique(Yrs - Yrs %% 5)
+Cohs5 <- unique(Cohs - Cohs %% 5)
+# polygon(c(Yrs, rev(Yrs)), 
+# 			c(PC5cs["1900", ], rev(PC5cs["1905", ])), 
+# 			col = ColsP5[Yrs5==1900], 
+# 			border = "#000000DD", 
+# 			lwd = .5)
+# polygon(c(Cohs, rev(Cohs)), 
+# 			-c(P5Ccs["1900", ], rev(P5Ccs["1905", ])), 
+# 			col = ColsC5[Cohs5==1900], 
+# 			border = "#000000DD", 
+# 			lwd = .5)
+```
+
+## Structure reveals flow
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center',message = FALSE, warning=FALSE}
+
+par(xaxs="i",yaxs="i",mai=c(0,1,0,.2))
+plot(Cohs, Bc, ylim = c(-250000,250000), xlim= c(1687,2090),type = 'n',
+     axes=FALSE,ann=FALSE)
+polygon(c(min(Cohs),Cohs,max(Cohs)), c(0,-Bc,0),col="#000000AA")
+polygon(c(min(Yrs),Yrs,max(Yrs)), c(0,Bt,0),col="#000000")
+  for (i in 1:(nrow(PC5cs) - 1)){
+  	polygon(c(Yrs, rev(Yrs)), 
+  			c(PC5cs[i, ], rev(PC5cs[i + 1, ])), 
+  			col = NA, 
+  			border = "#FFFFFF80", 
+  			lwd = .5)
+  }
+ # # bottom
+  for (i in 1:(nrow(P5Ccs) - 1)){
+  	polygon(c(Cohs, rev(Cohs)), 
+  			-c(P5Ccs[i, ], rev(P5Ccs[i + 1, ])), 
+  			col = NA, 
+  			border = "#FFFFFF80", 
+  			lwd = .5)
+  	
+  }
+axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000), 
+		labels=c("150k","100k","50k","","50k","100k","150k"))
+axis(1,at=seq(1700,2050,by=50),pos=-160000)
+  
+polygon(c(1900:1905, 1905:1900),c(Bt[Yrs%in%c(1900:1905)],rep(0,6)),
+        col = ColsC5[Yrs5==1895])
+polygon(c(1900:1905, 1905:1900),-c(Bc[Cohs%in%c(1900:1905)],rep(0,6)),
+        col = ColsP5[Cohs5==1900])
+
+# highlight 1900
+Yrs5 <- unique(Yrs - Yrs %% 5)
+Cohs5 <- unique(Cohs - Cohs %% 5)
+ polygon(c(Yrs, rev(Yrs)), 
+ 			c(PC5cs["1900", ], rev(PC5cs["1905", ])), 
+ 			col = ColsP5[Cohs5==1900], 
+ 			border = "#000000DD", 
+ 			lwd = .5)
+ polygon(c(Cohs, rev(Cohs)), 
+ 			-c(P5Ccs["1900", ], rev(P5Ccs["1905", ])), 
+ 			col = ColsC5[Yrs5==1895], # not sure why had to shift
+ 			border = "#000000DD", 
+ 			lwd = .5)
+```
+
+## Structure reveals flow
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center',message = FALSE, warning=FALSE}
+
+par(xaxs="i",yaxs="i",mai=c(0,1,0,.2))
+plot(Cohs, Bc, ylim = c(-250000,250000), xlim= c(1687,2090),type = 'n',
+     axes=FALSE,ann=FALSE)
+polygon(c(min(Cohs),Cohs,max(Cohs)), c(0,-Bc,0),col="#000000AA")
+polygon(c(min(Yrs),Yrs,max(Yrs)), c(0,Bt,0),col="#000000")
+  for (i in 1:(nrow(PC5cs) - 1)){
+  	polygon(c(Yrs, rev(Yrs)), 
+  			c(PC5cs[i, ], rev(PC5cs[i + 1, ])), 
+  			col = ColsP5[i], 
+  			border = "#FFFFFF80", 
+  			lwd = .5)
+  }
+ # # bottom
+  for (i in 1:(nrow(P5Ccs) - 1)){
+  	polygon(c(Cohs, rev(Cohs)), 
+  			-c(P5Ccs[i, ], rev(P5Ccs[i + 1, ])), 
+  			col = ColsC5[i], 
+  			border = "#FFFFFF80", 
+  			lwd = .5)
+  }
+axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000), 
+		labels=c("150k","100k","50k","","50k","100k","150k"))
+axis(1,at=seq(1700,2050,by=50),pos=-160000)
+```
+
+## Structure reveals flow
+
+```{r, echo = FALSE, results = 'hide',fig.width=9,fig.height=4,fig.align='center',message = FALSE, warning=FALSE}
+
+par(xaxs="i",yaxs="i",mai=c(0,1,0,.2))
+plot(Cohs, Bc, ylim = c(-250000,250000), xlim= c(1687,2090),type = 'n',
+     axes=FALSE,ann=FALSE)
+polygon(c(min(Cohs),Cohs,max(Cohs)), c(0,-Bc,0),col="#000000AA")
+polygon(c(min(Yrs),Yrs,max(Yrs)), c(0,Bt,0),col="#000000")
+  for (i in 1:(nrow(PC5cs) - 1)){
+  	polygon(c(Yrs, rev(Yrs)), 
+  			c(PC5cs[i, ], rev(PC5cs[i + 1, ])), 
+  			col = ColsP5[i], 
+  			border = "#FFFFFF80", 
+  			lwd = .5)
+  }
+ # # bottom
+  for (i in 1:(nrow(P5Ccs) - 1)){
+  	polygon(c(Cohs, rev(Cohs)), 
+  			-c(P5Ccs[i, ], rev(P5Ccs[i + 1, ])), 
+  			col = ColsC5[i], 
+  			border = "#FFFFFF80", 
+  			lwd = .5)
+  }
+axis(2,las=1,at =c(150000,100000,50000,0,-50000,-100000,-150000), 
+		labels=c("150k","100k","50k","","50k","100k","150k"))
+axis(1,at=seq(1700,2050,by=50),pos=-160000)
+text(1900, 50000, "Births / year", cex = 2, col = "#FFFFFF")
+text(1900, -50000, "The children they had", cex = 2, col = "#FFFFFF")
+```
+
+## Check out the paper!
+
+
+<img src = "wpqr.svg" >
+
+(The poster is outside)
+
+Thanks!
+
+riffe@demogr.mpg.de

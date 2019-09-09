@@ -1,0 +1,18 @@
+slides > slide.title-slide {
+  background-image: url("title-background3.png");
+}
+
+ /* main title */
+.title-slide hgroup h1 h3{
+  font-weight: bold;
+  font-size: 60pt;
+  position: fixed;
+  color: #ffffff;
+  top: 30%;
+  left: 35%;
+}
+
+.emphasized {
+   font-size: 1.2em;
+}
+
