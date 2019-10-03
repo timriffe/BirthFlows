@@ -1,0 +1,14 @@
+An example of macro patterns that can be extracted from this data structure include two-distribution location distance statistics, as demonstrated in Fig.~\ref{fig:gmlag}. For each reference year in the range 1775 to \todo{1970} we have the mothers' cohort distribution and the next-generation childbirth year of occurrence distribution. Since both distributions are derived from the same table of counts by year of occurrence and mothers' age, it will help to use a simple notation, where the reference year is denoted with $r$, and following the index position convention $B(c,t)$ where mothers' cohort $c$ takes the first and year of occurrence $t$ the second position, respectively. In this way $B(c,r)$ are the births in year $r$ to mothers from cohort $c$ and $B(r,t)$ are the births in year $t$ to mothers from cohort $c$ (offspring). In this way, the weighted mean intergenerational lag $\overline{m2}$ is defined as
+\begin{equation}
+\overline{m2}(r) = \frac{\sum\sum (B(c,r)*B(r,t)) * (c - t)}{\sum\sum B(c,r)*B(r,t)} \quad \mathrm{,}
+\end{equation}
+and like-weighted distance quantiles may also be derived, as displayed in Fig.~\ref{fig:gmlag}.
+
+\begin{figure}
+% fig from CompareDist.R
+\includegraphics[scale=.6]{Figures/GMLag.pdf}
+\caption{Time lag from mothers' cohort to next generation offspring year of birth, the \emph{grandmaternal lag}, referenced to central (ego) cohorts. Decimals indicate birth distribution quantiles, where the red line indicates the median, and the blue dashed line the mean. The lag decreased broadly by all measures by ca 7-8 years in the 100 ego years from 1850 to 1950. The interquartile, 95\% and 99\% ranges also compressed by about 1 year in the same period.}
+\label{fig:gmlag}
+\end{figure}
+
+From Fig.~\ref{fig:gmlag} we learn that the mean two-generation maternal lag decreased in the mean and all quantiles in the 100 years from 1850 to 1950 by around 7 to 8 years. The interquartile, 95\% and 99\% spreads all decreased by about 1 year over the same period, and by more than another year in the following 20 years.

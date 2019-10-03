@@ -1,0 +1,229 @@
+%%This is a very basic article template.
+%%There is just one section and two subsections.
+\documentclass{article}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{placeins}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{setspace}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{pdfpages}
+%\usepackage[active,tightpage]{preview}
+\usepackage{natbib}
+\bibpunct{}{}{,}{a}{}{;} 
+\usepackage{url}
+\usepackage{nth}
+\usepackage{authblk}
+\usepackage{blindtext}
+\usepackage{makecell}
+\usepackage{endnotes}
+
+\let\footnote=\endnote
+%\usepackage{fontawesome}
+% \renewcommand\theadalign{bc}
+% \renewcommand\theadfont{\bfseries}
+% \renewcommand\theadgape{\Gape[4pt]}
+% \renewcommand\cellgape{\Gape[4pt]}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+% for the d in integrals
+\newcommand{\dd}{\; \mathrm{d}}
+\newcommand{\tc}{\quad\quad\text{,}}
+\newcommand{\tp}{\quad\quad\text{.}}
+\newcommand{\ra}{\rightarrow}
+\def\lsub#1#2%
+  {\mathop{}%
+   \mathopen{\vphantom{#2}}_{#1}%
+   \kern-\scriptspace%
+   #2}
+\def\lsup#1#2%
+  {\mathop{}%
+   \mathopen{\vphantom{#2}}^{#1}%
+   \kern-\scriptspace%
+   #2}
+
+\defcitealias{HMD}{HMD}
+\defcitealias{HFD}{HFD}
+\newcommand\ackn[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+% https://tex.stackexchange.com/questions/166097/natbib-multiple-citations-with-page-numbers-in-one-bracket
+\usepackage{xparse}
+\ExplSyntaxOn
+
+\makeatletter
+\NewDocumentCommand{\multicitep}{m}
+ {
+  \NAT@open
+  \mjb_multicitep:n { #1 }
+  \NAT@close
+ }
+\makeatother
+
+\seq_new:N \l_mjb_multicite_in_seq
+\seq_new:N \l_mjb_multicite_out_seq
+\seq_new:N \l_mjb_cite_seq
+
+\cs_new_protected:Npn \mjb_multicitep:n #1
+ {
+  \seq_set_split:Nnn \l_mjb_multicite_in_seq { ; } { #1 }
+  \seq_clear:N \l_mjb_multicite_out_seq
+  \seq_map_inline:Nn \l_mjb_multicite_in_seq
+   {
+    \mjb_cite_process:n { ##1 }
+   }
+  \seq_use:Nn \l_mjb_multicite_out_seq { ;~ }
+ }
+
+\cs_new_protected:Npn \mjb_cite_process:n #1
+ {
+  \seq_set_split:Nnn \l_mjb_cite_seq { , } { #1 }
+  \int_compare:nTF { \seq_count:N \l_mjb_cite_seq == 1 }
+   {
+    \seq_put_right:Nn \l_mjb_multicite_out_seq
+     { \citeauthor{#1},~\citeyear{#1} }
+   }
+   {
+    \seq_put_right:Nx \l_mjb_multicite_out_seq
+     {
+      \exp_not:N \citeauthor{\seq_item:Nn \l_mjb_cite_seq { 1 }},~
+      \exp_not:N \citeyear{\seq_item:Nn \l_mjb_cite_seq { 1 }},~
+      \seq_item:Nn \l_mjb_cite_seq { 2 }
+     }
+   }
+ }
+\ExplSyntaxOff
+
+
+\begin{document}
+
+%  Research note, up to 3,500 words.
+% presently ca 2400 not including appendix.
+% \title{Boom, echo, pulse, flow}
+% \author[1]{Tim Riffe\thanks{riffe@demogr.mpg.de}}
+% \author[1]{Kieron Barclay}
+% \author[1]{Christina Bohk-Ewald}
+% \author[2]{Sebastian Kl\"usener}
+% \affil[1]{Max Planck Institute for Demographic Research}
+% \affil[2]{Federal Institute for Population Research}
+% \maketitle
+%(Submitted as Research Note)
+ % \paragraph{Title} Boom, Echo, Pulse, Flow: 385 Years of Swedish Births
+ % \paragraph{Short title} Boom, Echo, Pulse, Flow
+ % \paragraph{Authors} Tim Riffe*, Kieron Barclay, Sebastian Kl\"usener, Christina Bohk-Ewald
+ % \paragraph{(*)} Corresponding: Tim Riffe \texttt{riffe@demogr.mpg.de}
+ % 
+ % \paragraph{Author information} ~
+ % \begin{table}[ht]
+ % \begin{center}
+ % \begin{tabular}{llll}
+ % Name & Affiliation & ORCID & \includegraphics[height=1em]{Figures/twitter.png}  \\ \hline
+ % T. Riffe & Max-Planck-Institute for Demographic Research & 0000-0002-2673-4622 & \texttt{@timriffe}  \\
+ % K. Barclay & Max-Planck-Institute for Demographic Research &  & \texttt{@BarclayKieron}  \\
+ % S. Kl\"usener &Federal Institute for Population Research& 0000-0003-0436-3565 & \texttt{@demomapper}  \\
+ % C. Bohk-Ewald & Max-Planck-Institute for Demographic Research &  &
+ % \end{tabular}
+ % \end{center}
+ % \end{table}
+ % 
+ % \paragraph{Disclosure statement} We have no conflicts of interest with any aspect of this work. 
+ % 
+ % \paragraph{Data availability statement} All data and \texttt{R} code required to reproduce this work in its entirety is available in a \texttt{github} repository: \texttt{https://github.com/timriffe/BirthFlows}. This may be placed in an Open Science Framework repository later on.
+ % 
+ % \paragraph{Supplemental online material} We propose to locate the appendices in supplementary online material, since they are 1/2 of the manuscript. Per correspondence with the editors prior to submission, the very large Fig.~\ref{fig:foldout} will likely need to go at the end of the print article rather than where it is indicated in the text. In this case we would change the text to make sure it is referred to appropriately. We propose to offer a redundant copy of this figure in the supplementary online material as well.
+
+\doublespacing
+ %\pagebreak
+% presently ca 2400 not including appendix.
+\title{Boom, echo, pulse, flow: 385 years of Swedish births}
+ \author{Author(s) redacted}
+  % \author[1]{Tim Riffe}
+  % \author[1,3,4]{Kieron Barclay}
+  % \author[2]{Sebastian Kl\"usener}
+  % \author[1]{Christina Bohk-Ewald}
+  % \affil[1]{Max Planck Institute for Demographic Research}
+  % \affil[2]{Federal Institute for Population Research}
+  % \affil[3]{Stockholm University}
+  % \affil[4]{London School of Economics}
+\maketitle
+
+\pagebreak
+\begin{abstract}
+Human population renewal starts with births. Since births can happen at any
+time in the year and over a wide range of ages, demographers typically imagine
+the birth series as a continuous flow. Taking this construct literally, we
+visualize the Swedish birth series as a flow. A long birth series allows us to
+juxtapose the children born in a particular year with the children that
+they in turn had over the course of their lives, yielding a crude notion of
+cohort replacement. Macro patterns in generational growth define the meandering
+path of the flow, while temporal booms and busts echo through the flow with the
+regularity of a pulse.
+\vspace{1em}
+
+{\bf Keywords:} Fertility, Population structure, Population momentum, Population renewal, Data visualization
+\end{abstract}
+
+\pagebreak
+\section{Introduction}
+\label{sec:intro}
+\input{Sections/Intro.tex}
+
+\section{Data and methods}
+\label{sec:data}
+\input{Sections/Data.tex}
+
+\section{Birth count distributions in period and cohort perspectives}
+\label{sec:birthdist}
+\input{Sections/BirthDist.tex}
+
+\section{A guide to the visualization}
+\label{sec:description}
+\input{Sections/Guide.tex}
+
+\section{Discussion}
+\label{sec:disc}
+\input{Sections/Discussion.tex}
+
+\section{Conclusions}
+\label{sec:conc}
+\input{Sections/Conc.tex}
+
+\subsection*{Acknowledgements} We wish to thank Tom\'a\v{s} Sobotka and the members of the 2018 EAPS Outreach prize selection committee for highlighting and encouraging the development of this work. Thanks also to Christian Dudel for helpful discussions.
+
+\FloatBarrier
+
+\pagebreak
+\begin{appendix}
+(appendices probably for online-only supplementary material)
+\input{Sections/Appendices.tex}
+\end{appendix}
+\pagebreak
+
+\theendnotes
+\pagebreak
+
+\listoftables
+\pagebreak
+
+\listoffigures
+\pagebreak
+\bibliographystyle{agsm}
+  \bibliography{references} 
+\end{document}
+
+%\subsection{Notes on visual form}
+%This visualization form derives from stacked area charts in general and river plots (theme river) and stream graphs in particular \citep{byron2008stacked}, but we wish to point out a few notable differences. Our birth flow visualization is composed of two separate stacked area graphs, where polygons appear in chronological order from left to right. If the top and bottom graph sections were vertically centered independently of one another, then these would comprise two ``river'' plots. Instead, the two series are squeezed together to share a $y$ coordinate at 0 on the baseline, and vertical centering is approximated on average by smooth baseline shifts as a function of the crude replacement ratio. 
+
+%Different kinds of visual analytic tasks are probably penalized by this choice of form. For example, using the metrics proposed by \citet{thudt2016assessing}, we hypothesize that our visualization would perform poorly or moderately well in terms of ``individual discrimination'' because most birth distributions vary within the same order of magnitude. For example, it is not easy to visually discriminate the larger of ``number of children born in 1900 to mothers born between 1865 and 1869'' versus ``number of children that mothers born in 1900 had between the years 1925 and 1929'', (even though these share an $x$ coordinate) and such comparisons may be even more difficult the greater the distance in $y$ and $x$ between comparisons. 
+
+%If we wish to compare the area of polygons, our reflected axes are advantageous: for example, it is not easy to visually compare the area of the top-level polygon ``children to mothers born 1870-1874'' versus the area of the bottom-level polygon ``children born 1910-1914''. The darkness and saturation of polygon fill colors transmit this information, but the two fill colors are too similar to be very helpful in this case, especially since they are non-adjacent. However, these two polygons are redundantly encoded in a more comparable way: the first is coded to the average from 1870-1874 of the total height on the bottom $y$ axis, and the second is encoded to the average total height from 1910-1914 on the top $y$ axis. This requires active decoding from the viewer, and such tasks are surely not quick, but likely result in precise judgments: Using height to decode, we see determine that the first polygon is larger than the second. For this kind of comparison, the polygons themselves are a distraction, as the same information is coded the height, but if there were no polygons then we would not be reminded that these two distributions are linked through time and through generations: the polygons overlap in $x$, and this is one of the prime data qualities that we wish to exemplify.
+
+%Again using the metrics of \citet{thudt2016assessing}, we presume to fare \emph{very} well in terms of ``stream comparison'', since the rendering of each birth distribution is matched to $x$, and also \emph{very} well in terms of aggregate discrimination of top versus bottom (because the meandering baseline gives this). Our visualization would presumably perform moderately well in terms of aggregate discrimination of top plus bottom, because river and stream plots also performed well on this metric, and our visualization resembles these in its manner of centering. In our case, the stream centering method brings the crude replacement ratio to the fore. On the other hand, certain visual tasks are augmented due to the nature of the data: visual discrimination of polygons is all but guaranteed. Chronological order is clear to the viewer. Even so, we accept high losses of value look-up ability, for the sake of an aesthetic welcome mat to those who wish to learn more about the fundamentals of demography in general and the Swedish birth flow in particular. Few small questions can be answered with this graphic, but some large ones may be inspired.

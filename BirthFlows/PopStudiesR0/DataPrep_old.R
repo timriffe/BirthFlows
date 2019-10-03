@@ -1,6 +1,7 @@
 # TODO: decide how to weight sd vs slope in lm()
 # planned solution: weight such that series is on average centered.
 
+setwd("/home/tim/workspace/BirthFlows/BirthFlows")
 # download birthsVV (period-cohort Lexis shape for birth counts) from HFD. 
 library(viridis)
 library(HMDHFDplus)
@@ -9,28 +10,43 @@ library(reshape2)
 library(data.table)
 library(DemoTools)
 library(minpack.lm)
-library(here)
-library(tidyverse)
 
-source(here("R","Functions.R"))
-source(here("R","Method13_deBeer1985and1989-swe.R"))
 set.seed(1)
 # -------------------------------------------------
 
 # Total births for single years 1736 to 1775
-oldtotals <- read.csv(here("Data","HistoricalTotals1736to1775.csv"))
+oldtotals <- read.csv("Data/HistoricalTotals1736to1775.csv")
 #plot(oldtotals$Year,oldtotals$Births)
+
+# --------------------------
+# deprecated test code
+# These are single-age ASFR, in 5-year groups. Graduated
+# by HFC, data originally in 5x5 Lexis cells. Years 1751+
+# ASFR  <- readHFCweb("SWE","ASFRst
+#save(ASFR,file = "Data/ASFR_1751to1775.Rdata")and_TOT")
+# ASFR  <- ASFR[ASFR$Year <= 1775,]
+#lt <- readHMDweb("SWE","fltper_1x1",username = us, password = pw)
+#lt <- lt[lt$Year <= 1755, ]
+#Expos <- readHMDweb("SWE","Exposures_1x1",username = us, password = pw)
+#Expos <- Expos[Expos$Year < 1775, ]
+#save(Expos,file="Data/Expos1751to1774.Rdata")
+#save(lt,file = "Data/lt_1751to1755.Rdata")
+#Pop <- readHMDweb("SWE","Population",username = us, password = pw)
+#devtools::load_all("/home/tim/git/IDButils/IDButils/IDButils")
+#Ex   <- local(get(load("Data/Expos1751.Rdata")))$Female
+#Pin  <- readIDBcurrent("SWE","pop",full.path = "/home/tim/git/BirthFlows/BirthFlows/Data/SWEpop.txt")
+#Pt   <- Pin[Pin$Year == 1751 & Pin$Sex == "f", ]$Population
 
 # --------------------------------------------------------
 # this object useful for years 1736-1775
 
-ASFR <- readRDS(here("Data","ASFR_1751to1775.rds"))
+ASFR <- readRDS("Data/ASFR_1751to1775.rds")
 
 # lifetables for retrojection
-lt   <- readRDS(here("Data","lt_1751to1755.rds"))
+lt   <- readRDS("Data/lt_1751to1755.rds")
 LT   <- acast(lt, Age~Year, value.var = "lx")
 
-# Read in year 1751 female census (July 1, proxy for exposure) HMD
+# Read in year 1751 female census (July 1, proxy for exposure)
 Pt   <- c(27127L, 49895L, 47264L, 89148L, 88017L, 83206L, 81877L, 75966L, 
 		64870L, 55368L, 50642L, 43647L, 43411L, 33508L, 39769L, 28201L, 
 		19507L, 9273L, 6352L, 2004L, 1039L)
@@ -45,12 +61,9 @@ AI   <- c(diff(A), 1)
 # adjust 1751 midyear population to use a jump-off for retrojection
 # 1) smooth over 5-year age groups
 smoothed5      <- c(Pt[1:3],
-		            agesmth(Pt, A, 
-		                    ageMin = 5, 
-		                    ageMax = 80,
-				                method = "United Nations", 
-					              young.tail = "Original", 
-					              old.tail = "Original")[-1])
+		            agesmth(Pt, A, ageMin = 5, ageMax = 80,
+				    method = "United Nations", 
+					young.tail = "Original", old.tail = "Original")[-1])
 	
 # 2) graduate to single ages
 smoothed1      <- sprague(smoothed5, Age = A, OAG = TRUE)
@@ -58,12 +71,12 @@ smoothed1      <- sprague(smoothed5, Age = A, OAG = TRUE)
 # 3) and get back original totals for ages 0-4. Plays no role in
 # retrojection, just a perfectionist detail.
 smoothed1      <- rescaleAgeGroups(
-		                Value1 = smoothed1, 
-		                AgeInt1 = rep(1,length(smoothed1)), 
-		                Value2 = smoothed5, 
-		                AgeInt2 = AI, 
-		                splitfun = splitUniform,
-					          recursive = TRUE)
+		            Value1 = smoothed1, 
+		            AgeInt1 = rep(1,length(smoothed1)), 
+		            Value2 = smoothed5, 
+		            AgeInt2 = AI, 
+		            splitfun = splitUniform,
+					recursive = TRUE)
 # ---------------------------------------------
 
 # parameters and container for retrojection
@@ -76,128 +89,118 @@ for (i in 1:15){
 	ExRetro[, 16-i] <- ratx(rowMeans(LT), -i)[n] * shift.vector(smoothed1, -i)[n]
 }
 
-# average standardized ASFR over the period. Very stable age pattern.
-masfr <- ASFR %>% 
-  select(Year, Age, ASFR) %>% 
-  filter(Age >= 15 & Age < 50) %>% 
-  group_by(Year) %>% 
-  mutate(sasfr = ASFR / sum(ASFR, na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  group_by(Age) %>% 
-  summarize(masfr = mean(sasfr)) %>% 
-  ungroup()
-# saveRDS(masfr, here("Data","ReduxTest","masfr_new.rds"))
-# Now reconstruct births
-B_1736to1750  <- 
-  ExRetro %>% 
-  melt(varnames = c("Age","Year"), value.name = "Exposure")  %>% 
-  filter(Age >= 15,
-         Age < 50) %>% 
-  left_join(masfr) %>%      # created above
-  left_join(oldtotals) %>%  # as read in31 
-  # the exercise:
-  mutate(B1.3 = Exposure * masfr,
-         B1.3Tot = sum(B1.3, na.rm = TRUE),
-         cof.3 = Births / B1.3Tot,
-         Births = B1.3 * cof.3) %>% 
-  select(Year, Age, Births) %>% 
-  arrange(Year, Age) %>% 
-  group_by(Year) %>% 
-  RR2VV() # split to PC shape (VV)
+# recast fertility in AP matrix form
+asfr          <- acast(ASFR, Age~Year,value.var = "ASFR")
+asfr          <- asfr[as.character(15:49), ] # NAs in open ages, cut off
 
-# saveRDS(B_1736to1750, here("Data","ReduxTest","B_1736to1750_new.rds"))
+# average standardized ASFR over the period. Very stable age pattern.
+masfr         <- colMeans(t(asfr) / colSums(asfr))
+
+# first-pass implied totals (note masfr implied tfr of 1 each year)
+B1.3          <- ExRetro[16:50,] * masfr
+
+# ratios to inflate birth counts = implied TFR per year. 
+cof.3         <- oldtotals$Births[oldtotals$Year < 1751] / colSums(B1.3)
+
+# rescale first pass of births by age, save this object to append to historical series.
+B_1736to1750  <- t(B1.3) * cof.3
+
+# turn into object conformable with downstream objects
+B_1736to1750  <- melt(B_1736to1750, varnames = c("Year","Age"), value.name = "Births")
+B_1736to1750  <- B_1736to1750[order(B_1736to1750$Year, B_1736to1750$Age), ]
+B_1736to1750  <- data.table(B_1736to1750)
+B_1736to1750  <- B_1736to1750[,RR2VV(.SD), by = list(Year)]
+
 # ----------------------------------------------#
 # Now adjustments for births in years 1751-1774 #
 # ----------------------------------------------#
+Expos        <- readRDS("Data/Expos1751to1774.rds")
 
-ASFR <-
-  ASFR %>% 
-  mutate(Y5 = Year - Year %% 5) %>% 
-  select(Y5, Age, ASFR)
+# get female exposure in AP matrix:
+ExAP         <- acast(Expos[Expos$Year < 1775, ], Age~Year, value.var = "Female")[16:50, ]
 
-B_1751to1774 <-
-  readRDS(here("Data","Expos1751to1774.rds")) %>% 
-  filter(Year < 1775,
-         Age >= 15,
-         Age <= 49) %>% 
-  mutate(Y5 = Year - Year %% 5) %>% 
-  left_join(ASFR, by = c("Y5","Age")) %>% 
-  select(Year, Age, Female, ASFR) %>% 
-  replace_na(list(ASFR = 0)) %>% 
-  left_join(oldtotals) %>% 
-  group_by(Year) %>% 
-  mutate(BAP = Female * ASFR,
-         BAPT = sum(BAP, na.rm = TRUE),
-         cof = Births / BAP,
-         Births = BAP * cof) %>% 
-  select(Year, Age, Births) %>% 
-  group_by(Year) %>% 
-  RR2VV() %>% 
-  ungroup() 
+# repeat asfr for each year in 5 year bins
+asfrAP       <- t(apply(asfr, 1, rep, times = c(rep(5, 4), 4)))
+
+# get preliminary implied births
+BAP          <- ExAP * asfrAP
+
+# gather vector of known totals
+Bobs         <- oldtotals$Births[oldtotals$Year >= 1751 & oldtotals$Year < 1775] 
+
+#B <- readHMDweb("SWE","Births",username = us, password = pw)
+#B$Total[B$Year >= 1751 & B$Year < 1775] - Bobs # 0000000
+cof          <- Bobs / colSums(BAP)
+B_1751to1774 <- t(t(BAP) * cof)
+
+# steps to make conformable with the larger data object.
+B_1751to1774 <- melt(B_1751to1774, varnames = c("Age","Year"), value.name = "Births")
+B_1751to1774 <- data.table(B_1751to1774)
+B_1751to1774 <- B_1751to1774[,RR2VV(.SD), by = list(Year)]
 
 # -----------------------------------------#
 # append and standardize further           #
 # -----------------------------------------#
-B_oldold <- 
-  B_1736to1750 %>% 
-  bind_rows(B_1751to1774) %>% 
-  mutate(Cohort = Year - Age,
-         Lexis = NULL) %>% 
-  rename(ARDY = Age, 
-         Total = Births)
+
+B_oldold        <- rbind(B_1736to1750, B_1751to1774)
+B_oldold$Cohort <- B_oldold$Year - B_oldold$Age
+setnames(B_oldold,c("Age","Births"), c("ARDY", "Total"))
+B_oldold        <- as.data.frame(B_oldold)
+B_oldold$Lexis  <- NULL
+
 # -------------------------------------------
 # these are the historical births from SK, 1775-1890
-# TR: verify this still runs, and make it work with following code.
+SWEh  <- read.csv("Data/SWEbirths.txt", na.strings = ".", stringsAsFactors = FALSE)
+SWEh  <- SWEh[SWEh$Year < 1891, ]
 
-SWEh  <-  suppressMessages(
-  read_csv(here("Data","SWEbirths.txt"), 
-           na = ".")) %>% 
-  filter(Year < 1891,
-         Age != "TOT",
-         is.na(Note2)) %>% 
-  group_by(Year) %>% 
-  b_unk() 
+# remove TOT, not useful
+SWEh  <- SWEh[SWEh$Age != "TOT", ]
+SWEh  <- data.table(SWEh)
 
-# graduate_chunk() won't work in pipeline, not sure why:
-SWEh <- as.data.table(SWEh)
-SWEh <- SWEh[, graduate_chunk(.SD), by = list(Year)]
+# step 1, redistribute births of unknown maternal age
+SWEh  <- SWEh[, b_unk(.SD), by = list(Year)]
 
-SWEh1 <- 
-  SWEh %>% 
-  group_by(Year) %>% 
-  RR2VV() %>% 
-  rename(ARDY = Age, 
-         Total = Births) %>% 
-  select(Year, ARDY, Total) %>% 
-  mutate(Cohort = Year - ARDY) 
+cat("Graduating historical data to single ages...\n")
+# step 2, graduate to single ages
+SWEh1 <- SWEh[, graduate_chunk(.SD), by = list(Year)]
 
+# step 3, shift to PC (VV)
+SWEh1 <- SWEh1[,RR2VV(.SD), by = list(Year)]
+
+# tidy the data object to be able to join it to the
+# already-in-shape HFD file for years 1891+
+SWEh1         <- data.frame(SWEh1)
+SWEh1$PopName <- NULL
+SWEh1$Year.1  <- NULL
+SWEh1$Lexis   <- NULL
+SWEh1$AgeInt  <- NULL
+cnames        <- colnames(SWEh1)
+SWEh1$Cohort  <- SWEh1$Year - SWEh1$Age
+colnames(SWEh1)[colnames(SWEh1) == "Age"]    <- "ARDY"
+colnames(SWEh1)[colnames(SWEh1) == "Births"] <- "Total"
 
 #---------------------------------------------------#
 # Append all historical data                        #
 #---------------------------------------------------#
 
-SWEh1 <- bind_rows(B_oldold, SWEh1)
+SWEh1 <- rbind(B_oldold, SWEh1)
 # SWEh1 is the entire pre-HFD series.
 #---------------------------------------------------#
 
 # This is from the full-HFD zip file:
-SWE     <- readHFD(here("Data","SWEbirthsVV.txt"))
+SWE     <- readHFD("Data/SWEbirthsVV.txt")
 SWE$OpenInterval <- NULL
 
 # ---------------------------------
 # sort columns too
-SWEh1   <- SWEh1 %>% 
-           select(Year, ARDY, Cohort, Total)
+SWEh1   <- SWEh1[,colnames(SWE)]
 
 # stack files
-SWE     <- bind_rows(SWEh1, SWE)
-SWE     <- as.data.frame(SWE)
-
-#head(SWE[is.na(SWE$Total),],20)
+SWE     <- rbind(SWEh1, SWE)
 
 # save intermediate data object. This one hasn't
 # received the perturbation yet
-saveRDS(SWE, file = here("Data","SWE_sm.rds"))
+saveRDS(SWE, file = "Data/SWE_sm_old.rds")
 
 # adjust mother cohort size based on first diffs in daughter cohort size
 cat("Adjusting graduated data...\n")
@@ -216,12 +219,10 @@ SWE <- SWE[order(SWE$Year,SWE$Cohort),]
 # read in data objects as required.
 #data <- read.table("Data/forecast/asfrRR.txt",skip=2,as.is=T, header=TRUE)
 #data <- data[data$Code == "SWE", ]
-#data <- write.table(data,file="Data/forecast/SWEasfrRR.txt",row.names=FALSE#)
-asfr          <- 
-  read.table(
-    here("Data","forecast","SWEasfrRR.txt"), 
-    stringsAsFactors = FALSE, 
-    header = TRUE)
+#data <- write.table(data,file="Data/forecast/SWEasfrRR.txt",row.names=FALSE)
+asfr          <- read.table("Data/forecast/SWEasfrRR.txt", 
+		            stringsAsFactors = FALSE, 
+					header = TRUE)
 			
 # recode age from HFR standard
 i12           <- asfr$Age == "12-"
@@ -249,12 +250,10 @@ swe_obs_pred_CASFR_base_period_50_a <- asfr_period_to_cohort(as.matrix(swe_obs_p
 # read in SCB popualtion projection #
 # --------------------------------- #
 
-PProj           <- 
-  read.table(
-    here(,"Data","forecast","scb-females-projected-swe.csv"),
-	  skip = 0,
-	  as.is = TRUE, 
-	  header = TRUE)
+PProj           <- read.table("Data/forecast/scb-females-projected-swe.csv",
+		             skip = 0,
+					 as.is = TRUE, 
+					 header = TRUE)
 PProj           <- as.vector(PProj)[, 4:106]
 rownames(PProj) <- 0:105
 colnames(PProj) <- 2018:2120
@@ -313,7 +312,7 @@ Bproj         <- Bproj[,c("Year","Cohort","Total")]
 # combine data objects
 SWE           <- rbind(SWE, Bproj)
 
-# throw away forecast beyond 2016 cohort
+# throw away forecast beyonf 2016 cohort
 SWE           <- SWE[SWE$Cohort <= 2016, ]
 SWE$ARDY      <- SWE$Year - SWE$Cohort
 SWE           <- SWE[SWE$ARDY > 10 & SWE$ARDY < 60, ]
@@ -325,7 +324,7 @@ PC         <- acast(SWE, Year~Cohort, value.var = "Total", fill = 0)
 # save out in long format:
 SWE        <- melt(PC,varnames=c("Year","Cohort"),value.name="Total")
 SWE$ARDY <- SWE$Year - SWE$Cohort 
-saveRDS(SWE, file = here("Data","SWE_final.Rdata"))
+saveRDS(SWE, file = "Data/SWE_final_old.rds")
 
 # -------------------------------------------- #
 
@@ -380,7 +379,7 @@ yrsc    <- as.character(yrs)
 # ratio of offspring to original cohort size
 # defines meander
 meander           <- BC[yrsc] / BT[yrsc] 
-which(abs(meander)>2)
+
 # pad left w average crude replacement of first 10 cohorts
 start             <- mean(meander[1:10])
 
@@ -445,8 +444,7 @@ for (i in 1:5){
 }
 L1 <- Lineage
 # another one to try
-Lineage                      <- 
-  read.csv(here("Data","Swedishfamilybranch2.csv"))
+Lineage                      <- read.csv("Data/Swedishfamilybranch2.csv")
 Lineage$year.daughters.birth <- c(Lineage$date.of.birth[-1],NA)
 Lineage$year.mothers.birth   <- c(1800,Lineage$date.of.birth[-6])
 Lineage$age.of.mother        <- c(29,Lineage$age.at.daughters.birth[-6])
