@@ -206,7 +206,7 @@ SWE <- melt(PCi, varnames = c("Year","Cohort"), value.name = "Total")
 SWE <- SWE[order(SWE$Year,SWE$Cohort),]
 
 # -------------------------------------------- #
-# insert forecast by CB                        #
+# insert forecast by CBE                      #
 # -------------------------------------------- #
 
 # read in data objects as required.
@@ -324,7 +324,12 @@ SWE$ARDY <- SWE$Year - SWE$Cohort
 saveRDS(SWE, file = here("BirthFlows","Data","SWE_final.Rdata"))
 
 # -------------------------------------------- #
-
+# TR: 24-2-2020, no good, got negatives, boo!
+# need to go back to the old data prep?? Where does the
+# problem arise?
+PCtest <- PC < 0
+image(Yrs, Cohs,PCtest, ylim=c(1800,1850),xlim=c(1840,1890))
+# -------------------------------------------- #
 Bt     <- rowSums(PC) # same as previous
 Bc     <- colSums(PC)
 

@@ -2,8 +2,8 @@
 # Author: tim
 ###############################################################################
 
-setwd("/home/tim/git/BirthFlows/BirthFlows")
-#source("R/DataPrep.R")
+setwd("/home/tim/workspace/BirthFlows/BirthFlows")
+#source("R/DataPrep.R") 
 
 draw_block_poly <- function(x,y,...){
 	x  <- c(x,max(x)+1)
