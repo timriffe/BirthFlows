@@ -12,22 +12,32 @@ library(minpack.lm)
 library(here)
 library(tidyverse)
 
-source(here("R","Functions.R"))
-source(here("R","Method13_deBeer1985and1989-swe.R"))
+source(here("BirthFlows","PopStudiesR1","R","Functions.R"))
+source(here("BirthFlows","PopStudiesR1","R","Method13_deBeer1985and1989-swe.R"))
 set.seed(1)
 # -------------------------------------------------
 
 # Total births for single years 1736 to 1775
-oldtotals <- read.csv(here("Data","HistoricalTotals1736to1775.csv"))
-#plot(oldtotals$Year,oldtotals$Births)
+oldtotals <- read.csv(here("BirthFlows","Data","HistoricalTotals1736to1775.csv"))
+
+# oldtotals %>% 
+#   ggplot(aes(x=Year,y=Births)) +
+#   geom_line() +
+#   labs(title = "Total births by year, used as constraint",
+#        subtitle ="The '1773 in Sweden' wikipedia entry includes:
+#        'The population death rate doubles, due to famine and
+#        dysentery caused by crop failures in the previous years.'\nThe '1743 in Sweden' entry lists internal conflicts")
 
 # --------------------------------------------------------
 # this object useful for years 1736-1775
 
-ASFR <- readRDS(here("Data","ASFR_1751to1775.rds"))
+ASFR <- readRDS(here("BirthFlows","Data","ASFR_1751to1775.rds"))
+# ASFR %>% 
+#   ggplot(aes(x=Age,y=ASFR, color = Year, group = Year)) +
+#   geom_line()
 
 # lifetables for retrojection
-lt   <- readRDS(here("Data","lt_1751to1755.rds"))
+lt   <- readRDS(here("BirthFlows","Data","lt_1751to1755.rds"))
 LT   <- acast(lt, Age~Year, value.var = "lx")
 
 # Read in year 1751 female census (July 1, proxy for exposure) HMD
@@ -45,7 +55,7 @@ AI   <- c(diff(A), 1)
 # adjust 1751 midyear population to use a jump-off for retrojection
 # 1) smooth over 5-year age groups
 smoothed5      <- c(Pt[1:3],
-		            agesmth(Pt, A, 
+		            smooth_age_5(Pt, A, 
 		                    ageMin = 5, 
 		                    ageMax = 80,
 				                method = "United Nations", 
@@ -53,7 +63,7 @@ smoothed5      <- c(Pt[1:3],
 					              old.tail = "Original")[-1])
 	
 # 2) graduate to single ages
-smoothed1      <- sprague(smoothed5, Age = A, OAG = TRUE)
+smoothed1      <- graduate(smoothed5, Age = A, OAG = TRUE, method = "Sprague")
 
 # 3) and get back original totals for ages 0-4. Plays no role in
 # retrojection, just a perfectionist detail.
@@ -62,8 +72,9 @@ smoothed1      <- rescaleAgeGroups(
 		                AgeInt1 = rep(1,length(smoothed1)), 
 		                Value2 = smoothed5, 
 		                AgeInt2 = AI, 
-		                splitfun = splitUniform,
+		                splitfun = graduate_uniform,
 					          recursive = TRUE)
+
 # ---------------------------------------------
 
 # parameters and container for retrojection
@@ -79,22 +90,30 @@ for (i in 1:15){
 # average standardized ASFR over the period. Very stable age pattern.
 masfr <- ASFR %>% 
   select(Year, Age, ASFR) %>% 
-  filter(Age >= 15 & Age < 50) %>% 
+  dplyr::filter(Age >= 15 & Age < 50) %>% 
   group_by(Year) %>% 
   mutate(sasfr = ASFR / sum(ASFR, na.rm = TRUE)) %>% 
   ungroup() %>% 
   group_by(Age) %>% 
-  summarize(masfr = mean(sasfr)) %>% 
-  ungroup()
-# saveRDS(masfr, here("Data","ReduxTest","masfr_new.rds"))
+  summarize(masfr = mean(sasfr), 
+            .groups = 
+              "drop") 
+#
+# ggplot(masfr,aes(x = Age, y = masfr)) + 
+#   geom_line() + 
+#   labs(title = "standard age distribution of fertility rates",
+#        subtitle = "this is rescales to estimated TFR\nfor years 1736-1750")
+
 # Now reconstruct births
 B_1736to1750  <- 
   ExRetro %>% 
-  melt(varnames = c("Age","Year"), value.name = "Exposure")  %>% 
-  filter(Age >= 15,
-         Age < 50) %>% 
-  left_join(masfr) %>%      # created above
-  left_join(oldtotals) %>%  # as read in31 
+  as_tibble() %>% 
+  tibble::rownames_to_column("Age") %>% 
+  mutate(Age = as.integer(Age)) %>% 
+  pivot_longer(2:ncol(.), names_to = "Year", values_to = "Exposure") %>% 
+  mutate(Year = as.integer(Year)) %>% 
+  inner_join(masfr, by = "Age") %>%      # created above
+  left_join(oldtotals, by = "Year") %>%  # as read in31 
   # the exercise:
   mutate(B1.3 = Exposure * masfr,
          B1.3Tot = sum(B1.3, na.rm = TRUE),
@@ -104,19 +123,22 @@ B_1736to1750  <-
   arrange(Year, Age) %>% 
   group_by(Year) %>% 
   RR2VV() # split to PC shape (VV)
+# 
+# B_1736to1750 %>% 
+#   ggplot(aes(x = Age, y = Births, group = Year)) + 
+#   geom_line()
 
-# saveRDS(B_1736to1750, here("Data","ReduxTest","B_1736to1750_new.rds"))
 # ----------------------------------------------#
 # Now adjustments for births in years 1751-1774 #
 # ----------------------------------------------#
 
 ASFR <-
-  ASFR %>% 
-  mutate(Y5 = Year - Year %% 5) %>% 
-  select(Y5, Age, ASFR)
+ ASFR %>% 
+ mutate(Y5 = Year - Year %% 5) %>% 
+ select(Y5, Age, ASFR)
 
 B_1751to1774 <-
-  readRDS(here("Data","Expos1751to1774.rds")) %>% 
+  readRDS(here("BirthFlows","Data","Expos1751to1774.rds")) %>% 
   filter(Year < 1775,
          Age >= 15,
          Age <= 49) %>% 
@@ -124,11 +146,11 @@ B_1751to1774 <-
   left_join(ASFR, by = c("Y5","Age")) %>% 
   select(Year, Age, Female, ASFR) %>% 
   replace_na(list(ASFR = 0)) %>% 
-  left_join(oldtotals) %>% 
+  left_join(oldtotals, by = "Year") %>% 
   group_by(Year) %>% 
   mutate(BAP = Female * ASFR,
          BAPT = sum(BAP, na.rm = TRUE),
-         cof = Births / BAP,
+         cof = Births / BAPT,
          Births = BAP * cof) %>% 
   select(Year, Age, Births) %>% 
   group_by(Year) %>% 
@@ -149,23 +171,18 @@ B_oldold <-
 # these are the historical births from SK, 1775-1890
 # TR: verify this still runs, and make it work with following code.
 
-SWEh  <-  suppressMessages(
-  read_csv(here("Data","SWEbirths.txt"), 
+SWEh1  <-  
+  suppressMessages(
+  read_csv(here("BirthFlows","Data","SWEbirths.txt"), 
            na = ".")) %>% 
-  filter(Year < 1891,
+  dplyr::filter(Year < 1891,
          Age != "TOT",
          is.na(Note2)) %>% 
   group_by(Year) %>% 
-  b_unk() 
-
-# graduate_chunk() won't work in pipeline, not sure why:
-SWEh <- as.data.table(SWEh)
-SWEh <- SWEh[, graduate_chunk(.SD), by = list(Year)]
-
-SWEh1 <- 
-  SWEh %>% 
-  group_by(Year) %>% 
+  b_unk() %>% 
+  do(graduate_chunk(chunk = .data)) %>% 
   RR2VV() %>% 
+  ungroup() %>% 
   rename(ARDY = Age, 
          Total = Births) %>% 
   select(Year, ARDY, Total) %>% 
@@ -181,7 +198,7 @@ SWEh1 <- bind_rows(B_oldold, SWEh1)
 #---------------------------------------------------#
 
 # This is from the full-HFD zip file:
-SWE     <- readHFD(here("Data","SWEbirthsVV.txt"))
+SWE     <- readHFD(here("BirthFlows","Data","SWEbirthsVV.txt"))
 SWE$OpenInterval <- NULL
 
 # ---------------------------------
@@ -197,12 +214,16 @@ SWE     <- as.data.frame(SWE)
 
 # save intermediate data object. This one hasn't
 # received the perturbation yet
-saveRDS(SWE, file = here("Data","SWE_sm.rds"))
+saveRDS(SWE, file = here("BirthFlows","Data","SWE_sm.rds"))
+
+# TODO 
+# troubleshoot pertspan and friends
 
 # adjust mother cohort size based on first diffs in daughter cohort size
 cat("Adjusting graduated data...\n")
 (span  <- optimize(minspan, interval = c(.01,.8), SWE = SWE, maxit = 500)) # 0.09068448
                                                                            # 0.5838217
+                                                                           # 0.3101669
 PCi    <- pertspan(SWE, span = span$minimum, maxit = 5000)
 
 # return to long format for purposes of joining:

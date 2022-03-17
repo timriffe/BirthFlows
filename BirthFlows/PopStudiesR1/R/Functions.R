@@ -122,9 +122,17 @@ graduate_chunk <- function(chunk){
 	
 	x       <- as.integer(chunk$Age)
 	y       <- chunk$Births
+	
+	# add small amount to 0s
+	y0      <- y == 0
+	scaler  <- rep(y,times=diff(c(x,max(x)+5)))
+	out0    <- scaler == 0
+	y[y0]   <- .1
+	
 	if (x[1] == 19){
 		x[1] <- 15
 	}
+	
 	# how far should we distribute the open age group. This
 	# will turn out to be 5 ages every time (50-54)
 	nlast   <- 55 - max(x)
@@ -136,6 +144,7 @@ graduate_chunk <- function(chunk){
 	# but we take care of this later.
 	
 	bout    <- ungroup::pclm(x = x, y = y, nlast = nlast)$fitted
+	bout[out0] <- 0
 	Age     <- sapply(names(bout),bin2age)
 	# then shift ages back up
 	
