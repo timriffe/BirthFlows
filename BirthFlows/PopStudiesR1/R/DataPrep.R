@@ -12,13 +12,13 @@ library(minpack.lm)
 library(here)
 library(tidyverse)
 
-source(here("BirthFlows","PopStudiesR1","R","Functions.R"))
-source(here("BirthFlows","PopStudiesR1","R","Method13_deBeer1985and1989-swe.R"))
+source(here("R","Functions.R"))
+source(here("R","Method13_deBeer1985and1989-swe.R"))
 set.seed(1)
 # -------------------------------------------------
 
 # Total births for single years 1736 to 1775
-oldtotals <- read.csv(here("BirthFlows","Data","HistoricalTotals1736to1775.csv"))
+oldtotals <- read.csv(here("Data","HistoricalTotals1736to1775.csv"))
 
 # oldtotals %>% 
 #   ggplot(aes(x=Year,y=Births)) +
@@ -31,13 +31,13 @@ oldtotals <- read.csv(here("BirthFlows","Data","HistoricalTotals1736to1775.csv")
 # --------------------------------------------------------
 # this object useful for years 1736-1775
 
-ASFR <- readRDS(here("BirthFlows","Data","ASFR_1751to1775.rds"))
+ASFR <- readRDS(here("Data","ASFR_1751to1775.rds"))
 # ASFR %>% 
 #   ggplot(aes(x=Age,y=ASFR, color = Year, group = Year)) +
 #   geom_line()
 
 # lifetables for retrojection
-lt   <- readRDS(here("BirthFlows","Data","lt_1751to1755.rds"))
+lt   <- readRDS(here("Data","lt_1751to1755.rds"))
 LT   <- acast(lt, Age~Year, value.var = "lx")
 
 # Read in year 1751 female census (July 1, proxy for exposure) HMD
@@ -114,11 +114,13 @@ B_1736to1750  <-
   mutate(Year = as.integer(Year)) %>% 
   inner_join(masfr, by = "Age") %>%      # created above
   left_join(oldtotals, by = "Year") %>%  # as read in31 
+  group_by(Year) %>% 
   # the exercise:
   mutate(B1.3 = Exposure * masfr,
          B1.3Tot = sum(B1.3, na.rm = TRUE),
          cof.3 = Births / B1.3Tot,
          Births = B1.3 * cof.3) %>% 
+  ungroup() %>% 
   select(Year, Age, Births) %>% 
   arrange(Year, Age) %>% 
   group_by(Year) %>% 
@@ -138,7 +140,7 @@ ASFR <-
  select(Y5, Age, ASFR)
 
 B_1751to1774 <-
-  readRDS(here("BirthFlows","Data","Expos1751to1774.rds")) %>% 
+  readRDS(here("Data","Expos1751to1774.rds")) %>% 
   filter(Year < 1775,
          Age >= 15,
          Age <= 49) %>% 
@@ -173,7 +175,7 @@ B_oldold <-
 
 SWEh1  <-  
   suppressMessages(
-  read_csv(here("BirthFlows","Data","SWEbirths.txt"), 
+  read_csv(here("Data","SWEbirths.txt"), 
            na = ".")) %>% 
   dplyr::filter(Year < 1891,
          Age != "TOT",
@@ -198,8 +200,8 @@ SWEh1 <- bind_rows(B_oldold, SWEh1)
 #---------------------------------------------------#
 
 # This is from the full-HFD zip file:
-SWE     <- readHFD(here("BirthFlows","Data","SWEbirthsVV.txt"))
-SWE$OpenInterval <- NULL
+SWE_HFD     <- readHFD(here("Data","SWEbirthsVV.txt"))
+SWE_HFD$OpenInterval <- NULL
 
 # ---------------------------------
 # sort columns too
@@ -207,28 +209,40 @@ SWEh1   <- SWEh1 %>%
            select(Year, ARDY, Cohort, Total)
 
 # stack files
-SWE     <- bind_rows(SWEh1, SWE)
+SWE     <- bind_rows(SWEh1, SWE_HFD)
 SWE     <- as.data.frame(SWE)
+# PCmask[yrs >= maxYr, ]   <- 0
+# PCmask[yrs < maxYr, ]    <- 1
+# PCmask[, cohs < maxCoh]  <- 0
+# PCmask                   <- !PCmask
 
+SWE <-
+  SWE %>% 
+  mutate(mask = Year < 1891 & Cohort >=  leftYear(SWE))
+        
 #head(SWE[is.na(SWE$Total),],20)
 
 # save intermediate data object. This one hasn't
 # received the perturbation yet
-saveRDS(SWE, file = here("BirthFlows","Data","SWE_sm.rds"))
+saveRDS(SWE, file = here("Data","SWE_sm.rds"))
 
+
+# SWE <- readRDS(here::here("Data","SWE_sm.rds"))
 # TODO 
-# troubleshoot pertspan and friends
+# double check date-range selection and time reference matching
 
 # adjust mother cohort size based on first diffs in daughter cohort size
 cat("Adjusting graduated data...\n")
 (span  <- optimize(minspan, interval = c(.01,.8), SWE = SWE, maxit = 500)) # 0.09068448
                                                                            # 0.5838217
-                                                                           # 0.3101669
-PCi    <- pertspan(SWE, span = span$minimum, maxit = 5000)
+                                                                           # 0.6248677
+
+SWE    <- pertspan(SWE, span = span$minimum, maxit = 5000) %>% 
+  arrange(Year, Cohort) %>% 
+  select(Year, Age = ARDY, Cohort, Births = Bhat)
 
 # return to long format for purposes of joining:
-SWE <- melt(PCi, varnames = c("Year","Cohort"), value.name = "Total")
-SWE <- SWE[order(SWE$Year,SWE$Cohort),]
+
 
 # -------------------------------------------- #
 # insert forecast by CB                        #
@@ -238,110 +252,74 @@ SWE <- SWE[order(SWE$Year,SWE$Cohort),]
 #data <- read.table("Data/forecast/asfrRR.txt",skip=2,as.is=T, header=TRUE)
 #data <- data[data$Code == "SWE", ]
 #data <- write.table(data,file="Data/forecast/SWEasfrRR.txt",row.names=FALSE#)
-asfr          <- 
+ASFRlong          <- 
   read.table(
     here("Data","forecast","SWEasfrRR.txt"), 
     stringsAsFactors = FALSE, 
-    header = TRUE)
-			
-# recode age from HFR standard
-i12           <- asfr$Age == "12-"
-i55           <- asfr$Age == "55+"
-asfr$Age[i12] <- "12"
-asfr$Age[i55] <- "55"
-asfr$Age      <- as.integer(asfr$Age)
+    header = TRUE,
+    skip=2) %>% 
+  # recode Age from HFD standard
+  mutate(Age = case_when(Age == "12-" ~ "12",
+                         Age == "55+" ~ "55",
+                         TRUE ~ Age),
+         Age = as.integer(Age)) 
 
-# reshape to AP matrix
-ASFR          <- acast(asfr, Age~Year, value.var = "ASFR")
+p16 <- make_asfr_proj(ASFRlong, jump_off_year = 2016) %>% 
+  rename(`2016` = ASFR)
+p17 <- make_asfr_proj(ASFRlong, jump_off_year = 2017)%>% 
+  rename(`2017` = ASFR)
+p18 <- make_asfr_proj(ASFRlong, jump_off_year = 2018)%>% 
+  rename(`2018` = ASFR)
+p19 <- make_asfr_proj(ASFRlong, jump_off_year = 2019)%>% 
+  rename(`2019` = ASFR)
+p20 <- make_asfr_proj(ASFRlong, jump_off_year = 2020)%>% 
+  rename(`2020` = ASFR)
 
-swe_base_period_50_a <- Method13_deBeer1985and1989.R(ASFR,
-		joy = 2016, 
-		obs = 50,
-		age1 = 12, 
-		age2 = 55,
-		parameter = c(1,0,0,1,0,0),
-		len = 100,
-		pop="SWE")
-
-swe_obs_pred_ASFR_base_period_50_a  <- as.matrix(cbind(swe_base_period_50_a$obsASFR[,as.character(1891:2016)],swe_base_period_50_a$predASFR[,as.character(2017:2116)]))
-swe_obs_pred_CASFR_base_period_50_a <- asfr_period_to_cohort(as.matrix(swe_obs_pred_ASFR_base_period_50_a))
+left_join(p16,p17,by =c("Age","Year")) %>% 
+  left_join(p18,by =c("Age","Year")) %>% 
+  left_join(p19,by =c("Age","Year")) %>% 
+  left_join(p20,by =c("Age","Year")) %>% 
+  dplyr::filter(Year > 2016) %>% 
+  pivot_longer(`2016`:`2020`, names_to = "variant", values_to = "ASFR") %>% 
+  group_by(Year, variant) %>% 
+  summarize(TFR = sum(ASFR)) %>% 
+  ggplot(aes(x = Year, y = TFR, color = variant)) +
+  geom_line()
 
 # --------------------------------- #
-# read in SCB popualtion projection #
+# read in SCB population projection #
 # --------------------------------- #
 
 PProj           <- 
-  read.table(
-    here(,"Data","forecast","scb-females-projected-swe.csv"),
-	  skip = 0,
-	  as.is = TRUE, 
-	  header = TRUE)
-PProj           <- as.vector(PProj)[, 4:106]
-rownames(PProj) <- 0:105
-colnames(PProj) <- 2018:2120
+  readr::read_csv(here::here("Data","forecast","scb-females-projected-swe.csv"),
+                  show_col_types = FALSE) %>% 
+  pivot_longer(`2021`:`2120`, names_to = "Year", values_to = "Pop") %>% 
+  select(Year, Age = age, Pop) %>% 
+  mutate(Age = substr(Age,1,2) %>% as.integer(),
+         Year = as.integer(Year))
 
-# get 2017 "observed" population from SCB:
-#P2017 <- read.table("Data/forecast/scb-females-observed-swe.csv",  
-#		skip = 0,
-#		as.is = TRUE, 
-#		header = TRUE)
-#head(data)
-#data$age
-#
-#P2017           <- as.vector(P2017)[,3:(length(1860:2017)+2)]
-#rownames(P2017) <- 0:100
-#colnames(P2017) <- 1860:2017
-#P2017           <- P2017[, ncol(P2017)]
-#
-#dput(P2017)
-P2017 <- c(56715L, 59444L, 58123L, 59233L, 58684L, 59279L, 58916L, 61077L, 
-		59410L, 58612L, 57936L, 57688L, 55943L, 55436L, 54893L, 53557L, 
-		51353L, 51508L, 51083L, 51275L, 52151L, 54920L, 58872L, 64263L, 
-		67178L, 70320L, 72030L, 73732L, 70759L, 69794L, 67193L, 66138L, 
-		64686L, 62531L, 61410L, 61495L, 61178L, 63145L, 61249L, 59582L, 
-		60163L, 60791L, 63208L, 65995L, 64867L, 65858L, 65698L, 64129L, 
-		62766L, 65367L, 67947L, 68266L, 68353L, 68215L, 62984L, 60368L, 
-		58228L, 57689L, 57304L, 57120L, 57803L, 57102L, 56556L, 55026L, 
-		55930L, 55289L, 54520L, 56251L, 58049L, 59699L, 59444L, 59301L, 
-		57810L, 55893L, 51746L, 46580L, 40689L, 38033L, 37459L, 35393L, 
-		32489L, 30728L, 27919L, 26285L, 24448L, 23638L, 22099L, 20605L, 
-		17953L, 16422L, 14240L, 12151L, 10369L, 8452L, 6580L, 4947L, 
-		4073L, 3039L, 1688L, 1043L, 1732L)
-names(P2017) <- 0:100
-
-# -----------------------------------
-# stick denoms together
-asel                <- as.character(12:55)
-DenomProj           <- cbind(P2017[asel], as.matrix(PProj[asel, ]))
-colnames(DenomProj) <- 2017:2120
-# derive birth counts
-
-yrsel         <- sort(intersect(
-				    colnames(DenomProj), 
-				    colnames(swe_obs_pred_ASFR_base_period_50_a)))
-Bproj         <- swe_obs_pred_ASFR_base_period_50_a[, yrsel] * DenomProj[, yrsel]
-
-# reshape to long format
-Bproj         <- melt(Bproj, varnames = c("Age", "Year"), value.name = "Births")
-
-# shift AP into VV
-Bproj         <- data.table(Bproj)
-Bproj         <- Bproj[,RR2VV(.SD), by = list(Year)]
-Bproj$Cohort  <- Bproj$Year - Bproj$Age
-colnames(Bproj)[colnames(Bproj) == "Births"] <- "Total"
-Bproj         <- Bproj[,c("Year","Cohort","Total")]
-
-# combine data objects
-SWE           <- rbind(SWE, Bproj)
-
-# throw away forecast beyond 2016 cohort
-SWE           <- SWE[SWE$Cohort <= 2016, ]
-SWE$ARDY      <- SWE$Year - SWE$Cohort
-SWE           <- SWE[SWE$ARDY > 10 & SWE$ARDY < 60, ]
+SWE_proj <-
+  left_join(PProj,
+            p18, 
+            by = c("Year","Age")) %>% 
+  arrange(Year, Age) %>% 
+  rename(ASFR = `2018`) %>% 
+  mutate(Births = ASFR * Pop) %>% 
+  group_by(Year) %>% 
+  RR2VV() %>% 
+  mutate(Cohort = Year - Age)%>% 
+  select(Year, Age, Cohort, Births) %>% 
+  dplyr::filter(Cohort <= 2020)
 # end forecast chunk
 # -------------------------------------------- #
 
-PC         <- acast(SWE, Year~Cohort, value.var = "Total", fill = 0)
+
+# combine data objects
+SWE           <- bind_rows(SWE, 
+                           SWE_proj)
+
+
+PC         <- acast(SWE, Year~Cohort, value.var = "Births", fill = 0)
 
 # save out in long format:
 SWE        <- melt(PC,varnames=c("Year","Cohort"),value.name="Total")
@@ -378,7 +356,7 @@ P5C <- apply(PC,2,function(x, Yrs){
 	groupN(x, Yrs, 5)
 }, Yrs = Yrs)
 
-#dimnames(PC5)
+
 
 
 PC5cs <- apply(PC5,2,cumsum)
